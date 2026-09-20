@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![n8n 2.38](https://img.shields.io/badge/n8n-2.38-ff6d5a.svg)](#compatibility)
 
-![A five-node n8n workflow (Webhook, IF, Slack, Set, Merge) rendered by workflow-render as a PNG](docs/images/my-workflow.png)
+![A five-node n8n workflow (Webhook, IF, Slack, Set, Merge) rendered by workflow-render as a PNG](https://raw.githubusercontent.com/LudwigGerdes/workflow-render/main/docs/images/my-workflow.png)
 
 <details><summary>Text transcript of the image and the command that produced it</summary>
 
@@ -35,7 +35,7 @@ login and no network, as a file you can commit or a component you can embed.
 
 ## Quickstart
 
-From npm (Node ≥ 20), from the 0.1.0 release on — one package, `workflow-render`,
+From npm (Node ≥ 20) — one package, `workflow-render`,
 with the CLI, the n8n icon and description data, the fonts and the browser
 element all inside it:
 
@@ -183,7 +183,7 @@ asserts it.
 local origin, so CORS never comes up. Give it an execution instead of a
 workflow and the canvas shows the run:
 
-![workflow-render view on a SplitInBatches loop execution: status pill, check marks, item counts and a loop-back edge](docs/images/browser-view-execution.png)
+![workflow-render view on a SplitInBatches loop execution: status pill, check marks, item counts and a loop-back edge](https://raw.githubusercontent.com/LudwigGerdes/workflow-render/main/docs/images/browser-view-execution.png)
 
 <details><summary>Text transcript</summary>
 
@@ -221,8 +221,8 @@ ran. Binary data is named, never fetched.
 ```
 
 `workflow-render.js` ships in the npm package at the stable path
-`dist/element/workflow-render.js` (177 KB raw / 52 KB gzip), so from the 0.1.0
-release a CDN serves it with nothing to build:
+`dist/element/workflow-render.js` (177 KB raw / 52 KB gzip), so a CDN
+serves it with nothing to build:
 
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/npm/workflow-render/dist/element/workflow-render.js"></script>
@@ -312,7 +312,7 @@ the normal geometry, subtitles that need a description go blank, and the
 inspector shows parameters as stored with a “no description available” notice.
 The element does the same when a sidecar 404s.
 
-![The surface fixture rendered without icons.json: every node is a grey initials tile, layout and edges unchanged](docs/images/fallback-no-icons.png)
+![The surface fixture rendered without icons.json: every node is a grey initials tile, layout and edges unchanged](https://raw.githubusercontent.com/LudwigGerdes/workflow-render/main/docs/images/fallback-no-icons.png)
 
 <details><summary>Text transcript</summary>
 

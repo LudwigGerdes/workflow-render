@@ -1,0 +1,49 @@
+{
+  "n8nVersion": "2.38.1",
+  "extractedAt": "2026-09-13T09:43:50.291Z",
+  "sources": {
+    "glyphs": "glyphs.json (Lucide, ISC)",
+    "node-icons": "n8n-io/n8n@n8n@2.38.1 (packages/frontend/@n8n/design-system/src/components/N8nIcon/nodes)",
+    "n8n-nodes-base": "n8n-nodes-base@2.38.1",
+    "@n8n/n8n-nodes-langchain": "@n8n/n8n-nodes-langchain@2.38.1"
+  },
+  "counts": {
+    "icons": 564,
+    "svgIcons": 461,
+    "glyphIcons": 33,
+    "imageIcons": 64,
+    "monogramIcons": 6,
+    "descriptions": 564,
+    "subtitles": 337
+  },
+  "attribution": {
+    "glyphs": "Lucide (ISC) — https://lucide.dev. Bodies from the Iconify lucide set; the fa:* -> lucide mapping was measured from n8n 2.10.0, not copied from it."
+  },
+  "iconColors": [
+    "black",
+    "green",
+    "orange-red"
+  ],
+  "unresolvedGlyphs": [],
+  "pngIconsPending": [
+    "n8n-nodes-base.acuitySchedulingTrigger",
+    "n8n-nodes-base.ciscoWebex",
+    "n8n-nodes-base.ciscoWebexTrigger",
+    "n8n-nodes-base.filemaker"
+  ],
+  "oversizedRasters": [
+    "n8n-nodes-base.acuitySchedulingTrigger (132 KB)",
+    "n8n-nodes-base.ciscoWebex (216 KB)",
+    "n8n-nodes-base.ciscoWebexTrigger (216 KB)",
+    "n8n-nodes-base.filemaker (62 KB)"
+  ],
+  "monogramFallbacks": [
+    "@n8n/n8n-nodes-langchain.mcpRegistryClientTool",
+    "@n8n/n8n-nodes-langchain.toolExecutor",
+    "n8n-nodes-base.acuitySchedulingTrigger",
+    "n8n-nodes-base.ciscoWebex",
+    "n8n-nodes-base.ciscoWebexTrigger",
+    "n8n-nodes-base.filemaker"
+  ],
+  "nodeIconsAvailable": 80
+}

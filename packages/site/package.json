@@ -1,0 +1,22 @@
+{
+  "name": "workflow-render-site",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "prepare-assets": "node scripts/copy-assets.mjs",
+    "build": "pnpm --filter workflow-render-element build && node scripts/copy-assets.mjs && vite build",
+    "dev": "node scripts/copy-assets.mjs && vite",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "workflow-render-element": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "happy-dom": "^15.0.0"
+  }
+}

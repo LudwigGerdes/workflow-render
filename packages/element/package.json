@@ -1,0 +1,38 @@
+{
+  "name": "workflow-render-element",
+  "version": "0.1.0",
+  "private": true,
+  "description": "<workflow-render>: a read-only web component that renders n8n workflow and execution JSON as an n8n-style canvas, offline.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LudwigGerdes/workflow-render.git",
+    "directory": "packages/element"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "main": "./dist/workflow-render.js",
+  "types": "./dist/workflow-render.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/workflow-render.d.ts",
+      "default": "./dist/workflow-render.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm --filter workflow-render-core build && vite build && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "workflow-render-assets": "workspace:*",
+    "workflow-render-core": "workspace:*",
+    "lit": "^3.2.0"
+  },
+  "devDependencies": {
+    "happy-dom": "^15.0.0",
+    "vite": "^5.4.0"
+  }
+}

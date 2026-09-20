@@ -1,0 +1,126 @@
+{
+  "id": "42",
+  "finished": true,
+  "mode": "manual",
+  "status": "success",
+  "startedAt": "2026-08-31T04:45:35.456Z",
+  "stoppedAt": "2026-08-31T04:45:35.478Z",
+  "workflowId": "wrexecloop00001",
+  "workflowData": {
+    "name": "Execution Loop",
+    "nodes": [
+      {
+        "parameters": {
+          "notice": ""
+        },
+        "id": "lt000000-0000-4000-8000-000000000001",
+        "name": "When clicking 'Execute workflow'",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "return [1,2,3,4,5].map((id) => ({ json: { id, email: `user${id}@example.com` } }));",
+          "notice": ""
+        },
+        "id": "lc000000-0000-4000-8000-000000000002",
+        "name": "Make Items",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          224,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "splitInBatchesNotice": "",
+          "batchSize": 2,
+          "options": {}
+        },
+        "id": "lb000000-0000-4000-8000-000000000003",
+        "name": "Loop Over Items",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [
+          448,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "manual",
+          "duplicateItem": false,
+          "assignments": {},
+          "includeOtherFields": false,
+          "options": {}
+        },
+        "id": "ls000000-0000-4000-8000-000000000004",
+        "name": "Handle Batch",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          704,
+          128
+        ]
+      }
+    ],
+    "connections": {
+      "When clicking 'Execute workflow'": {
+        "main": [
+          [
+            {
+              "node": "Make Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Make Items": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Loop Over Items": {
+        "main": [
+          [],
+          [
+            {
+              "node": "Handle Batch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Handle Batch": {
+        "main": [
+          [
+            {
+              "node": "Loop Over Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  "data": "[{\"version\":1,\"startData\":\"1\",\"resultData\":\"2\",\"executionData\":\"3\"},{},{\"runData\":\"4\",\"pinData\":\"5\",\"lastNodeExecuted\":\"6\"},{\"contextData\":\"7\",\"nodeExecutionStack\":\"8\",\"metadata\":\"9\",\"waitingExecution\":\"10\",\"waitingExecutionSource\":\"11\",\"runtimeData\":\"12\"},{\"When clicking 'Execute workflow'\":\"13\",\"Make Items\":\"14\",\"Loop Over Items\":\"15\",\"Handle Batch\":\"16\"},{},\"Loop Over Items\",{\"node:Loop Over Items\":\"17\"},[],{},{},{},{\"version\":1,\"establishedAt\":1788151535458,\"source\":\"18\",\"triggerNode\":\"19\"},[\"20\"],[\"21\"],[\"22\",\"23\",\"24\",\"25\"],[\"26\",\"27\",\"28\"],{\"currentRunIndex\":3,\"maxRunIndex\":3,\"sourceData\":\"29\",\"items\":\"30\",\"processedItems\":\"31\",\"noItemsLeft\":true,\"done\":true},\"manual\",{\"name\":\"32\",\"type\":\"33\"},{\"startTime\":1788151535459,\"executionIndex\":0,\"source\":\"34\",\"hints\":\"35\",\"executionTime\":1,\"executionStatus\":\"36\",\"data\":\"37\"},{\"startTime\":1788151535460,\"executionIndex\":1,\"source\":\"38\",\"hints\":\"39\",\"executionTime\":14,\"executionStatus\":\"36\",\"data\":\"40\"},{\"startTime\":1788151535475,\"executionIndex\":2,\"source\":\"41\",\"hints\":\"42\",\"executionTime\":0,\"executionStatus\":\"36\",\"data\":\"43\"},{\"startTime\":1788151535476,\"executionIndex\":4,\"source\":\"44\",\"hints\":\"45\",\"executionTime\":0,\"executionStatus\":\"36\",\"data\":\"46\"},{\"startTime\":1788151535477,\"executionIndex\":6,\"source\":\"47\",\"hints\":\"48\",\"executionTime\":0,\"executionStatus\":\"36\",\"data\":\"49\"},{\"startTime\":1788151535478,\"executionIndex\":8,\"source\":\"50\",\"hints\":\"51\",\"executionTime\":0,\"executionStatus\":\"36\",\"data\":\"52\"},{\"startTime\":1788151535476,\"executionIndex\":3,\"source\":\"53\",\"hints\":\"54\",\"executionTime\":0,\"executionStatus\":\"36\",\"data\":\"55\"},{\"startTime\":1788151535477,\"executionIndex\":5,\"source\":\"56\",\"hints\":\"57\",\"executionTime\":0,\"executionStatus\":\"36\",\"data\":\"58\"},{\"startTime\":1788151535477,\"executionIndex\":7,\"source\":\"59\",\"hints\":\"60\",\"executionTime\":1,\"executionStatus\":\"36\",\"data\":\"61\"},{\"previousNode\":\"62\",\"previousNodeOutput\":0,\"previousNodeRun\":0},[],[\"63\",\"64\",\"65\",\"66\",\"67\"],\"When clicking 'Execute workflow'\",\"n8n-nodes-base.manualTrigger\",[],[],\"success\",{\"main\":\"68\"},[\"69\"],[],{\"main\":\"70\"},[\"71\"],[],{\"main\":\"72\"},[\"73\"],[],{\"main\":\"74\"},[\"75\"],[],{\"main\":\"76\"},[\"77\"],[],{\"main\":\"78\"},[\"79\"],[],{\"main\":\"80\"},[\"81\"],[],{\"main\":\"82\"},[\"83\"],[],{\"main\":\"84\"},\"Make Items\",{\"json\":\"85\",\"pairedItem\":\"86\"},{\"json\":\"87\",\"pairedItem\":\"88\"},{\"json\":\"89\",\"pairedItem\":\"90\"},{\"json\":\"91\",\"pairedItem\":\"92\"},{\"json\":\"93\",\"pairedItem\":\"94\"},[\"95\"],{\"previousNode\":\"32\",\"previousNodeOutput\":0,\"previousNodeRun\":0},[\"96\"],{\"previousNode\":\"62\",\"previousNodeOutput\":0,\"previousNodeRun\":0},[\"97\",\"98\"],{\"previousNode\":\"99\",\"previousNodeOutput\":0,\"previousNodeRun\":0},[\"100\",\"101\"],{\"previousNode\":\"99\",\"previousNodeOutput\":0,\"previousNodeRun\":1},[\"102\",\"103\"],{\"previousNode\":\"99\",\"previousNodeOutput\":0,\"previousNodeRun\":2},[\"31\",\"104\"],{\"previousNode\":\"6\",\"previousNodeOutput\":1,\"previousNodeRun\":0},[\"105\"],{\"previousNode\":\"6\",\"previousNodeOutput\":1,\"previousNodeRun\":1},[\"106\"],{\"previousNode\":\"6\",\"previousNodeOutput\":1,\"previousNodeRun\":2},[\"107\"],{},{\"sourceOverwrite\":\"73\",\"item\":0},{},{\"sourceOverwrite\":\"73\",\"item\":1},{},{\"sourceOverwrite\":\"75\",\"item\":0},{},{\"sourceOverwrite\":\"75\",\"item\":1},{},{\"sourceOverwrite\":\"77\",\"item\":0},[\"108\"],[\"109\",\"110\",\"111\",\"112\",\"113\"],[],[\"114\",\"115\"],\"Handle Batch\",[],[\"116\",\"117\"],[],[\"118\"],[],[\"119\",\"120\"],[\"121\",\"122\"],[\"123\"],{\"json\":\"124\",\"pairedItem\":\"125\"},{\"json\":\"126\",\"pairedItem\":\"127\"},{\"json\":\"128\",\"pairedItem\":\"129\"},{\"json\":\"130\",\"pairedItem\":\"131\"},{\"json\":\"132\",\"pairedItem\":\"133\"},{\"json\":\"134\",\"pairedItem\":\"135\"},{\"json\":\"126\",\"pairedItem\":\"136\"},{\"json\":\"128\",\"pairedItem\":\"137\"},{\"json\":\"130\",\"pairedItem\":\"138\"},{\"json\":\"132\",\"pairedItem\":\"139\"},{\"json\":\"134\",\"pairedItem\":\"140\"},{\"json\":\"85\",\"pairedItem\":\"141\"},{\"json\":\"87\",\"pairedItem\":\"142\"},{\"json\":\"89\",\"pairedItem\":\"143\"},{\"json\":\"91\",\"pairedItem\":\"144\"},{\"json\":\"93\",\"pairedItem\":\"145\"},{},{\"item\":0},{\"id\":1,\"email\":\"146\"},{\"item\":0},{\"id\":2,\"email\":\"147\"},{\"item\":0},{\"id\":3,\"email\":\"148\"},{\"item\":0},{\"id\":4,\"email\":\"149\"},{\"item\":0},{\"id\":5,\"email\":\"150\"},{\"item\":0},{\"item\":0},{\"item\":1},{\"item\":2,\"sourceOverwrite\":\"29\"},{\"item\":3,\"sourceOverwrite\":\"29\"},{\"item\":4,\"sourceOverwrite\":\"29\"},{\"item\":0},{\"item\":1},{\"item\":0},{\"item\":1},{\"item\":0},\"user1@example.com\",\"user2@example.com\",\"user3@example.com\",\"user4@example.com\",\"user5@example.com\"]"
+}

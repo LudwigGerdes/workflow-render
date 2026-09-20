@@ -1,0 +1,757 @@
+{
+  "name": "Sticky Notes Color Showcase - Complete Rainbow",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🌈 Complete Sticky Notes Color Gallery\n\n**What's included:**\n- ✅ All 7 Preset Colors\n- 🎨 Custom Creative Colors  \n- 🏢 Brand Colors\n- 🚦 Dev Status Colors\n- ☀️ Light Colors (dark mode test)\n- 🌙 Dark Colors (light mode test)\n\nDouble-click any sticky to see the color picker!",
+        "height": 320,
+        "width": 480,
+        "color": 1
+      },
+      "id": "intro-sticky",
+      "name": "Introduction",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 200]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 1\n**Yellow/Gold**\n\nDefault sticky color.\nWarm and inviting!",
+        "height": 180,
+        "width": 260,
+        "color": 1
+      },
+      "id": "preset-1",
+      "name": "Preset 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 140]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 2\n**Orange**\n\nEnergetic and bold.",
+        "height": 180,
+        "width": 260,
+        "color": 2
+      },
+      "id": "preset-2",
+      "name": "Preset 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 140]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 3\n**Pink/Rose**\n\nSoft and friendly.",
+        "height": 180,
+        "width": 260,
+        "color": 3
+      },
+      "id": "preset-3",
+      "name": "Preset 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 140]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 4\n**Green**\n\nCalm and natural.",
+        "height": 180,
+        "width": 260,
+        "color": 4
+      },
+      "id": "preset-4",
+      "name": "Preset 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 140]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 5\n**Blue**\n\nProfessional and cool.",
+        "height": 180,
+        "width": 260,
+        "color": 5
+      },
+      "id": "preset-5",
+      "name": "Preset 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1960, 140]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 6\n**Purple**\n\nCreative and royal.",
+        "height": 180,
+        "width": 260,
+        "color": 6
+      },
+      "id": "preset-6",
+      "name": "Preset 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2260, 140]
+    },
+    {
+      "parameters": {
+        "content": "### Preset Color 7\n**Gray**\n\nNeutral and subtle.",
+        "height": 180,
+        "width": 260,
+        "color": 7
+      },
+      "id": "preset-7",
+      "name": "Preset 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2560, 140]
+    },
+    {
+      "parameters": {
+        "content": "## 🚦 Development Status Colors\n\nTraditional colors for app states",
+        "height": 140,
+        "width": 360,
+        "color": 7
+      },
+      "id": "dev-status-header",
+      "name": "Dev Status Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 400]
+    },
+    {
+      "parameters": {
+        "content": "### ❌ Error Red\n**#DC3545**\n\nDanger/Error state.\nClassic Bootstrap red!",
+        "height": 180,
+        "width": 260,
+        "color": "#DC3545"
+      },
+      "id": "status-error",
+      "name": "Status Error",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 400]
+    },
+    {
+      "parameters": {
+        "content": "### ⚠️ Warning Yellow\n**#FFC107**\n\nWarning/Caution.\nBootstrap warning!",
+        "height": 180,
+        "width": 260,
+        "color": "#FFC107"
+      },
+      "id": "status-warning",
+      "name": "Status Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 400]
+    },
+    {
+      "parameters": {
+        "content": "### ✅ Success Green\n**#28A745**\n\nSuccess state.\nBootstrap success!",
+        "height": 180,
+        "width": 260,
+        "color": "#28A745"
+      },
+      "id": "status-success",
+      "name": "Status Success",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 400]
+    },
+    {
+      "parameters": {
+        "content": "### ℹ️ Info Blue\n**#17A2B8**\n\nInformation state.\nBootstrap info!",
+        "height": 180,
+        "width": 260,
+        "color": "#17A2B8"
+      },
+      "id": "status-info",
+      "name": "Status Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 400]
+    },
+    {
+      "parameters": {
+        "content": "### 🔴 GitHub Red\n**#D73A49**\n\nGitHub's red.\nFor PRs and issues!",
+        "height": 180,
+        "width": 260,
+        "color": "#D73A49"
+      },
+      "id": "status-github-red",
+      "name": "GitHub Red",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1960, 400]
+    },
+    {
+      "parameters": {
+        "content": "### 🟢 GitHub Green\n**#2EA44F**\n\nGitHub success.\nMerged PRs!",
+        "height": 180,
+        "width": 260,
+        "color": "#2EA44F"
+      },
+      "id": "status-github-green",
+      "name": "GitHub Green",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2260, 400]
+    },
+    {
+      "parameters": {
+        "content": "## 🏢 Famous Brand Colors\n\nRecognizable brand identities",
+        "height": 140,
+        "width": 360,
+        "color": 7
+      },
+      "id": "brand-header",
+      "name": "Brand Colors Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Facebook Blue\n**#1877F2**\n\nThe iconic\nFacebook color!",
+        "height": 180,
+        "width": 260,
+        "color": "#1877F2"
+      },
+      "id": "brand-facebook",
+      "name": "Facebook",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Twitter/X Blue\n**#1DA1F2**\n\nClassic Twitter\nsky blue!",
+        "height": 180,
+        "width": 260,
+        "color": "#1DA1F2"
+      },
+      "id": "brand-twitter",
+      "name": "Twitter",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Spotify Green\n**#1DB954**\n\nThat fresh\nSpotify green!",
+        "height": 180,
+        "width": 260,
+        "color": "#1DB954"
+      },
+      "id": "brand-spotify",
+      "name": "Spotify",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 660]
+    },
+    {
+      "parameters": {
+        "content": "### YouTube Red\n**#FF0000**\n\nBold YouTube\nred button!",
+        "height": 180,
+        "width": 260,
+        "color": "#FF0000"
+      },
+      "id": "brand-youtube",
+      "name": "YouTube",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Instagram Gradient\n**#E4405F**\n\nInstagram's\npink-red!",
+        "height": 180,
+        "width": 260,
+        "color": "#E4405F"
+      },
+      "id": "brand-instagram",
+      "name": "Instagram",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1960, 660]
+    },
+    {
+      "parameters": {
+        "content": "### LinkedIn Blue\n**#0A66C2**\n\nProfessional\nLinkedIn blue!",
+        "height": 180,
+        "width": 260,
+        "color": "#0A66C2"
+      },
+      "id": "brand-linkedin",
+      "name": "LinkedIn",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2260, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Slack Purple\n**#4A154B**\n\nDeep Slack\naubergine!",
+        "height": 180,
+        "width": 260,
+        "color": "#4A154B"
+      },
+      "id": "brand-slack",
+      "name": "Slack",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2560, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Discord Blurple\n**#5865F2**\n\nDiscord's unique\nblurple!",
+        "height": 180,
+        "width": 260,
+        "color": "#5865F2"
+      },
+      "id": "brand-discord",
+      "name": "Discord",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2860, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Twitch Purple\n**#9146FF**\n\nVibrant Twitch\ngaming purple!",
+        "height": 180,
+        "width": 260,
+        "color": "#9146FF"
+      },
+      "id": "brand-twitch",
+      "name": "Twitch",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [3160, 660]
+    },
+    {
+      "parameters": {
+        "content": "### Netflix Red\n**#E50914**\n\nIconic Netflix\nentertainment red!",
+        "height": 180,
+        "width": 260,
+        "color": "#E50914"
+      },
+      "id": "brand-netflix",
+      "name": "Netflix",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 880]
+    },
+    {
+      "parameters": {
+        "content": "### Amazon Orange\n**#FF9900**\n\nAmazon's smile\norange arrow!",
+        "height": 180,
+        "width": 260,
+        "color": "#FF9900"
+      },
+      "id": "brand-amazon",
+      "name": "Amazon",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 880]
+    },
+    {
+      "parameters": {
+        "content": "### Airbnb Coral\n**#FF5A5F**\n\nWarm Airbnb\nwelcoming coral!",
+        "height": 180,
+        "width": 260,
+        "color": "#FF5A5F"
+      },
+      "id": "brand-airbnb",
+      "name": "Airbnb",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 880]
+    },
+    {
+      "parameters": {
+        "content": "### Notion Gray\n**#37352F**\n\nNotion's subtle\ndark mode gray!",
+        "height": 180,
+        "width": 260,
+        "color": "#37352F"
+      },
+      "id": "brand-notion",
+      "name": "Notion",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 880]
+    },
+    {
+      "parameters": {
+        "content": "## ☀️ Light Colors\n\nTest how light colors adapt in dark mode",
+        "height": 140,
+        "width": 360,
+        "color": 7
+      },
+      "id": "light-header",
+      "name": "Light Colors Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Pale Pink\n**#FFE5E5**\n\nVery light pink.\nSoft background!",
+        "height": 180,
+        "width": 260,
+        "color": "#FFE5E5"
+      },
+      "id": "light-pale-pink",
+      "name": "Pale Pink",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Cream\n**#FFF8DC**\n\nWarm cream.\nGentle vanilla!",
+        "height": 180,
+        "width": 260,
+        "color": "#FFF8DC"
+      },
+      "id": "light-cream",
+      "name": "Cream",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Light Cyan\n**#E0FFFF**\n\nSky-like cyan.\nFresh water!",
+        "height": 180,
+        "width": 260,
+        "color": "#E0FFFF"
+      },
+      "id": "light-cyan",
+      "name": "Light Cyan",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Pale Lavender\n**#E6E6FA**\n\nSoft lavender.\nDreamy clouds!",
+        "height": 180,
+        "width": 260,
+        "color": "#E6E6FA"
+      },
+      "id": "light-lavender",
+      "name": "Pale Lavender",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Mint Cream\n**#F5FFFA**\n\nAlmost white mint.\nSubtle hint!",
+        "height": 180,
+        "width": 260,
+        "color": "#F5FFFA"
+      },
+      "id": "light-mint",
+      "name": "Mint Cream",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1960, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Peach Puff\n**#FFDAB9**\n\nLight peach.\nSweet sorbet!",
+        "height": 180,
+        "width": 260,
+        "color": "#FFDAB9"
+      },
+      "id": "light-peach",
+      "name": "Peach Puff",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2260, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Powder Blue\n**#B0E0E6**\n\nSoft powder blue.\nBaby blue!",
+        "height": 180,
+        "width": 260,
+        "color": "#B0E0E6"
+      },
+      "id": "light-powder",
+      "name": "Powder Blue",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2560, 1140]
+    },
+    {
+      "parameters": {
+        "content": "### Lemon Chiffon\n**#FFFACD**\n\nLight lemon.\nGentle yellow!",
+        "height": 180,
+        "width": 260,
+        "color": "#FFFACD"
+      },
+      "id": "light-lemon",
+      "name": "Lemon Chiffon",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2860, 1140]
+    },
+    {
+      "parameters": {
+        "content": "## 🌙 Dark Colors\n\nTest how dark colors adapt in light mode",
+        "height": 140,
+        "width": 360,
+        "color": 7
+      },
+      "id": "dark-header",
+      "name": "Dark Colors Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Charcoal\n**#36454F**\n\nDark charcoal.\nStrong base!",
+        "height": 180,
+        "width": 260,
+        "color": "#36454F"
+      },
+      "id": "dark-charcoal",
+      "name": "Charcoal",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Navy Blue\n**#000080**\n\nClassic navy.\nTimeless dark!",
+        "height": 180,
+        "width": 260,
+        "color": "#000080"
+      },
+      "id": "dark-navy",
+      "name": "Navy Blue",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Dark Green\n**#013220**\n\nForest night.\nDeep emerald!",
+        "height": 180,
+        "width": 260,
+        "color": "#013220"
+      },
+      "id": "dark-green",
+      "name": "Dark Green",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Burgundy\n**#800020**\n\nWine burgundy.\nRich depth!",
+        "height": 180,
+        "width": 260,
+        "color": "#800020"
+      },
+      "id": "dark-burgundy",
+      "name": "Burgundy",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Indigo\n**#4B0082**\n\nDeep indigo.\nMystic purple!",
+        "height": 180,
+        "width": 260,
+        "color": "#4B0082"
+      },
+      "id": "dark-indigo",
+      "name": "Indigo",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1960, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Dark Slate\n**#2F4F4F**\n\nSlate gray.\nStone solid!",
+        "height": 180,
+        "width": 260,
+        "color": "#2F4F4F"
+      },
+      "id": "dark-slate",
+      "name": "Dark Slate",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2260, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Maroon\n**#800000**\n\nDeep maroon.\nElegant wine!",
+        "height": 180,
+        "width": 260,
+        "color": "#800000"
+      },
+      "id": "dark-maroon",
+      "name": "Maroon",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2560, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Midnight Blue\n**#191970**\n\nTrue midnight.\nStarry sky!",
+        "height": 180,
+        "width": 260,
+        "color": "#191970"
+      },
+      "id": "dark-midnight",
+      "name": "Midnight Blue",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2860, 1400]
+    },
+    {
+      "parameters": {
+        "content": "### Olive Drab\n**#6B8E23**\n\nMilitary olive.\nCamouflage!",
+        "height": 180,
+        "width": 260,
+        "color": "#6B8E23"
+      },
+      "id": "dark-olive",
+      "name": "Olive Drab",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [3160, 1400]
+    },
+    {
+      "parameters": {
+        "content": "## 🎨 Creative Palette\n\nAdditional vibrant colors",
+        "height": 140,
+        "width": 360,
+        "color": 7
+      },
+      "id": "creative-header",
+      "name": "Creative Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 1660]
+    },
+    {
+      "parameters": {
+        "content": "### Coral\n**#FF6B6B**\n\nVibrant coral.\nTropical reef!",
+        "height": 180,
+        "width": 260,
+        "color": "#FF6B6B"
+      },
+      "id": "creative-coral",
+      "name": "Coral",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [760, 1660]
+    },
+    {
+      "parameters": {
+        "content": "### Teal\n**#008080**\n\nOcean teal.\nRefreshing!",
+        "height": 180,
+        "width": 260,
+        "color": "#008080"
+      },
+      "id": "creative-teal",
+      "name": "Teal",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1060, 1660]
+    },
+    {
+      "parameters": {
+        "content": "### Magenta\n**#FF00FF**\n\nElectric magenta.\nNeon pop!",
+        "height": 180,
+        "width": 260,
+        "color": "#FF00FF"
+      },
+      "id": "creative-magenta",
+      "name": "Magenta",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1360, 1660]
+    },
+    {
+      "parameters": {
+        "content": "### Turquoise\n**#40E0D0**\n\nBright turquoise.\nTropical water!",
+        "height": 180,
+        "width": 260,
+        "color": "#40E0D0"
+      },
+      "id": "creative-turquoise",
+      "name": "Turquoise",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1660, 1660]
+    },
+    {
+      "parameters": {
+        "content": "### Salmon\n**#FA8072**\n\nSweet salmon.\nFresh fish!",
+        "height": 180,
+        "width": 260,
+        "color": "#FA8072"
+      },
+      "id": "creative-salmon",
+      "name": "Salmon",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1960, 1660]
+    },
+    {
+      "parameters": {
+        "content": "### Orchid\n**#DA70D6**\n\nBeautiful orchid.\nFloral purple!",
+        "height": 180,
+        "width": 260,
+        "color": "#DA70D6"
+      },
+      "id": "creative-orchid",
+      "name": "Orchid",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2260, 1660]
+    },
+    {
+      "parameters": {
+        "content": "## 💡 Color Testing Tips\n\n**Light vs Dark Mode:**\n- Light colors: Check in dark mode\n- Dark colors: Check in light mode\n- Borders auto-adjust 80%!\n\n**Brand Colors:**\n- Instantly recognizable\n- Use for integrations\n\n**Status Colors:**\n- Universal meanings\n- Consistent UX\n\n**Custom Colors:**\n1. Click palette icon\n2. Click **+** gradient button\n3. Pick any hex color\n4. Recent colors saved!",
+        "height": 400,
+        "width": 480,
+        "color": 5
+      },
+      "id": "tips-sticky",
+      "name": "Usage Tips",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 1920]
+    }
+  ],
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "complete-rainbow-showcase-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "complete-color-showcase"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "showcase",
+      "name": "showcase"
+    },
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "colors",
+      "name": "colors"
+    }
+  ]
+}

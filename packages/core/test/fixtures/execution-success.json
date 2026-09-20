@@ -1,0 +1,229 @@
+{
+  "id": "17",
+  "finished": true,
+  "mode": "trigger",
+  "status": "success",
+  "startedAt": "2026-08-31T00:59:15.051Z",
+  "stoppedAt": "2026-08-31T00:59:15.081Z",
+  "workflowId": "wrexecok00000001",
+  "workflowData": {
+    "name": "Execution Success",
+    "nodes": [
+      {
+        "parameters": {
+          "notice": "",
+          "rule": {
+            "interval": [
+              {
+                "field": "seconds",
+                "secondsInterval": 15
+              }
+            ]
+          }
+        },
+        "id": "sch00000-0000-4000-8000-000000000001",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "return [{ json: { id: 1, email: \"a@example.com\" } }, { json: { id: 2, email: \"b@example.com\" } }];",
+          "notice": ""
+        },
+        "id": "cod00000-0000-4000-8000-000000000002",
+        "name": "Make Items",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          224,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "manual",
+          "duplicateItem": false,
+          "assignments": {},
+          "includeOtherFields": false,
+          "options": {}
+        },
+        "id": "set00000-0000-4000-8000-000000000003",
+        "name": "Extract Emails",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          448,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Make Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Make Items": {
+        "main": [
+          [
+            {
+              "node": "Extract Emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "saveManualExecutions": true
+    }
+  },
+  "data": {
+    "version": 1,
+    "startData": {},
+    "resultData": {
+      "runData": {
+        "Schedule Trigger": [
+          {
+            "startTime": 1788137955061,
+            "executionIndex": 0,
+            "source": [],
+            "hints": [],
+            "executionTime": 1,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {
+                      "timestamp": "2026-08-30T20:59:15.015-04:00",
+                      "Readable date": "August 30th 2026, 8:59:15 pm",
+                      "Readable time": "8:59:15 pm",
+                      "Day of week": "Sunday",
+                      "Year": "2026",
+                      "Month": "August",
+                      "Day of month": "30",
+                      "Hour": "20",
+                      "Minute": "59",
+                      "Second": "15",
+                      "Timezone": "America/New_York (UTC-04:00)"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "Make Items": [
+          {
+            "startTime": 1788137955062,
+            "executionIndex": 1,
+            "source": [
+              {
+                "previousNode": "Schedule Trigger",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ],
+            "hints": [],
+            "executionTime": 18,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {
+                      "id": 1,
+                      "email": "a@example.com"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  },
+                  {
+                    "json": {
+                      "id": 2,
+                      "email": "b@example.com"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "Extract Emails": [
+          {
+            "startTime": 1788137955081,
+            "executionIndex": 2,
+            "source": [
+              {
+                "previousNode": "Make Items",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ],
+            "hints": [],
+            "executionTime": 0,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {},
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  },
+                  {
+                    "json": {},
+                    "pairedItem": {
+                      "item": 1
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      },
+      "lastNodeExecuted": "Extract Emails"
+    },
+    "executionData": {
+      "contextData": {},
+      "nodeExecutionStack": [],
+      "metadata": {},
+      "waitingExecution": {},
+      "waitingExecutionSource": {},
+      "runtimeData": {
+        "version": 1,
+        "establishedAt": 1788137955059,
+        "source": "trigger",
+        "triggerNode": {
+          "name": "Schedule Trigger",
+          "type": "n8n-nodes-base.scheduleTrigger"
+        }
+      }
+    }
+  }
+}

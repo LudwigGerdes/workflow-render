@@ -1,0 +1,16 @@
+{
+  "name": "Order intake",
+  "nodes": [
+    {"parameters": {"httpMethod": "POST", "path": "orders"}, "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [0, 0]},
+    {"parameters": {"conditions": {"options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"}, "conditions": [{"id": "c1", "leftValue": "={{ $json.body.total }}", "rightValue": 100, "operator": {"type": "number", "operation": "gt"}}], "combinator": "and"}}, "name": "Is large order?", "type": "n8n-nodes-base.if", "typeVersion": 2, "position": [220, 0]},
+    {"parameters": {"channel": "#big-orders", "text": "=Big order: {{ $json.body.id }}"}, "name": "Notify Slack", "type": "n8n-nodes-base.slack", "typeVersion": 2.2, "position": [460, -120]},
+    {"parameters": {"assignments": {"assignments": [{"id": "a1", "name": "tier", "value": "standard", "type": "string"}]}}, "name": "Tag standard", "type": "n8n-nodes-base.set", "typeVersion": 3.4, "position": [460, 120]},
+    {"parameters": {}, "name": "Merge", "type": "n8n-nodes-base.merge", "typeVersion": 3, "position": [700, 0]}
+  ],
+  "connections": {
+    "Webhook": {"main": [[{"node": "Is large order?", "type": "main", "index": 0}]]},
+    "Is large order?": {"main": [[{"node": "Notify Slack", "type": "main", "index": 0}], [{"node": "Tag standard", "type": "main", "index": 0}]]},
+    "Notify Slack": {"main": [[{"node": "Merge", "type": "main", "index": 0}]]},
+    "Tag standard": {"main": [[{"node": "Merge", "type": "main", "index": 1}]]}
+  }
+}

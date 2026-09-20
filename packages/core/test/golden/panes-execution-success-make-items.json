@@ -1,0 +1,53 @@
+[
+  {
+    "run": 0,
+    "input": {
+      "runIndex": 0,
+      "runCount": 1,
+      "items": 1,
+      "columns": [
+        "timestamp",
+        "Readable date",
+        "Readable time",
+        "Day of week",
+        "Year",
+        "Month",
+        "Day of month",
+        "Hour",
+        "Minute",
+        "Second",
+        "Timezone"
+      ],
+      "truncatedColumns": 0,
+      "firstRow": {
+        "timestamp": "2026-08-30T20:59:15.015-04:00",
+        "Readable date": "August 30th 2026, 8:59:15 pm",
+        "Readable time": "8:59:15 pm",
+        "Day of week": "Sunday",
+        "Year": "2026",
+        "Month": "August",
+        "Day of month": "30",
+        "Hour": "20",
+        "Minute": "59",
+        "Second": "15",
+        "Timezone": "America/New_York (UTC-04:00)"
+      },
+      "error": null
+    },
+    "output": {
+      "runIndex": 0,
+      "runCount": 1,
+      "items": 2,
+      "columns": [
+        "id",
+        "email"
+      ],
+      "truncatedColumns": 0,
+      "firstRow": {
+        "id": "1",
+        "email": "a@example.com"
+      },
+      "error": null
+    }
+  }
+]

@@ -1,0 +1,7 @@
+# Everything scripts/copy-assets.mjs stages into public/ (build outputs).
+public/workflow-render.js
+public/workflow-render-icons.json
+public/workflow-render-subtitles.json
+public/workflow-render-descriptions.json
+public/inter-*.woff2
+public/examples/

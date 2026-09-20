@@ -1,0 +1,307 @@
+{
+  "id": "18",
+  "finished": false,
+  "mode": "trigger",
+  "status": "error",
+  "startedAt": "2026-08-31T00:59:15.055Z",
+  "stoppedAt": "2026-08-31T00:59:15.087Z",
+  "workflowId": "wrexecerr0000001",
+  "workflowData": {
+    "name": "Execution Error",
+    "nodes": [
+      {
+        "parameters": {
+          "notice": "",
+          "rule": {
+            "interval": [
+              {
+                "field": "seconds",
+                "secondsInterval": 15
+              }
+            ]
+          }
+        },
+        "id": "sch00000-0000-4000-8000-000000000001",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "return [{ json: { id: 1, email: \"a@example.com\" } }, { json: { id: 2, email: \"b@example.com\" } }];",
+          "notice": ""
+        },
+        "id": "cod00000-0000-4000-8000-000000000002",
+        "name": "Make Items",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          224,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "errorType": "errorMessage",
+          "errorMessage": "boom"
+        },
+        "id": "err00000-0000-4000-8000-000000000004",
+        "name": "Fail Here",
+        "type": "n8n-nodes-base.stopAndError",
+        "typeVersion": 1,
+        "position": [
+          448,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Make Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Make Items": {
+        "main": [
+          [
+            {
+              "node": "Fail Here",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  "data": {
+    "version": 1,
+    "startData": {},
+    "resultData": {
+      "error": {
+        "level": "warning",
+        "tags": {},
+        "timestamp": 1788137955085,
+        "context": {},
+        "functionality": "regular",
+        "name": "NodeOperationError",
+        "node": {
+          "parameters": {
+            "errorType": "errorMessage",
+            "errorMessage": "boom"
+          },
+          "id": "err00000-0000-4000-8000-000000000004",
+          "name": "Fail Here",
+          "type": "n8n-nodes-base.stopAndError",
+          "typeVersion": 1,
+          "position": [
+            448,
+            0
+          ]
+        },
+        "messages": [],
+        "message": "boom",
+        "stack": "NodeOperationError: boom\n    at ExecuteContext.execute (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_8da18263ca0574b0db58d4fefd8173ce/node_modules/n8n-nodes-base/nodes/StopAndError/StopAndError.node.ts:92:9)\n    at WorkflowExecute.executeNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1043:31)\n    at WorkflowExecute.runNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1222:22)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1665:38\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:2308:11"
+      },
+      "runData": {
+        "Schedule Trigger": [
+          {
+            "startTime": 1788137955066,
+            "executionIndex": 0,
+            "source": [],
+            "hints": [],
+            "executionTime": 0,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {
+                      "timestamp": "2026-08-30T20:59:15.027-04:00",
+                      "Readable date": "August 30th 2026, 8:59:15 pm",
+                      "Readable time": "8:59:15 pm",
+                      "Day of week": "Sunday",
+                      "Year": "2026",
+                      "Month": "August",
+                      "Day of month": "30",
+                      "Hour": "20",
+                      "Minute": "59",
+                      "Second": "15",
+                      "Timezone": "America/New_York (UTC-04:00)"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "Make Items": [
+          {
+            "startTime": 1788137955066,
+            "executionIndex": 1,
+            "source": [
+              {
+                "previousNode": "Schedule Trigger",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ],
+            "hints": [],
+            "executionTime": 19,
+            "executionStatus": "success",
+            "data": {
+              "main": [
+                [
+                  {
+                    "json": {
+                      "id": 1,
+                      "email": "a@example.com"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  },
+                  {
+                    "json": {
+                      "id": 2,
+                      "email": "b@example.com"
+                    },
+                    "pairedItem": {
+                      "item": 0
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "Fail Here": [
+          {
+            "startTime": 1788137955085,
+            "executionIndex": 2,
+            "source": [
+              {
+                "previousNode": "Make Items",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ],
+            "hints": [],
+            "executionTime": 2,
+            "executionStatus": "error",
+            "error": {
+              "level": "warning",
+              "tags": {},
+              "timestamp": 1788137955085,
+              "context": {},
+              "functionality": "regular",
+              "name": "NodeOperationError",
+              "node": {
+                "parameters": {
+                  "errorType": "errorMessage",
+                  "errorMessage": "boom"
+                },
+                "id": "err00000-0000-4000-8000-000000000004",
+                "name": "Fail Here",
+                "type": "n8n-nodes-base.stopAndError",
+                "typeVersion": 1,
+                "position": [
+                  448,
+                  0
+                ]
+              },
+              "messages": [],
+              "message": "boom",
+              "stack": "NodeOperationError: boom\n    at ExecuteContext.execute (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_8da18263ca0574b0db58d4fefd8173ce/node_modules/n8n-nodes-base/nodes/StopAndError/StopAndError.node.ts:92:9)\n    at WorkflowExecute.executeNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1043:31)\n    at WorkflowExecute.runNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1222:22)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1665:38\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_9f358c3eeaef0d2736f54ac9757ada43/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:2308:11"
+            }
+          }
+        ]
+      },
+      "lastNodeExecuted": "Fail Here"
+    },
+    "executionData": {
+      "contextData": {},
+      "nodeExecutionStack": [
+        {
+          "node": {
+            "parameters": {
+              "errorType": "errorMessage",
+              "errorMessage": "boom"
+            },
+            "id": "err00000-0000-4000-8000-000000000004",
+            "name": "Fail Here",
+            "type": "n8n-nodes-base.stopAndError",
+            "typeVersion": 1,
+            "position": [
+              448,
+              0
+            ]
+          },
+          "data": {
+            "main": [
+              [
+                {
+                  "json": {
+                    "id": 1,
+                    "email": "a@example.com"
+                  },
+                  "pairedItem": {
+                    "item": 0
+                  }
+                },
+                {
+                  "json": {
+                    "id": 2,
+                    "email": "b@example.com"
+                  },
+                  "pairedItem": {
+                    "item": 1
+                  }
+                }
+              ]
+            ]
+          },
+          "source": {
+            "main": [
+              {
+                "previousNode": "Make Items",
+                "previousNodeOutput": 0,
+                "previousNodeRun": 0
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": {},
+      "waitingExecution": {},
+      "waitingExecutionSource": {},
+      "runtimeData": {
+        "version": 1,
+        "establishedAt": 1788137955065,
+        "source": "trigger",
+        "triggerNode": {
+          "name": "Schedule Trigger",
+          "type": "n8n-nodes-base.scheduleTrigger"
+        }
+      }
+    }
+  }
+}

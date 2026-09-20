@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Build first: element, cli and site typecheck against core's dist.
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  # Install-level acceptance test: a fresh clone builds and runs, and the ONE
+  # published package installs from its tarball and runs (scripts/smoke.sh).
+  # No display, no browser: `view` is exercised with curl only.
+  smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS minutes are billed at 10x on private repositories, so the macOS lane
+        # switches on by itself the moment the repository is public.
+        os: ${{ fromJSON(github.event.repository.private && '["ubuntu-latest"]' || '["ubuntu-latest","macos-latest"]') }}
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      # version comes from `packageManager` in package.json
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm smoke
+      - name: package-lint (publint)
+        working-directory: packages/cli
+        run: npx --yes publint
+      - name: package-lint (are the types wrong)
+        working-directory: packages/cli
+        # esm-only: the package is ESM by design, so the node10 and
+        # require()-from-CJS resolutions are documented non-goals, not defects.
+        run: npx --yes @arethetypeswrong/cli --pack . --profile esm-only

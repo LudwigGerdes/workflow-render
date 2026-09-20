@@ -1,0 +1,211 @@
+:root {
+  --fg: #2b2b2b;
+  --muted: #757575;
+  --line: #e0e0e0;
+  --field: #ffffff;
+  --panel: rgba(255, 255, 255, 0.94);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* The canvas is the page: it fills the window and nothing insets it. */
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  color: var(--fg);
+  font:
+    14px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+#canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* --- floating widgets ----------------------------------------------------
+   They sit over the canvas rather than taking layout from it, and fade out
+   once the pointer has been still for a moment, so the workflow is what you
+   are looking at. Hovering one holds it open. */
+
+.widget {
+  position: fixed;
+  z-index: 5;
+  width: min(360px, calc(100vw - 32px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.widget-load {
+  top: 16px;
+  left: 16px;
+}
+.widget-embed {
+  top: 16px;
+  right: 16px;
+}
+.msg-stack {
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px));
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.msg-stack:empty {
+  display: none;
+}
+
+/* Idle: out of the way, not gone.
+   Fading these to nothing made them undiscoverable -- the page settles two
+   seconds after load, so a first-time reader never sees that a Load or Embed
+   control exists. They dim instead, and stay clickable. */
+body.is-idle .widget {
+  opacity: 0.3;
+}
+body.is-idle .widget:hover,
+body.is-idle .widget:focus-within {
+  opacity: 1;
+}
+body.is-idle .msg-stack {
+  opacity: 0.3;
+}
+
+/* While a node panel is open the page's own chrome gets out of the way
+   entirely: it is fixed to the body, so it would otherwise float over a modal
+   that lives inside the canvas element. Declared after the idle rules because
+   it shares their specificity and has to win. */
+body.is-inspecting .widget,
+body.is-inspecting .msg-stack {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .widget {
+    transition: none;
+  }
+}
+
+.widget-toggle {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-weight: 600;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.widget-toggle:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.widget-toggle::before {
+  content: '▾ ';
+  color: var(--muted);
+}
+.widget-toggle[aria-expanded='false']::before {
+  content: '▸ ';
+}
+
+.widget-body {
+  padding: 6px 6px 2px;
+}
+
+.hint {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.hint-inline {
+  margin: 0;
+}
+
+textarea {
+  width: 100%;
+  font:
+    12px/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: inherit;
+  resize: vertical;
+}
+
+button {
+  font: inherit;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: inherit;
+  cursor: pointer;
+}
+button:hover {
+  border-color: #989898;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+.examples {
+  display: flex;
+  gap: 4px;
+}
+.examples button {
+  font-size: 12px;
+  padding: 3px 8px;
+}
+
+#dropzone.is-over {
+  border-color: #29a360;
+}
+
+.msg {
+  margin: 0 0 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 13px;
+}
+.msg-error {
+  border-color: #e0b4b0;
+  background: #fdf3f2;
+  color: #8a2f26;
+}
+.msg-warning {
+  border-color: #f0d9a8;
+  background: #fdf8ec;
+  color: #7a5a12;
+}

@@ -1,0 +1,117 @@
+{
+  "nodes": [
+    {
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -300
+      ],
+      "parameters": {
+        "content": "## Surface check\n\n**bold**, *italic*, ~~struck~~, `code`, and a [link](https://example.com).\n\n![a diagram](https://cdn.example.com/arch.png)\n\n| host | port |\n| --- | --- |\n| db | 5432 |\n\n> a quoted line\n- a list item",
+        "height": 260,
+        "width": 520,
+        "color": 5
+      }
+    },
+    {
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.example.com/v1/records"
+      }
+    },
+    {
+      "name": "HR",
+      "type": "n8n-nodes-base.bambooHr",
+      "typeVersion": 1,
+      "position": [
+        448,
+        192
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        192
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "Collect",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        224,
+        384
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch": {
+      "main": [
+        [
+          {
+            "node": "HR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HR": {
+      "main": [
+        [
+          {
+            "node": "Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store": {
+      "main": [
+        [
+          {
+            "node": "Collect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

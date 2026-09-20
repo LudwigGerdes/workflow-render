@@ -1,0 +1,85 @@
+{
+  "name": "workflow-render",
+  "version": "0.1.0",
+  "description": "Render n8n workflow or execution JSON as an n8n-lookalike canvas: a CLI that exports SVG/PNG or views locally, a <workflow-render> web component, and a Node API. Offline, no n8n instance needed.",
+  "keywords": [
+    "n8n",
+    "n8n-workflow",
+    "cli",
+    "svg",
+    "png",
+    "export",
+    "workflow-diagram",
+    "web-component",
+    "custom-element",
+    "viewer"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LudwigGerdes/workflow-render.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/LudwigGerdes/workflow-render#readme",
+  "bugs": {
+    "url": "https://github.com/LudwigGerdes/workflow-render/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "bin": {
+    "workflow-render": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "data",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "pnpm --filter workflow-render-element build && node scripts/build.mjs",
+    "typecheck": "pnpm --filter workflow-render-element build && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "node ../../scripts/pack-files.mjs pre",
+    "postpack": "node ../../scripts/pack-files.mjs post"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "lit": "^3.2.0",
+    "marked": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/pngjs": "^6.0.5",
+    "dts-bundle-generator": "^9.5.1",
+    "esbuild": "^0.25.12",
+    "pngjs": "^7.0.0",
+    "workflow-render-assets": "workspace:*",
+    "workflow-render-core": "workspace:*",
+    "workflow-render-element": "workspace:*"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "default": "./dist/core.js"
+    },
+    "./element": {
+      "types": "./dist/element/workflow-render.d.ts",
+      "default": "./dist/element/workflow-render.js"
+    },
+    "./dist/element/*": "./dist/element/*",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": [
+    "./dist/cli.js",
+    "./dist/element/workflow-render.js"
+  ]
+}

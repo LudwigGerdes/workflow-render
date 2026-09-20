@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.tmp/
+coverage/
+
+# copied in at pack time by scripts/pack-files.mjs
+packages/cli/LICENSE
+packages/cli/README.md
+packages/cli/THIRD_PARTY_NOTICES.md
+
+# staged by packages/cli/scripts/build.mjs from packages/assets/data
+packages/cli/data/

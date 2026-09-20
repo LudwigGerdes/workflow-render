@@ -1,0 +1,97 @@
+{
+  "id": "17",
+  "finished": true,
+  "mode": "trigger",
+  "status": "success",
+  "startedAt": "2026-08-31T00:59:15.051Z",
+  "stoppedAt": "2026-08-31T00:59:15.081Z",
+  "workflowId": "wrexecok00000001",
+  "workflowData": {
+    "name": "Execution Success",
+    "nodes": [
+      {
+        "parameters": {
+          "notice": "",
+          "rule": {
+            "interval": [
+              {
+                "field": "seconds",
+                "secondsInterval": 15
+              }
+            ]
+          }
+        },
+        "id": "sch00000-0000-4000-8000-000000000001",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "return [{ json: { id: 1, email: \"a@example.com\" } }, { json: { id: 2, email: \"b@example.com\" } }];",
+          "notice": ""
+        },
+        "id": "cod00000-0000-4000-8000-000000000002",
+        "name": "Make Items",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          224,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "manual",
+          "duplicateItem": false,
+          "assignments": {},
+          "includeOtherFields": false,
+          "options": {}
+        },
+        "id": "set00000-0000-4000-8000-000000000003",
+        "name": "Extract Emails",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          448,
+          0
+        ]
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Make Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Make Items": {
+        "main": [
+          [
+            {
+              "node": "Extract Emails",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "saveManualExecutions": true
+    }
+  },
+  "data": "[{\"version\":1,\"startData\":\"1\",\"resultData\":\"2\",\"executionData\":\"3\"},{},{\"runData\":\"4\",\"lastNodeExecuted\":\"5\"},{\"contextData\":\"6\",\"nodeExecutionStack\":\"7\",\"metadata\":\"8\",\"waitingExecution\":\"9\",\"waitingExecutionSource\":\"10\",\"runtimeData\":\"11\"},{\"Schedule Trigger\":\"12\",\"Make Items\":\"13\",\"Extract Emails\":\"14\"},\"Extract Emails\",{},[],{},{},{},{\"version\":1,\"establishedAt\":1788137955059,\"source\":\"15\",\"triggerNode\":\"16\"},[\"17\"],[\"18\"],[\"19\"],\"trigger\",{\"name\":\"20\",\"type\":\"21\"},{\"startTime\":1788137955061,\"executionIndex\":0,\"source\":\"22\",\"hints\":\"23\",\"executionTime\":1,\"executionStatus\":\"24\",\"data\":\"25\"},{\"startTime\":1788137955062,\"executionIndex\":1,\"source\":\"26\",\"hints\":\"27\",\"executionTime\":18,\"executionStatus\":\"24\",\"data\":\"28\"},{\"startTime\":1788137955081,\"executionIndex\":2,\"source\":\"29\",\"hints\":\"30\",\"executionTime\":0,\"executionStatus\":\"24\",\"data\":\"31\"},\"Schedule Trigger\",\"n8n-nodes-base.scheduleTrigger\",[],[],\"success\",{\"main\":\"32\"},[\"33\"],[],{\"main\":\"34\"},[\"35\"],[],{\"main\":\"36\"},[\"37\"],{\"previousNode\":\"20\",\"previousNodeOutput\":0,\"previousNodeRun\":0},[\"38\"],{\"previousNode\":\"39\",\"previousNodeOutput\":0,\"previousNodeRun\":0},[\"40\"],[\"41\"],[\"42\",\"43\"],\"Make Items\",[\"44\",\"45\"],{\"json\":\"46\",\"pairedItem\":\"47\"},{\"json\":\"48\",\"pairedItem\":\"49\"},{\"json\":\"50\",\"pairedItem\":\"51\"},{\"json\":\"52\",\"pairedItem\":\"53\"},{\"json\":\"54\",\"pairedItem\":\"55\"},{\"timestamp\":\"56\",\"Readable date\":\"57\",\"Readable time\":\"58\",\"Day of week\":\"59\",\"Year\":\"60\",\"Month\":\"61\",\"Day of month\":\"62\",\"Hour\":\"63\",\"Minute\":\"64\",\"Second\":\"65\",\"Timezone\":\"66\"},{\"item\":0},{\"id\":1,\"email\":\"67\"},{\"item\":0},{\"id\":2,\"email\":\"68\"},{\"item\":0},{},{\"item\":0},{},{\"item\":1},\"2026-08-30T20:59:15.015-04:00\",\"August 30th 2026, 8:59:15 pm\",\"8:59:15 pm\",\"Sunday\",\"2026\",\"August\",\"30\",\"20\",\"59\",\"15\",\"America/New_York (UTC-04:00)\",\"a@example.com\",\"b@example.com\"]"
+}

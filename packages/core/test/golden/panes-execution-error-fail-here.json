@@ -1,0 +1,29 @@
+[
+  {
+    "run": 0,
+    "input": {
+      "runIndex": 0,
+      "runCount": 1,
+      "items": 2,
+      "columns": [
+        "id",
+        "email"
+      ],
+      "truncatedColumns": 0,
+      "firstRow": {
+        "id": "1",
+        "email": "a@example.com"
+      },
+      "error": null
+    },
+    "output": {
+      "runIndex": 0,
+      "runCount": 1,
+      "items": 0,
+      "columns": [],
+      "truncatedColumns": 0,
+      "firstRow": null,
+      "error": "boom"
+    }
+  }
+]

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>workflow-render — offline n8n workflow viewer</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <script type="module" src="/workflow-render.js"></script>
+    <script type="module" src="./src/main.ts"></script>
+  </head>
+  <body>
+    <!-- The canvas is the page. Everything else floats over it. -->
+    <workflow-render id="canvas"></workflow-render>
+
+    <div id="messages" class="widget msg-stack" role="status" aria-live="polite"></div>
+
+    <section id="dropzone" class="widget widget-load" aria-label="Load a workflow">
+      <button class="widget-toggle" type="button" data-target="load-body" aria-expanded="true">
+        Load JSON
+      </button>
+      <div class="widget-body" id="load-body">
+        <p class="hint">Drop a workflow or execution <code>.json</code> here, or paste it.</p>
+        <textarea
+          id="paste"
+          rows="3"
+          spellcheck="false"
+          placeholder='{ "nodes": [...], "connections": {...} }'
+        ></textarea>
+        <div class="row">
+          <button id="load" type="button">Load</button>
+          <span class="examples">
+            <button type="button" data-example="linear.json">linear</button>
+            <button type="button" data-example="branching.json">branching</button>
+            <button type="button" data-example="execution-success.json">execution</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="widget widget-embed" aria-label="Embed this canvas">
+      <button class="widget-toggle" type="button" data-target="embed-body" aria-expanded="false">
+        Embed code
+      </button>
+      <div class="widget-body" id="embed-body" hidden>
+        <p class="hint">
+          Self-contained: paste it into any page. Nothing is fetched at runtime.
+        </p>
+        <textarea id="embed-snippet" rows="4" spellcheck="false" readonly></textarea>
+        <div class="row">
+          <button id="copy-embed" type="button">Copy</button>
+          <button id="download-embed" type="button">Download .html</button>
+          <span class="hint hint-inline">
+            <span id="embed-size">…</span> · n8n <span id="emulates">…</span>
+          </span>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

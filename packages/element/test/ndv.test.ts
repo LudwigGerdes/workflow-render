@@ -206,7 +206,7 @@ describe('stickies and unknown types', () => {
   });
 });
 
-describe('overlay attribute (seam S6, reserved)', () => {
+describe('overlay attribute (reserved)', () => {
   it('accepts an overlay payload without rendering anything yet', async () => {
     const overlay = {
       version: 1,

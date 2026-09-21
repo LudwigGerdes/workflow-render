@@ -237,7 +237,7 @@ export class WorkflowRender extends LitElement {
   @property({ type: String }) images: 'safe' | 'remote' = 'safe';
 
   /**
-   * Canvas overlay payload (related-tools seam S6), as JSON or an object. Reserved:
+   * Canvas overlay payload, as JSON or an object. Reserved:
    * the shape is validated and kept so producers can start emitting it, but
    * nothing is rendered from it yet.
    */

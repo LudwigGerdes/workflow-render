@@ -428,7 +428,7 @@ Four standalone tools for workflow JSON, built by one maintainer. Each works on 
 |---|---|
 | [workflow-lint](https://github.com/LudwigGerdes/workflow-lint) | Lint and format workflow JSON; pre-commit hook, GitHub Action, MCP server |
 | [integration-mock](https://github.com/LudwigGerdes/integration-mock) | Mock the APIs a workflow's integrations call; snapshot real runs and replay them |
-| [payload-contract](https://github.com/LudwigGerdes/payload-contract) | Generate and run contract tests from the payloads a trigger can receive |
+| [workflow-test](https://github.com/LudwigGerdes/workflow-test) | Generate and run contract tests from the payloads a trigger can receive |
 | [workflow-render](https://github.com/LudwigGerdes/workflow-render) | Render workflow and execution JSON to SVG/PNG offline; embed and export |
 
 Not affiliated with n8n GmbH.

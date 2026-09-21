@@ -7,6 +7,16 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- README: the npm quickstart downloads two sample files so it runs as pasted; the known-issues entry about `--version` is corrected (the flag exists).
+
+## 0.1.0 — 2026-09-20
+
+First release: workflow and execution rendering, the `<workflow-render>` element
+with inspector and export buttons, the static viewer page, and the
+`workflow-render export` / `workflow-render view` CLI.
+
+### Changed
+
 - **One published package.** `workflow-render` is now self-contained: the CLI
   bundles the internal `core` and `assets` libraries (esbuild), ships the
   n8n-derived data and the Inter faces in `data/`, and carries the browser
@@ -62,9 +72,3 @@ All notable changes to this project are documented here. The format follows
 - README rewritten around the rendered canvas; `CONTRIBUTING.md`,
   `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue and pull-request templates.
 - `order-intake` fixture and golden (the README hero workflow).
-
-## 0.1.0 — unreleased
-
-First release: workflow and execution rendering, the `<workflow-render>` element
-with inspector and export buttons, the static viewer page, and the
-`workflow-render export` / `workflow-render view` CLI.

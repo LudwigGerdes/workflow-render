@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Questions and ideas
-    url: https://github.com/LudwigGerdes/workflow-render/discussions
-    about: Ask how to do something or discuss a feature before filing an issue.
+  - name: Documentation
+    url: https://workflowtools.dev/workflow-render/
+    about: Guides, the command reference and the FAQ.

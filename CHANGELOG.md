@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.2.0 — 2026-09-21
+
 ### Added
 
 - Touch: a one-finger drag pans, two fingers pinch-zoom, and a tap opens a node. A phone had no way to move the canvas or open the inspector before, because panning needed a wheel, a middle button or a held key, and opening needed a double click.

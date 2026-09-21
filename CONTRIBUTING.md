@@ -77,4 +77,4 @@ pin; core derives its own from it), rebuild and regenerate the goldens.
   from a real instance.
 - Keep the suite green: `pnpm build && pnpm typecheck && pnpm test`, and `pnpm smoke` for packaging changes.
 
-Bugs and questions: GitHub Issues (use the template) and Discussions.
+Bugs and questions: GitHub Issues (use a template).

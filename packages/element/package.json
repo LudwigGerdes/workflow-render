@@ -1,6 +1,6 @@
 {
   "name": "workflow-render-element",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "<workflow-render>: a read-only web component that renders n8n workflow and execution JSON as an n8n-style canvas, offline.",
   "license": "MIT",

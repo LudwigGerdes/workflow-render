@@ -1,6 +1,6 @@
 {
   "name": "workflow-render-assets",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Bundled n8n node icons, descriptions and subtitle templates plus the Inter faces, with offline loaders for workflow-render.",
   "license": "MIT",

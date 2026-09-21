@@ -1,0 +1,16 @@
+name: Question or idea
+description: Ask how to do something with workflow-render, or suggest a change
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What would you like to know, or see changed?
+      description: If it is about a specific workflow, a minimal workflow JSON helps.
+    validations:
+      required: true
+  - type: input
+    id: tool-version
+    attributes:
+      label: workflow-render version
+      placeholder: 0.1.0

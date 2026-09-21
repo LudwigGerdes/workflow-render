@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Touch: a one-finger drag pans, two fingers pinch-zoom, and a tap opens a node. A phone had no way to move the canvas or open the inspector before, because panning needed a wheel, a middle button or a held key, and opening needed a double click.
+- The inspector adapts to its container. Below 760 pixels it shows Input, the node and Output one at a time with a switch at the top; the three columns used to be squeezed side by side until they were unreadable. It measures the element, not the screen, so a narrow embed on a wide page gets the narrow layout too.
+
 ### Fixed
 
 - `export --scale N` with an `.svg` output is now a usage error; it used to be accepted and do nothing.

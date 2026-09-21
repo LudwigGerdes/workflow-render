@@ -55,23 +55,36 @@ The element fills the box you give it. It has no border or padding of its own. T
 
 ## Pan and zoom
 
+With a mouse or trackpad, the gestures are n8n's own:
+
 | Input | Action |
 |---|---|
-| Wheel | Pan |
-| <kbd>Ctrl</kbd> + wheel, or pinch | Zoom about the pointer |
-| Drag | Pan |
-| Double-click on the canvas | Zoom 2× |
-| Double-click on a node | Open the inspector |
+| Wheel, or two-finger scroll | Pan |
+| <kbd>Ctrl</kbd> or <kbd>Cmd</kbd> + wheel, or trackpad pinch | Zoom about the pointer |
+| Middle-button drag, or <kbd>Space</kbd> + drag | Pan |
+| Drag | Draw a selection rectangle |
 | Click on a node | Select it. <kbd>Shift</kbd> + click adds to the selection |
+| Double-click on a node | Open the inspector |
+| Double-click on the canvas | Zoom 2× |
 | <kbd>0</kbd> | Reset zoom |
 | <kbd>1</kbd> | Fit to view |
 | <kbd>+</kbd> / <kbd>-</kbd> | Zoom in and out |
+
+On a touch screen:
+
+| Input | Action |
+|---|---|
+| One-finger drag | Pan |
+| Pinch | Zoom |
+| Tap on a node | Open the inspector |
+
+The buttons in the corner fit the view and zoom in and out on any device.
 
 Keyboard shortcuts only fire while the element has focus, so it never takes keystrokes from the page around it.
 
 ## The inspector
 
-Double-click a node to open a read-only panel with three tabs: **Parameters**, **Settings** and **JSON**.
+Double-click a node, or tap it on a touch screen, to open a read-only panel with three tabs: **Parameters**, **Settings** and **JSON**.
 
 - Labels, field order and visibility follow the node's description, as they do in n8n.
 - Options show their labels, not raw values.
@@ -79,3 +92,5 @@ Double-click a node to open a read-only panel with three tabs: **Parameters**, *
 - Expressions are shown as written. They are never evaluated.
 
 For an execution, the panel also shows what the node received and what it produced.
+
+The panel adapts to the space the element is given. In a wide container, Input, the node and Output sit side by side. Below 760 pixels it shows one at a time, with a switch at the top.

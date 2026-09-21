@@ -220,7 +220,12 @@ export const ndvStyles = `
 .wr-ndv-error-detail { font-size: 12px; opacity: 0.8; margin: 0 0 4px; }
 .wr-ndv-error-stack pre { font-size: 11px; white-space: pre-wrap; }
 
+/* The backdrop is exactly the element's box, so it is what the narrow layout
+   below measures: the panel adapts to the space it is given, not to the screen,
+   because an embed can be a narrow column on a wide page. */
 .wr-ndv-backdrop {
+  container-type: inline-size;
+  container-name: wr-ndv;
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, ${NDV_BACKDROP_OPACITY});
@@ -360,5 +365,51 @@ export const ndvStyles = `
   border-radius: 4px;
   padding: 8px;
   margin-bottom: 12px;
+}
+
+/* Shown only in the narrow layout. */
+.wr-ndv-switch { display: none; }
+.wr-ndv-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wr-ndv-sub { white-space: nowrap; }
+
+/* Below this width the parameters column alone (${NDV_PANEL_WIDTH}px) leaves the
+   side panes a few words wide. Show one column at a time, full width. */
+@container wr-ndv (max-width: 760px) {
+  .wr-ndv { inset: 8px; }
+  .wr-ndv-header { padding: 10px 12px; }
+  .wr-ndv-title { font-size: 15px; }
+  .wr-ndv-switch {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    border-bottom: 1px solid ${NDV_LINE};
+  }
+  .wr-ndv-switch button {
+    flex: 1 1 0;
+    min-height: 36px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: ${NDV_TAB_IDLE_COLOR};
+    background: none;
+    border: 1px solid ${NDV_LINE};
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .wr-ndv-switch button[aria-pressed='true'] {
+    color: ${NDV_TAB_ACCENT};
+    border-color: ${NDV_TAB_ACCENT};
+  }
+  .wr-ndv-resize { display: none; }
+  .wr-ndv-panes > .wr-ndv-pane,
+  .wr-ndv-panes > .wr-ndv-middle { display: none; }
+  .wr-ndv-middle { width: auto !important; flex: 1 1 auto; border-left: 0; border-right: 0; }
+  .wr-ndv-panes[data-pane='node'] > .wr-ndv-middle,
+  .wr-ndv-panes[data-pane='input'] > .wr-ndv-pane-input,
+  .wr-ndv-panes[data-pane='output'] > .wr-ndv-pane-output { display: flex; flex: 1 1 auto; }
+  .wr-ndv-pane { padding: 12px; }
+  .wr-ndv-tabs { overflow-x: auto; }
+  .wr-ndv-tabs button { white-space: nowrap; }
+  .wr-ndv-body { padding-left: 12px; padding-right: 12px; }
 }
 `;

@@ -1,7 +1,7 @@
 {
   "name": "workflow-render",
   "version": "0.1.0",
-  "description": "Show n8n workflows on a portfolio, blog or docs page as interactive canvases: pan, zoom, double-click a node to inspect it. Needs only the workflow JSON. Also exports SVG and PNG.",
+  "description": "Show n8n workflows on a portfolio, blog or docs page as interactive canvases: pan, zoom and open any node to inspect it, on a desktop or a phone. Needs only the workflow JSON. Also exports SVG and PNG.",
   "keywords": [
     "n8n",
     "n8n-workflow",

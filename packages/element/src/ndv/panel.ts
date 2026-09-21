@@ -143,6 +143,30 @@ interface Sides {
   output: TemplateResult;
 }
 
+/**
+ * In a narrow container the three columns cannot sit side by side, so one is
+ * shown at a time and this switch picks which. The choice is kept on the DOM
+ * (`data-pane`, `aria-pressed`) rather than in component state: neither is a
+ * Lit binding, so a re-render leaves it alone, and closing the panel resets it.
+ */
+function choosePane(event: Event): void {
+  const button = (event.target as Element | null)?.closest<HTMLElement>('button[data-pane]');
+  const panes = button?.closest('.wr-ndv')?.querySelector<HTMLElement>('.wr-ndv-panes');
+  if (!button || !panes) return;
+  panes.dataset.pane = button.dataset.pane ?? 'node';
+  for (const other of button.parentElement?.querySelectorAll('button') ?? []) {
+    other.setAttribute('aria-pressed', String(other === button));
+  }
+}
+
+const paneSwitch = html`
+  <nav class="wr-ndv-switch" aria-label="Pane" @click=${choosePane}>
+    <button type="button" data-pane="input" aria-pressed="false">Input</button>
+    <button type="button" data-pane="node" aria-pressed="true">Node</button>
+    <button type="button" data-pane="output" aria-pressed="false">Output</button>
+  </nav>
+`;
+
 function shell(
   title: string,
   subtitle: string,
@@ -183,8 +207,9 @@ function shell(
           <span class="wr-ndv-sub">${subtitle}</span>
           <button class="wr-ndv-close" type="button" aria-label="Close" @click=${onClose}>×</button>
         </header>
+        ${sides ? paneSwitch : ''}
         ${sides
-          ? html`<div class="wr-ndv-panes">
+          ? html`<div class="wr-ndv-panes" data-pane="node">
               ${sides.input}${resizeHandle('left')}${middle}${resizeHandle('right')}${sides.output}
             </div>`
           : middle}

@@ -274,7 +274,11 @@ export class WorkflowRender extends LitElement {
   #inspectorLoaded: Promise<void> = Promise.resolve();
   #idleTimer?: ReturnType<typeof setTimeout>;
   /** A press in flight, before it is known to be a click or a drag. */
-  #press?: { x: number; y: number; at: { x: number; y: number }; button: number; pointerId: number };
+  #press?: { x: number; y: number; at: { x: number; y: number }; button: number; pointerId: number; touch: boolean };
+  /** Fingers currently down, by pointer id. Two of them make a pinch. */
+  readonly #touches = new Map<number, { x: number; y: number }>();
+  /** Whether the press behind the next click came from a finger. */
+  #tapped = false;
   /** True while the pointer rests on a control cluster, which pins it open. */
   #overChrome = false;
 
@@ -639,13 +643,47 @@ export class WorkflowRender extends LitElement {
     // Record the press and nothing else. Taking the pointer here would retarget
     // the click and dblclick that follow to this element, so a node would never
     // see them -- which is exactly why nodes were not clickable.
+    const touch = event.pointerType === 'touch';
+    this.#tapped = touch;
+    if (touch) {
+      this.#touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      // A second finger turns the gesture into a pinch; whatever the first
+      // finger had started is over.
+      if (this.#touches.size > 1) {
+        this.#press = undefined;
+        this.#dragging = false;
+        return;
+      }
+    }
     this.#press = {
       x: event.clientX,
       y: event.clientY,
       at: this.#localPoint(event),
       button: event.button,
       pointerId: event.pointerId,
+      touch,
     };
+  }
+
+  /**
+   * Two fingers: zoom by how their spread changed, about the point between
+   * them, and carry the canvas along as that point moves.
+   */
+  #pinch(event: PointerEvent): void {
+    const before = [...this.#touches.values()];
+    this.#touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const after = [...this.#touches.values()];
+    const [a0, b0] = before;
+    const [a1, b1] = after;
+    if (!a0 || !b0 || !a1 || !b1) return;
+    const spread0 = Math.hypot(b0.x - a0.x, b0.y - a0.y);
+    const spread1 = Math.hypot(b1.x - a1.x, b1.y - a1.y);
+    const mid0 = { x: (a0.x + b0.x) / 2, y: (a0.y + b0.y) / 2 };
+    const mid1 = { x: (a1.x + b1.x) / 2, y: (a1.y + b1.y) / 2 };
+    this.dragBy(mid1.x - mid0.x, mid1.y - mid0.y);
+    if (spread0 > 0 && spread1 > 0) {
+      this.zoomBy(spread1 / spread0, this.#localPoint({ clientX: mid1.x, clientY: mid1.y }));
+    }
   }
 
   /** Promote a press to a drag once it has travelled far enough to be one. */
@@ -659,8 +697,9 @@ export class WorkflowRender extends LitElement {
     (event.currentTarget as Element).setPointerCapture?.(press.pointerId);
 
     // The middle button drags the pane. The left button draws a selection
-    // rectangle, and only pans while a panning-mode key is held.
-    if (press.button !== MIDDLE_BUTTON && !this.panningMode) {
+    // rectangle, and only pans while a panning-mode key is held. A finger has
+    // neither a middle button nor a key to hold, so it always pans.
+    if (press.button !== MIDDLE_BUTTON && !this.panningMode && !press.touch) {
       this.marquee = { x0: press.at.x, y0: press.at.y, x1: press.at.x, y1: press.at.y };
     } else {
       this.#dragging = true;
@@ -671,6 +710,10 @@ export class WorkflowRender extends LitElement {
 
   #onPointerMove(event: PointerEvent): void {
     this.#wakeChrome();
+    if (event.pointerType === 'touch' && this.#touches.size > 1) {
+      if (!this.isStatic && this.#touches.has(event.pointerId)) this.#pinch(event);
+      return;
+    }
     this.#beginDrag(event);
     if (this.marquee) {
       const at = this.#localPoint(event);
@@ -683,6 +726,7 @@ export class WorkflowRender extends LitElement {
   }
 
   #onPointerUp(event: PointerEvent): void {
+    this.#touches.delete(event.pointerId);
     this.#press = undefined;
     if (this.marquee) {
       this.#select(this.#nodesWithin(this.marquee));
@@ -783,6 +827,13 @@ export class WorkflowRender extends LitElement {
       // A plain click replaces the selection; shift or the control key extends
       // it, toggling the node that was clicked.
       const extend = event.shiftKey || event.metaKey || event.ctrlKey;
+      // A tap opens the node. A double tap is what opens it with a mouse, but
+      // browsers claim that gesture on touch screens for their own zoom.
+      if (this.#tapped && !extend && !this.isStatic && this.inspector === 'panel') {
+        this.#select([nodeName]);
+        this.#inspectorLoaded = this.#openInspector(nodeName);
+        return;
+      }
       if (!extend) this.#select([nodeName]);
       else if (this.#selected.has(nodeName)) {
         this.#select(this.selectedNodes.filter((n) => n !== nodeName));

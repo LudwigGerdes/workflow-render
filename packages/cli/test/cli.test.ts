@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { PNG } from 'pngjs';
 import { describe, expect, it } from 'vitest';
-import { exportFile, parseArgs, USAGE } from '../src/index.js';
+import { exportFile, parseArgs, USAGE, USAGE_EXIT_CODE } from '../src/index.js';
 
 const fixture = (name: string): string => {
   const candidates = [
@@ -67,6 +67,15 @@ describe('parseArgs', () => {
     });
   });
 
+  it('refuses --scale with an SVG output, where it would do nothing', () => {
+    expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--scale', '3'])).toMatchObject({
+      kind: 'error',
+      message: '--scale only applies to PNG output',
+      exitCode: USAGE_EXIT_CODE,
+    });
+    expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg'])).toMatchObject({ kind: 'export' });
+  });
+
   it('takes a scale', () => {
     expect(parseArgs(['export', 'wf.json', '-o', 'wf.png', '--scale', '3'])).toMatchObject({
       scale: 3,
@@ -111,9 +120,15 @@ describe('parseArgs', () => {
 });
 
 describe('the built binary', () => {
+  it('exits 2 on every argument error, not only unknown flags', () => {
+    // --scale with an SVG path also sits in the existing unknown-flag case below.
+    expect(runCli(['export', fixture('linear')]).status).toBe(2);
+    expect(runCli(['export', fixture('linear'), '-o', join(outDir(), 'y.svg'), '--scale', '3']).status).toBe(2);
+  });
+
   it('exits 2 with the usage text on an unknown flag, writing nothing', () => {
     const out = join(outDir(), 'x.svg');
-    const { status, stderr } = runCli(['export', fixture('linear'), '-o', out, '--scale', '3', '--bogus']);
+    const { status, stderr } = runCli(['export', fixture('linear'), '-o', out, '--bogus']);
     expect(status).toBe(2);
     expect(stderr).toContain('workflow-render: unknown flag "--bogus"');
     expect(stderr).toContain(USAGE);

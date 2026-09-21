@@ -5,8 +5,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `export --scale N` with an `.svg` output is now a usage error; it used to be accepted and do nothing.
+- Every argument error exits 2. A missing input file, a missing `-o` and a bad `--scale` used to exit 1 while an unknown flag exited 2.
+
 ### Changed
 
+- README cut down to description, installation, getting started and core usage; the reference moved to `docs/` (`cli.md`, `web-component.md`, `node-api.md`, `faq.md`).
 - README: the npm quickstart downloads two sample files so it runs as pasted; the known-issues entry about `--version` is corrected (the flag exists).
 
 ## 0.1.0 — 2026-09-20

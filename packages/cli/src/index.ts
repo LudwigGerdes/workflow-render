@@ -99,6 +99,10 @@ export function parseArgs(argv: string[]): Command {
     const out = flags.get('o') ?? flags.get('out');
     if (out === undefined) return { kind: 'error', message: 'export needs -o <out.svg|out.png>' };
 
+    // An SVG has no pixel size, so a scale would be accepted and do nothing.
+    if (flags.has('scale') && !out.toLowerCase().endsWith('.png')) {
+      return { kind: 'error', message: '--scale only applies to PNG output', exitCode: USAGE_EXIT_CODE };
+    }
 
     const scale = Number(flags.get('scale') ?? 2);
     if (!Number.isFinite(scale) || scale <= 0) {

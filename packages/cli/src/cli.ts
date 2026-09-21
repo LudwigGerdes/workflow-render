@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { exportFile, packageVersion, parseArgs, USAGE } from './index.js';
+import { exportFile, packageVersion, parseArgs, USAGE, USAGE_EXIT_CODE } from './index.js';
 import { serve } from './view.js';
 
 const command = parseArgs(process.argv.slice(2));
@@ -10,7 +10,8 @@ if (command.kind === 'help') {
   process.stdout.write(`${packageVersion()}\n`);
 } else if (command.kind === 'error') {
   process.stderr.write(`workflow-render: ${command.message}\n\n${USAGE}\n`);
-  process.exitCode = command.exitCode ?? 1;
+  // Every parse error is a usage error: nothing was read or written.
+  process.exitCode = command.exitCode ?? USAGE_EXIT_CODE;
 } else if (command.kind === 'export') {
   try {
     const { warnings } = await exportFile(command);

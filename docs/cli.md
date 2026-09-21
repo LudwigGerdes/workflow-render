@@ -53,7 +53,7 @@ Give `view` or `export` an execution instead of a workflow and the canvas shows 
 
 - Executed nodes take the status colour.
 - Edge labels carry the item counts.
-- Click a node to open the inspector: input, parameters and output, with Schema, Table and JSON views.
+- Double-click a node to open the inspector: input, parameters and output, with Schema, Table and JSON views.
 - A failed node shows its error and stack.
 - Binary data is named, never fetched.
 

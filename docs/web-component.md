@@ -22,6 +22,9 @@ The element fills the box you give it. It has no border or padding of its own. T
 
 `src` is fetched by the visitor's browser, so the JSON must be same-origin or served with CORS headers.
 
+> [!NOTE]
+> If your site sends a Content-Security-Policy header, the inspector needs `style-src-attr 'unsafe-inline'`. It sets inline `style` attributes. Scripts and `<style>` blocks are not affected.
+
 ## Attributes
 
 | Attribute | Meaning | Default |
@@ -42,7 +45,7 @@ The element fills the box you give it. It has no border or padding of its own. T
 |---|---|
 | `wr-load` | `{ view, warnings }` |
 | `wr-error` | `{ message }` |
-| `wr-node-click` | `{ nodeName }`. Fires whether or not the inspector is on |
+| `wr-node-click` | `{ nodeName }`. Fires on a single click, whether or not the inspector is on |
 | `wr-inspector-open` | `{ nodeName }` |
 | `wr-inspector-close` | |
 
@@ -57,7 +60,9 @@ The element fills the box you give it. It has no border or padding of its own. T
 | Wheel | Pan |
 | <kbd>Ctrl</kbd> + wheel, or pinch | Zoom about the pointer |
 | Drag | Pan |
-| Double-click | Zoom 2× |
+| Double-click on the canvas | Zoom 2× |
+| Double-click on a node | Open the inspector |
+| Click on a node | Select it. <kbd>Shift</kbd> + click adds to the selection |
 | <kbd>0</kbd> | Reset zoom |
 | <kbd>1</kbd> | Fit to view |
 | <kbd>+</kbd> / <kbd>-</kbd> | Zoom in and out |
@@ -66,7 +71,7 @@ Keyboard shortcuts only fire while the element has focus, so it never takes keys
 
 ## The inspector
 
-Click a node to open a read-only panel with three tabs: **Parameters**, **Settings** and **JSON**.
+Double-click a node to open a read-only panel with three tabs: **Parameters**, **Settings** and **JSON**.
 
 - Labels, field order and visibility follow the node's description, as they do in n8n.
 - Options show their labels, not raw values.

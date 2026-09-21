@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/workflow-render.svg)](https://www.npmjs.com/package/workflow-render)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Show your n8n workflows on a portfolio, a blog or a docs page as interactive canvases instead of screenshots. Visitors can pan, zoom and click a node to inspect it. All it needs is the workflow's JSON file: no n8n instance, no login, no backend.
+Show your n8n workflows on a portfolio, a blog or a docs page as interactive canvases instead of screenshots. Visitors can pan, zoom and double-click a node to inspect it. All it needs is the workflow's JSON file: no n8n instance, no login, no backend.
 
 **[Try the live demo at workflowtools.dev](https://workflowtools.dev/#try)**
 
@@ -51,7 +51,7 @@ workflow-render viewing execution-loop.json
 Press Ctrl+C to stop.
 ```
 
-Open the URL, then pan, zoom and click a node to see what it received and produced.
+Open the URL, then pan, zoom and double-click a node to see what it received and produced.
 
 To use a workflow of your own, open it in n8n and choose **Download** from the `…` menu.
 

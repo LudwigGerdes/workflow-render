@@ -40,10 +40,18 @@ Download a sample execution and open it in the interactive viewer:
 
 ```bash
 curl -LO https://raw.githubusercontent.com/LudwigGerdes/workflow-render/main/packages/core/test/fixtures/execution-loop.json
-npx workflow-render view execution-loop.json
+npx workflow-render view execution-loop.json --port 4777
 ```
 
-This prints a local URL. Open it, then pan, zoom and click a node to see what it received and produced.
+**Expected output:**
+
+```text
+workflow-render viewing execution-loop.json
+  http://127.0.0.1:4777/
+Press Ctrl+C to stop.
+```
+
+Open the URL, then pan, zoom and click a node to see what it received and produced.
 
 To use a workflow of your own, open it in n8n and choose **Download** from the `…` menu.
 
@@ -70,6 +78,13 @@ Export a static image, for places that cannot run scripts, such as a GitHub READ
 ```bash
 workflow-render export workflow.json -o workflow.svg
 workflow-render export workflow.json -o workflow.png --scale 3
+```
+
+**Expected output:**
+
+```text
+wrote workflow.svg
+wrote workflow.png
 ```
 
 Render from Node.js:

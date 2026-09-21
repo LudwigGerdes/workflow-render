@@ -34,7 +34,9 @@ workflow-render view workflow.json
 workflow-render view execution.json --port 4777
 ```
 
-```
+**Expected output:**
+
+```text
 workflow-render viewing execution.json
   http://127.0.0.1:4777/
 Press Ctrl+C to stop.
@@ -65,8 +67,13 @@ Give `view` or `export` an execution instead of a workflow and the canvas shows 
 
 Warnings go to stderr, prefixed `warning:`. The file is still written.
 
+```bash
+workflow-render export dangling.json -o dangling.svg
 ```
-$ workflow-render export dangling.json -o dangling.svg
+
+**Expected output:**
+
+```text
 wrote dangling.svg
 warning: connection to unknown node "Ghost" dropped
 ```

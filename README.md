@@ -40,8 +40,12 @@ with the CLI, the n8n icon and description data, the fonts and the browser
 element all inside it:
 
 ```bash
-npx workflow-render export my-workflow.json -o my-workflow.png --scale 3
-npx workflow-render view   my-execution.json --port 4777
+# two sample files, or use a workflow / execution JSON of your own
+curl -LO https://raw.githubusercontent.com/LudwigGerdes/workflow-render/main/packages/core/test/fixtures/order-intake.json
+curl -LO https://raw.githubusercontent.com/LudwigGerdes/workflow-render/main/packages/core/test/fixtures/execution-loop.json
+
+npx workflow-render export order-intake.json -o my-workflow.png --scale 3
+npx workflow-render view   execution-loop.json --port 4777
 ```
 
 or `npm install workflow-render` and call `node_modules/.bin/workflow-render`.
@@ -164,6 +168,10 @@ warning: connection to unknown node "Ghost" dropped
 ```
 
 ### `export`
+
+`invoice-sync.json` and `execution.json` here and below stand for your own
+files. With the npm package, replace `node packages/cli/dist/cli.js` with
+`npx workflow-render`.
 
 ```bash
 node packages/cli/dist/cli.js export invoice-sync.json -o invoice-sync.svg
@@ -386,9 +394,10 @@ you need byte-exact n8n, run n8n.
 
 - `--scale` is accepted with an `.svg` output and silently has no effect
   (it only applies to PNG).
-- There is no `--version` flag and no per-command `--help`; `workflow-render --help`
-  is the whole usage text. The bundled n8n version is visible on every export
-  (`data-descriptions-version`) and on the element (`emulates`), not on the CLI.
+- There is no per-command `--help`; `workflow-render --help` is the whole usage
+  text. `--version` prints the package version; the bundled n8n version is
+  visible on every export (`data-descriptions-version`) and on the element
+  (`emulates`), not on the CLI.
 - The inspector lives in the element; there is no headless way to read a node's
   reconstructed parameters.
 - Pinning and editing data in the NDV, which n8n allows, is out of scope for

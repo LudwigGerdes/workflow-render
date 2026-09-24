@@ -49,6 +49,7 @@ import {
   NODE_BORDER_WIDTH,
   NODE_RADIUS,
   PORT_DOT_RADIUS,
+  PORT_LABEL_GAP,
   STICKY_ASCENT_RATIO,
   STICKY_BODY_SIZE,
   STICKY_BODY_WEIGHT,
@@ -70,7 +71,7 @@ import { el, esc, num, text } from './svg.js';
 import { evaluateSubtitle } from './subtitle.js';
 import { truncateLabel, wrapLabel } from './text.js';
 import type { IconEntry } from 'workflow-render-assets';
-import type { RenderOptions, SceneEdgePath, SceneGraph, SceneNode, SceneSticky } from './types.js';
+import type { RenderOptions, SceneEdgePath, SceneGraph, SceneNode, ScenePoint, SceneSticky } from './types.js';
 
 /**
  * Colours are written as concrete presentation attributes for the rendered
@@ -806,8 +807,9 @@ function edgeLabel(
 ): string | undefined {
   const at = scene.labelAt;
   if (!at) return undefined;
+  // The output's name (`true`, `done`) now sits beside its port, as n8n draws
+  // it, so the connector carries only what the run added: the item count.
   const parts: string[] = [];
-  if (scene.edge.label) parts.push(scene.edge.label);
   if (scene.edge.itemCount !== undefined) {
     const unit = scene.edge.itemCount === 1 ? 'item' : 'items';
     // Across all runs, when the source ran more than once.
@@ -844,28 +846,54 @@ function edgeLabel(
   );
 }
 
-/** n8n draws a small dot where a connector meets a node. */
+/**
+ * n8n draws a small dot for every port a tile has, wired or not, and prints an
+ * output's name beside it. The ai_* ports along an agent's bottom edge only
+ * exist where a sub-node is attached, so those come from the edges.
+ */
 function portDots(scene: SceneGraph, tokens: ThemeTokens): string {
   const seen = new Set<string>();
-  const dots: string[] = [];
-  for (const edge of scene.edges) {
-    for (const point of [edge.endpoints.source, edge.endpoints.target]) {
-      const key = `${num(point.x)}:${num(point.y)}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      dots.push(
-        el('circle', {
-          class: 'wr-port',
-          cx: point.x,
-          cy: point.y,
-          r: PORT_DOT_RADIUS,
-          fill: tokens.nodeBg,
-          stroke: tokens.portBorder,
-        }),
+  const parts: string[] = [];
+  const dot = (point: ScenePoint, attrs: Record<string, string> = {}): void => {
+    const key = `${num(point.x)}:${num(point.y)}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    parts.push(
+      el('circle', {
+        class: 'wr-port',
+        ...attrs,
+        cx: point.x,
+        cy: point.y,
+        r: PORT_DOT_RADIUS,
+        fill: tokens.nodeBg,
+        stroke: tokens.portBorder,
+      }),
+    );
+  };
+  for (const port of scene.ports) {
+    dot(port.at, { 'data-node': port.node });
+    if (port.label !== undefined) {
+      parts.push(
+        text(
+          {
+            class: 'wr-port-label',
+            x: port.at.x + PORT_DOT_RADIUS + PORT_LABEL_GAP,
+            y: port.at.y,
+            'dominant-baseline': 'central',
+            'font-size': EDGE_LABEL_FONT_SIZE,
+            fill: tokens.textMuted,
+          },
+          port.label,
+        ),
       );
     }
   }
-  return el('g', { class: 'wr-layer-ports' }, ...dots);
+  for (const edge of scene.edges) {
+    if (edge.edge.kind !== 'ai') continue;
+    dot(edge.endpoints.source);
+    dot(edge.endpoints.target);
+  }
+  return el('g', { class: 'wr-layer-ports' }, ...parts);
 }
 
 // ---------------------------------------------------------------- document

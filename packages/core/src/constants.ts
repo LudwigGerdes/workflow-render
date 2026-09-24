@@ -98,6 +98,8 @@ export const STATUS_GLYPH_SIZE = 16; // measured
 export const STATUS_GLYPH_INSET = 16; // measured: glyph centre at (right-16, bottom-16)
 /** Font size of an edge's item-count label. */
 export const EDGE_LABEL_FONT_SIZE = 13; // measured
+/** Gap between an output port's dot and the label n8n prints beside it. */
+export const PORT_LABEL_GAP = 6; // measured: `done` / `loop` start ~6px right of the dot
 /** Opacity of the block behind an edge label. */
 export const EDGE_LABEL_BG_OPACITY = 0.85; // measured
 /**

@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Every output a node type declares is drawn, wired or not. A Loop Over Items with nothing on `done` showed one centred port and no labels, with the `loop` connector leaving from the tile's centre; it now shows both ports with `done` and `loop` beside them, as n8n does, and the connector leaves from the `loop` port. The same applies to an IF or Switch with an unwired branch.
+- Output names (`true`, `false`, `done`, `loop`, Switch output keys) sit beside their port instead of halfway along the connector. A connector's label now carries only the item count from a run.
+
 ## 0.2.0 — 2026-09-21
 
 ### Added

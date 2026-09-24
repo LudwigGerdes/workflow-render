@@ -57,6 +57,12 @@ export interface CanvasNode {
   parameters: Record<string, unknown>;
   settings?: CanvasNodeSettings;
   kind: NodeKind;
+  /**
+   * The main outputs this node type always shows, one entry per port, with
+   * n8n's label or `undefined` for an unlabelled port. Drawn whether or not a
+   * connection uses them.
+   */
+  outputs: Array<string | undefined>;
   run?: NodeRun;
   /**
    * The node exactly as the payload contained it, untouched.
@@ -151,10 +157,20 @@ export interface SceneBounds {
   height: number;
 }
 
+/** One port dot on a tile, with the label n8n prints beside it. */
+export interface ScenePort {
+  node: string;
+  side: 'input' | 'output';
+  index: number;
+  at: ScenePoint;
+  label?: string;
+}
+
 export interface SceneGraph {
   view: CanvasModel['view'];
   nodes: SceneNode[];
   edges: SceneEdgePath[];
+  ports: ScenePort[];
   stickies: SceneSticky[];
   bounds: SceneBounds;
   execution?: CanvasExecution;

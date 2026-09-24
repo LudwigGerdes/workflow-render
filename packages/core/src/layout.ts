@@ -25,7 +25,7 @@ import {
 } from './constants.js';
 import { num } from './svg.js';
 import { wrapLabel } from './text.js';
-import type { CanvasEdge, CanvasModel, SceneEdgePath, SceneGraph, SceneNode } from './types.js';
+import type { CanvasEdge, CanvasModel, SceneEdgePath, SceneGraph, SceneNode, ScenePort } from './types.js';
 
 /** Horizontal spacing of the ai_* ports along an agent's bottom edge. */
 const AI_PORT_SPACING = 48; // measured: branching/canvas-light.png
@@ -97,7 +97,9 @@ export function layout(model: CanvasModel): SceneGraph {
   // n8n grows a tile downwards for a third and further output, and widens a node
   // that accepts ai_* sub-nodes. Both are measured shape rules, not re-layout:
   // the node's own position is still used verbatim.
-  const outputCount = new Map<string, number>();
+  // A tile carries every output its type declares plus any a connection uses
+  // beyond those (an error output, say), so an unwired `done` still gets a port.
+  const outputCount = new Map<string, number>(model.nodes.map((n) => [n.name, n.outputs.length]));
   const acceptsSubNodes = new Set<string>();
   for (const edge of model.edges) {
     if (edge.kind === 'ai') {
@@ -121,7 +123,9 @@ export function layout(model: CanvasModel): SceneGraph {
 
   // How many ports each side of each node actually carries, so single-port
   // nodes stay centred and multi-port nodes fan out symmetrically.
-  const outputsUsed = new Map<string, Set<number>>();
+  const outputsUsed = new Map<string, Set<number>>(
+    model.nodes.filter((n) => n.kind !== 'sub').map((n) => [n.name, new Set(n.outputs.keys())]),
+  );
   const inputsUsed = new Map<string, Set<number>>();
   for (const edge of model.edges) {
     if (edge.kind === 'ai') continue;
@@ -148,6 +152,33 @@ export function layout(model: CanvasModel): SceneGraph {
       aiSlot.set(`${edge.from}\u0000${edge.to}`, slot);
     });
   const aiOrder = (edge: CanvasEdge): number => aiSlot.get(`${edge.from}\u0000${edge.to}`) ?? 0;
+
+  // Every port a tile shows, wired or not. Inputs exist only where wired (a
+  // trigger has none); outputs come from the declared list plus what is wired.
+  const ports: ScenePort[] = [];
+  for (const scene of nodes) {
+    if (scene.node.kind === 'sub') continue;
+    const outs = [...(outputsUsed.get(scene.node.name) ?? [])].sort((a, b) => a - b);
+    outs.forEach((index, i) => {
+      const label = scene.node.outputs[index];
+      ports.push({
+        node: scene.node.name,
+        side: 'output',
+        index,
+        at: { x: scene.x + scene.w, y: scene.y + scene.h / 2 + portShift(i, outs.length) },
+        ...(label !== undefined ? { label } : {}),
+      });
+    });
+    const ins = [...(inputsUsed.get(scene.node.name) ?? [])].sort((a, b) => a - b);
+    ins.forEach((index, i) => {
+      ports.push({
+        node: scene.node.name,
+        side: 'input',
+        index,
+        at: { x: scene.x, y: scene.y + scene.h / 2 + portShift(i, ins.length) },
+      });
+    });
+  }
 
   const edges: SceneEdgePath[] = [];
   for (const edge of model.edges) {
@@ -256,6 +287,7 @@ export function layout(model: CanvasModel): SceneGraph {
     view: model.view,
     nodes,
     edges,
+    ports,
     stickies,
     bounds: {
       x: minX - pad,

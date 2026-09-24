@@ -171,18 +171,27 @@ function stickyFrom(
   };
 }
 
+/**
+ * The main outputs a node type always shows, by label, wired or not. n8n draws
+ * every one of them: a Loop Over Items with nothing on `done` still has two
+ * ports. Node types with one plain output declare one unlabelled entry.
+ */
+function declaredOutputs(type: string, schemaVersion: number, parameters: Record<string, unknown>): Array<string | undefined> {
+  if (IF_TYPES.has(type)) return ['true', 'false'];
+  // Split In Batches v1 had one output; v2 added `done` above `loop`.
+  if (type === SPLIT_IN_BATCHES_TYPE) return schemaVersion >= 2 ? ['done', 'loop'] : [undefined];
+  if (type === SWITCH_TYPE) {
+    const rules = parameters['rules'];
+    const values = isRecord(rules) && Array.isArray(rules['values']) ? rules['values'] : [];
+    const labels = values.map((rule) => (isRecord(rule) ? asString(rule['outputKey']) : undefined));
+    return labels.length > 0 ? labels : [undefined];
+  }
+  return [undefined];
+}
+
 /** Output labels n8n shows on a node's outgoing ports, by output index. */
 function outputLabel(node: CanvasNode | undefined, outputIndex: number): string | undefined {
-  if (!node) return undefined;
-  if (IF_TYPES.has(node.type)) return outputIndex === 0 ? 'true' : 'false';
-  if (node.type === SPLIT_IN_BATCHES_TYPE) return outputIndex === 0 ? 'done' : 'loop';
-  if (node.type === SWITCH_TYPE) {
-    const rules = node.parameters['rules'];
-    const values = isRecord(rules) && Array.isArray(rules['values']) ? rules['values'] : undefined;
-    const rule = values?.[outputIndex];
-    return isRecord(rule) ? asString(rule['outputKey']) : undefined;
-  }
-  return undefined;
+  return node?.outputs[outputIndex];
 }
 
 function connectionTargets(raw: unknown): RawConnectionTarget[][] {
@@ -368,6 +377,7 @@ export function parseInput(input: unknown): ParsedInput {
       position: positionOf(raw['position']),
       parameters: isRecord(raw['parameters']) ? raw['parameters'] : {},
       kind: classify(type, name, subNodes),
+      outputs: declaredOutputs(type, asNumber(raw['typeVersion']) ?? 1, isRecord(raw['parameters']) ? raw['parameters'] : {}),
       ...(raw['disabled'] === true ? { disabled: true } : {}),
       ...(asString(raw['notes']) !== undefined ? { notes: asString(raw['notes']) as string } : {}),
       ...(settingsOf(raw) ? { settings: settingsOf(raw) } : {}),

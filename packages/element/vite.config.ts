@@ -1,4 +1,5 @@
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
@@ -50,10 +51,26 @@ function iconSidecar(): Plugin {
   };
 }
 
+/** sha384 of each JSON sidecar, baked into the bundle so its fetches carry SRI (see src/integrity.ts). */
+const sidecarIntegrity = (): Record<string, string> =>
+  Object.fromEntries(
+    (
+      [
+        ['workflow-render-icons.json', 'icons.json'],
+        ['workflow-render-subtitles.json', 'subtitles.json'],
+        ['workflow-render-descriptions.json', 'descriptions.json'],
+      ] as const
+    ).map(([shipped, source]) => [
+      shipped,
+      `sha384-${createHash('sha384').update(readFileSync(data(source))).digest('base64')}`,
+    ]),
+  );
+
 // One self-contained ESM file plus its icon sidecar: nothing is fetched at
 // runtime except that sidecar and the user's own `src`.
 export default defineConfig({
   plugins: [iconSidecar()],
+  define: { __WORKFLOW_RENDER_SIDECAR_INTEGRITY__: JSON.stringify(sidecarIntegrity()) },
   build: {
     lib: { entry: 'src/workflow-render.ts', formats: ['es'], fileName: 'workflow-render' },
     rollupOptions: { output: { inlineDynamicImports: true } },

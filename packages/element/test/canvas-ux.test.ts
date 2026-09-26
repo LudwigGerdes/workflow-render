@@ -186,6 +186,7 @@ describe('selection rectangle', () => {
     surface(el)?.dispatchEvent(mouse('pointermove', { button: 0, buttons: 1, clientX: 300, clientY: 200 }));
     await el.updateComplete;
     expect(box(el)).not.toBeNull();
+    expect((box(el) as HTMLElement).style.width).toMatch(/px$/);
   });
 
   it('selects every node the rectangle covers, and puts itself away', async () => {

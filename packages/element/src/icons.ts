@@ -10,6 +10,7 @@
  */
 import type { IconEntry, SubtitleSpec } from 'workflow-render-assets';
 import { seeded } from './seed.js';
+import { sidecarInit } from './integrity.js';
 
 export type IconMap = Record<string, IconEntry>;
 
@@ -24,7 +25,7 @@ export function loadIcons(): Promise<IconMap> {
     if (inline) return inline;
     try {
       const url = new URL(SIDECAR, import.meta.url);
-      const response = await fetch(url);
+      const response = await fetch(url, sidecarInit(SIDECAR));
       if (!response.ok) return {};
       return (await response.json()) as IconMap;
     } catch {
@@ -48,7 +49,10 @@ export function loadSubtitles(): Promise<Record<string, SubtitleSpec>> {
     const inline = seeded('subtitles');
     if (inline) return inline;
     try {
-      const response = await fetch(new URL('workflow-render-subtitles.json', import.meta.url));
+      const response = await fetch(
+        new URL('workflow-render-subtitles.json', import.meta.url),
+        sidecarInit('workflow-render-subtitles.json'),
+      );
       return response.ok ? ((await response.json()) as Record<string, SubtitleSpec>) : {};
     } catch {
       return {};

@@ -15,7 +15,8 @@ within about a week. There is no bug bounty.
   serves it, with the viewer bundle, on `127.0.0.1` only; it stores nothing.
 - The CLI and the element make no network requests. The element fetches only
   the `src` URL its host page gives it and its own sidecar files next to the
-  script.
+  script, the JSON ones with subresource integrity (their hashes are in the
+  script, so the script tag's `integrity` covers them).
 - Node icons and descriptions come from data committed in this repository.
   The only networked code is the dev-time extractor
   (`packages/assets/scripts/extract.ts`), which is not part of any build

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 /**
  * The shape of the published package: what `exports` promises exists, the
  * element sits at its documented CDN path under its budget, and the layout the
@@ -77,6 +78,13 @@ describe('the shipped element (dist/element, the CDN path)', () => {
 
   it('stays under 300 KB gzip — measured on the file that is published', () => {
     const gzipped = gzipSync(readFileSync(join(dist, 'element', 'workflow-render.js'))).length;
+    // The bundle carries the sha384 of every JSON sidecar it fetches, so the
+    // script tag's own integrity hash covers what the script then loads.
+    const bundle = readFileSync(join(dist, 'element', 'workflow-render.js'), 'utf8');
+    for (const file of ['workflow-render-icons.json', 'workflow-render-subtitles.json', 'workflow-render-descriptions.json']) {
+      const digest = createHash('sha384').update(readFileSync(join(dist, 'element', file))).digest('base64');
+      expect(bundle, file).toContain(`sha384-${digest}`);
+    }
     expect(gzipped, `${(gzipped / 1024).toFixed(1)} KB gzip`).toBeLessThan(300 * 1024);
     // and it is the real bundle, not a stub that would make the budget vacuous
     expect(gzipped).toBeGreaterThan(30 * 1024);

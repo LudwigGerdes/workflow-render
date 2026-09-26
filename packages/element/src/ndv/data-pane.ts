@@ -7,6 +7,7 @@
  */
 import { NDV_PAGE_SIZE, NDV_RUN_OPTION_LABEL } from 'workflow-render-core';
 import { html, type TemplateResult } from 'lit';
+import { styleMap } from 'lit/directives/style-map.js';
 import type { DataPaneModel } from 'workflow-render-core';
 
 export type DisplayMode = 'schema' | 'table' | 'json';
@@ -57,7 +58,7 @@ function schemaRows(value: unknown, query: string, depth = 0): TemplateResult[] 
     const hay = `${key} ${preview(child)}`.toLowerCase();
     if (query && !hay.includes(query) && nested.length === 0) return [];
     return [
-      html`<div class="wr-ndv-schema-row" style="padding-left:${depth * 16}px">
+      html`<div class="wr-ndv-schema-row" style=${styleMap({ paddingLeft: `${depth * 16}px` })}>
         <span class="wr-ndv-chip">
           <span class="wr-ndv-type-icon">${typeMarker(child)}</span>
           <span class="wr-ndv-chip-key">${key}</span>

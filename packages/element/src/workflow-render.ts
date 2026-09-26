@@ -34,6 +34,7 @@ import {
 import { LitElement, css, html, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import type { CanvasModel, CanvasNode, CanvasOverlay, FormModel, SceneGraph } from 'workflow-render-core';
 
 /**
@@ -629,9 +630,11 @@ export class WorkflowRender extends LitElement {
     const top = Math.min(box.y0, box.y1);
     const width = Math.abs(box.x1 - box.x0);
     const height = Math.abs(box.y1 - box.y0);
+    // styleMap sets properties through the CSSOM, which a Content-Security-
+    // Policy allows where a `style` attribute would need 'unsafe-inline'.
     return html`<div
       class="wr-selection-box"
-      style="left:${left}px;top:${top}px;width:${width}px;height:${height}px"
+      style=${styleMap({ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` })}
     ></div>`;
   }
 

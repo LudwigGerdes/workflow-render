@@ -8,6 +8,7 @@
  */
 import type { TrimmedDescription } from 'workflow-render-assets';
 import { seeded } from './seed.js';
+import { sidecarInit } from './integrity.js';
 
 export type DescriptionMap = Record<string, TrimmedDescription[]>;
 
@@ -18,7 +19,10 @@ export function loadDescriptions(): Promise<DescriptionMap> {
     const inline = seeded('descriptions');
     if (inline) return inline;
     try {
-      const response = await fetch(new URL('workflow-render-descriptions.json', import.meta.url));
+      const response = await fetch(
+        new URL('workflow-render-descriptions.json', import.meta.url),
+        sidecarInit('workflow-render-descriptions.json'),
+      );
       return response.ok ? ((await response.json()) as DescriptionMap) : {};
     } catch {
       return {};

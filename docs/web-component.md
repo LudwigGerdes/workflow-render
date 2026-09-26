@@ -22,8 +22,9 @@ The element fills the box you give it. It has no border or padding of its own. T
 
 `src` is fetched by the visitor's browser, so the JSON must be same-origin or served with CORS headers.
 
-> [!NOTE]
-> If your site sends a Content-Security-Policy header, the inspector needs `style-src-attr 'unsafe-inline'`. It sets inline `style` attributes. Scripts and `<style>` blocks are not affected.
+The element works under a strict Content-Security-Policy: it sets no inline `style` attributes and needs no `'unsafe-inline'`. Its stylesheet is a constructed sheet in the shadow root.
+
+The icon, subtitle and description files are fetched with subresource integrity. Their sha384 hashes are written into the script at build time, so the `integrity` hash on the `<script>` tag covers them too: a sidecar that is not the one this build shipped is refused, and the element carries on with monogram icons and no inspector data. To ship a trimmed or custom set, seed it on the page instead of editing the files (see `SEED_KEY` in the Node API docs).
 
 ## Attributes
 

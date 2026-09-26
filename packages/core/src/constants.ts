@@ -40,6 +40,12 @@ export const NODE_RADIUS = 8; // measured: border-radius 8px
  * straddles that path to cover exactly 0..6px outside the tile.
  */
 export const SELECTION_RING_WIDTH = 6;
+
+/** Overlay: the ring an annotated node wears, and the count badge at its top-right corner. */
+export const OVERLAY_RING_WIDTH = 4;
+export const OVERLAY_BADGE_SIZE = 18;
+export const OVERLAY_BADGE_FONT_SIZE = 11;
+export const OVERLAY_COLORS = { error: '#e5484d', warn: '#f5a623', info: '#3b82f6' } as const;
 export const SELECTION_RING_COLOR = 'rgba(41, 65, 112, 0.1)';
 
 /**

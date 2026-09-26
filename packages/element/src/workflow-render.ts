@@ -10,6 +10,7 @@
 import {
   buildFormModel,
   exportSVG,
+  parseOverlay,
   inputPane,
   outputPane,
   selectDescription,
@@ -33,7 +34,19 @@ import {
 import { LitElement, css, html, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
-import type { CanvasModel, CanvasNode, FormModel, SceneGraph } from 'workflow-render-core';
+import type { CanvasModel, CanvasNode, CanvasOverlay, FormModel, SceneGraph } from 'workflow-render-core';
+
+/**
+ * The overlay as the element hands it back. Structurally identical to core's
+ * `CanvasOverlay`, spelled out here so the element's own declarations stand
+ * alone: the shipped `.d.ts` must not import a workspace package.
+ */
+export interface OverlayData {
+  version: 1;
+  source?: string;
+  nodes: Record<string, { badges?: Array<{ kind: 'error' | 'warn' | 'info'; text: string }>; tint?: string }>;
+  edges: Record<string, { label?: string; tint?: string }>;
+}
 import { loadDescriptions } from './descriptions.js';
 import type { DisplayMode } from './ndv/data-pane.js';
 import { renderNodePanel, renderStickyPanel, type NdvTab, type StickyInspection } from './ndv/panel.js';
@@ -237,9 +250,10 @@ export class WorkflowRender extends LitElement {
   @property({ type: String }) images: 'safe' | 'remote' = 'safe';
 
   /**
-   * Canvas overlay payload, as JSON or an object. Reserved:
-   * the shape is validated and kept so producers can start emitting it, but
-   * nothing is rendered from it yet.
+   * Canvas overlay payload, as JSON or an object: annotations from another
+   * tool (workflow-lint's `--format canvas-overlay`), drawn as a ring and a
+   * count badge per node and a tint per edge. An overlay with a problem is
+   * reported through `wr-load`'s warnings and not drawn.
    */
   @property({ attribute: 'overlay' }) overlay?: unknown;
 
@@ -318,22 +332,15 @@ export class WorkflowRender extends LitElement {
     return this.#inspectorLoaded;
   }
 
-  /**
-   * The overlay payload, if it parses as the reserved overlay shape: an object
-   * with `version: 1` and a `nodes` map keyed by node name, so external tools
-   * (linters, request recorders) can annotate nodes. Nothing renders it yet.
-   */
-  get overlayData(): unknown {
+  /** The overlay as validated, or undefined when none is set or it has a problem. */
+  get overlayData(): OverlayData | undefined {
+    return this.#overlay().overlay;
+  }
+
+  #overlay(): { overlay?: CanvasOverlay; errors: string[] } {
+    if (this.overlay === undefined || this.overlay === null || this.overlay === '') return { errors: [] };
     const raw = typeof this.overlay === 'string' ? this.#parseMaybeJson(this.overlay) : this.overlay;
-    if (
-      raw === null ||
-      typeof raw !== 'object' ||
-      (raw as Record<string, unknown>)['version'] !== 1 ||
-      typeof (raw as Record<string, unknown>)['nodes'] !== 'object'
-    ) {
-      return undefined;
-    }
-    return raw;
+    return parseOverlay(raw);
   }
 
   /**
@@ -343,7 +350,13 @@ export class WorkflowRender extends LitElement {
   async exportSvg(): Promise<string> {
     if (!this.#scene) throw new Error('nothing to export yet');
     const [icons, subtitles, fonts] = await Promise.all([loadIcons(), loadSubtitles(), loadFontData()]);
-    return exportSVG(this.#scene, { icons, subtitles, fonts, remoteImages: this.images === 'remote' });
+    return exportSVG(this.#scene, {
+      icons,
+      subtitles,
+      fonts,
+      remoteImages: this.images === 'remote',
+      ...(this.overlayData === undefined ? {} : { overlay: this.overlayData }),
+    });
   }
 
   /** Hand the SVG to the browser as a download. */
@@ -470,7 +483,8 @@ export class WorkflowRender extends LitElement {
       changed.has('src') ||
       changed.has('workflow') ||
       changed.has('execution') ||
-      changed.has('images')
+      changed.has('images') ||
+      changed.has('overlay')
     ) {
       this.inspecting = undefined;
       this.#loaded = this.#load();
@@ -497,12 +511,22 @@ export class WorkflowRender extends LitElement {
     this.#model = model;
     // Trusted markup: core escapes every value it takes from the workflow and
     // allows only http/https/mailto/relative link targets.
-    this.svg = renderSVG(scene, { icons, subtitles, remoteImages: this.images === 'remote' });
+    const overlay = this.#overlay();
+    this.svg = renderSVG(scene, {
+      icons,
+      subtitles,
+      remoteImages: this.images === 'remote',
+      ...(overlay.overlay === undefined ? {} : { overlay: overlay.overlay }),
+    });
     this.errorMessage = '';
     const view = { x: scene.bounds.x, y: scene.bounds.y, w: scene.bounds.width, h: scene.bounds.height };
     this.#panZoom = new PanZoom(view, { ...view }, { minScale: MIN_SCALE, maxScale: MAX_SCALE });
     this.dispatchEvent(
-      new CustomEvent('wr-load', { detail: { view: model.view, warnings }, bubbles: true, composed: true }),
+      new CustomEvent('wr-load', {
+        detail: { view: model.view, warnings: [...warnings, ...overlay.errors] },
+        bubbles: true,
+        composed: true,
+      }),
     );
 
     // `zoom="fit"` is the default and was never acted on, so a workflow loaded

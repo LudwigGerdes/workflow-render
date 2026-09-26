@@ -11,6 +11,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { Resvg } from '@resvg/resvg-js';
 import { fontFiles } from 'workflow-render-assets';
+import { parseOverlay } from 'workflow-render-core';
 import { renderToSVG } from './core.js';
 
 export { packageVersion } from './core.js';
@@ -21,6 +22,8 @@ export interface ExportCommand {
   file: string;
   out: string;
   scale: number;
+  /** A canvas-overlay JSON file (workflow-lint `--format canvas-overlay`) to draw over the workflow. */
+  overlay?: string;
 }
 
 export interface ViewCommand {
@@ -41,13 +44,13 @@ export const USAGE_EXIT_CODE = 2;
 
 /** The flags each command accepts; anything else is a typo, not a no-op. */
 const KNOWN_FLAGS: Record<string, ReadonlySet<string>> = {
-  export: new Set(['o', 'out', 'scale']),
+  export: new Set(['o', 'out', 'scale', 'overlay']),
   view: new Set(['port']),
 };
 
 export const USAGE = `workflow-render — offline canvas for workflow JSON (n8n supported)
 
-  workflow-render export <file.json> -o <out.svg|out.png> [--scale N]
+  workflow-render export <file.json> -o <out.svg|out.png> [--scale N] [--overlay findings.json]
   workflow-render view   <file.json> [--port N]
   workflow-render --version | --help
 
@@ -98,7 +101,8 @@ export function parseArgs(argv: string[]): Command {
       return { kind: 'error', message: `scale must be a positive number` };
     }
 
-    return { kind: 'export', file, out, scale };
+    const overlay = flags.get('overlay');
+    return { kind: 'export', file, out, scale, ...(overlay === undefined ? {} : { overlay }) };
   }
 
   const port = flags.has('port') ? Number(flags.get('port')) : undefined;
@@ -118,9 +122,14 @@ export interface Rendered {
  * Render a file to an SVG string, exactly as the viewer would draw it, with
  * the parser's warnings alongside so a caller can show them.
  */
-export async function renderFile(file: string): Promise<Rendered> {
+export async function renderFile(file: string, overlayFile?: string): Promise<Rendered> {
   const source: unknown = JSON.parse(await readFile(file, 'utf8'));
-  return renderToSVG(source);
+  if (overlayFile === undefined) return renderToSVG(source);
+  const { overlay, errors } = parseOverlay(JSON.parse(await readFile(overlayFile, 'utf8')));
+  if (overlay === undefined) {
+    throw new Error(`${overlayFile} is not a canvas overlay:\n  ${errors.join('\n  ')}`);
+  }
+  return renderToSVG(source, { overlay });
 }
 
 export async function exportFile(command: ExportCommand): Promise<{ warnings: string[] }> {
@@ -129,7 +138,7 @@ export async function exportFile(command: ExportCommand): Promise<{ warnings: st
     throw new Error(`cannot write "${command.out}" — the output must be .svg or .png`);
   }
 
-  const { svg, warnings } = await renderFile(command.file);
+  const { svg, warnings } = await renderFile(command.file, command.overlay);
 
   if (target.endsWith('.svg')) {
     await writeFile(command.out, svg);

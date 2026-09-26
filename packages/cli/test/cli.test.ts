@@ -153,6 +153,28 @@ describe('the built binary', () => {
   });
 });
 
+describe('exportFile --overlay', () => {
+  it('draws the overlay and refuses a malformed one by name', async () => {
+    const dir = outDir();
+    const overlayFile = join(dir, 'findings.json');
+    writeFileSync(
+      overlayFile,
+      JSON.stringify({ version: 1, source: 'workflow-lint 0.1.2', nodes: { 'HTTP Request': { badges: [{ kind: 'error', text: 'n8n/valid: url missing' }] } } }),
+    );
+    expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--overlay', 'o.json'])).toMatchObject({ overlay: 'o.json' });
+    const out = join(dir, 'annotated.svg');
+    await exportFile({ kind: 'export', file: fixture('linear'), out, scale: 2, overlay: overlayFile });
+    const svg = readFileSync(out, 'utf8');
+    expect(svg).toContain('wr-overlay-badge wr-overlay-error');
+    expect(svg).toContain('data-overlay-source="workflow-lint 0.1.2"');
+
+    writeFileSync(overlayFile, JSON.stringify({ version: 1, nodes: { X: { tint: 'red' } } }));
+    await expect(
+      exportFile({ kind: 'export', file: fixture('linear'), out, scale: 2, overlay: overlayFile }),
+    ).rejects.toThrow(/not a canvas overlay[\s\S]*nodes\["X"\]\.tint/);
+  });
+});
+
 describe('exportFile', () => {
   it('returns the warnings the renderer produced', async () => {
     const dir = outDir();

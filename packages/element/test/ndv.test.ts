@@ -206,8 +206,8 @@ describe('stickies and unknown types', () => {
   });
 });
 
-describe('overlay attribute (reserved)', () => {
-  it('accepts an overlay payload without rendering anything yet', async () => {
+describe('overlay attribute', () => {
+  it('draws a badge for a flagged node, with the finding text as its tooltip', async () => {
     const overlay = {
       version: 1,
       nodes: { 'HTTP Request': { badges: [{ kind: 'warn', text: 'slow' }] } },
@@ -215,9 +215,9 @@ describe('overlay attribute (reserved)', () => {
     };
     const el = await mount({ workflow: fixture('linear'), overlay: JSON.stringify(overlay) });
     expect(el.overlayData).toEqual(overlay);
-    // reserved: nothing is drawn from it yet
-    expect(el.shadowRoot?.querySelector('.wr-overlay')).toBeNull();
-    expect(el.shadowRoot?.innerHTML).not.toContain('slow');
+    const badge = el.shadowRoot?.querySelector('.wr-node[data-node-name="HTTP Request"] .wr-overlay-badge');
+    expect(badge?.querySelector('title')?.textContent).toBe('slow');
+    expect(el.shadowRoot?.querySelector('.wr-node[data-node-name="Extract Emails"] .wr-overlay-badge')).toBeNull();
   });
 
   it('ignores an overlay that is not the S6 shape', async () => {

@@ -37,6 +37,7 @@ The element fills the box you give it. It has no border or padding of its own. T
 | `inspector` | `panel` or `off` | `panel` |
 | `exportui` | `on` or `off`. Shows the SVG and PNG buttons | `on` |
 | `images` | `safe` or `remote`. Whether sticky-note images may load from another host | `safe` |
+| `overlay` | A [canvas overlay](https://workflowtools.dev/workflow-render/overlay): a JSON string, or an object through the property. Drawn as a ring and a badge per flagged node | |
 | `emulates` | Read-only. The bundled n8n version | |
 
 ## Events and methods

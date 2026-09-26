@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- The canvas overlay is drawn. `workflow-lint lint wf.json --format canvas-overlay > findings.json` and then `workflow-render export wf.json -o wf.png --overlay findings.json` (or the element's `overlay` attribute) puts a ring and a count badge on every flagged node, with the finding texts as the badge's tooltip, and tints and labels on edges. The format is documented at `docs/overlay.md`; `source` names the tool that wrote it and lands on the root `<svg>` as `data-overlay-source`. A malformed overlay is refused with every problem named. `parseOverlay` and the `CanvasOverlay` type are exported from `workflow-render/core`.
 - Exports carry a provenance stamp on the root `<svg>`, beside the emulated n8n version that was already there: the tool name and version, `sha256:` + 16 hex characters of the key-sorted input JSON, and the workflow's `id`, `name` and `versionId` when the export has them (from `workflowData` for an execution). `exportSVG` takes it as `provenance`; `renderToSVG` computes it and accepts overrides. `meta.instanceId` is never written. The stamp is deterministic, so the same input and package version still give the same bytes.
 
 ### Fixed

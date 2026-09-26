@@ -1,3 +1,4 @@
+import type { CanvasOverlay } from './overlay.js';
 /** The workflow-render pipeline contract: parse → layout → render. */
 import type { IconEntry, SubtitleSpec } from 'workflow-render-assets';
 
@@ -189,4 +190,6 @@ export interface RenderOptions {
   icons?: Record<string, IconEntry>;
   /** Node-type subtitle templates; without them no subtitles are drawn. */
   subtitles?: Record<string, SubtitleSpec>;
+  /** Annotations from another tool, drawn as a ring and a badge per node and a tint per edge. */
+  overlay?: CanvasOverlay;
 }

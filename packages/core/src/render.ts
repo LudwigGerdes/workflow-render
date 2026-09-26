@@ -36,6 +36,10 @@ import {
   STATUS_BORDER_WIDTH_SUCCESS,
   STATUS_GLYPH_INSET,
   STATUS_GLYPH_SIZE,
+  OVERLAY_BADGE_FONT_SIZE,
+  OVERLAY_BADGE_SIZE,
+  OVERLAY_COLORS,
+  OVERLAY_RING_WIDTH,
   DISABLED_SUFFIX,
   EDGE_WIDTH,
   DESCRIPTIONS_VERSION,
@@ -72,6 +76,7 @@ import { evaluateSubtitle } from './subtitle.js';
 import { truncateLabel, wrapLabel } from './text.js';
 import type { IconEntry } from 'workflow-render-assets';
 import type { RenderOptions, SceneEdgePath, SceneGraph, SceneNode, ScenePoint, SceneSticky } from './types.js';
+import { edgeKey, worstKind, type OverlayEdge, type OverlayNode } from './overlay.js';
 
 /**
  * Colours are written as concrete presentation attributes for the rendered
@@ -615,11 +620,72 @@ function statusGlyph(scene: SceneNode, tokens: ThemeTokens): string | undefined 
   }));
 }
 
+/**
+ * What an overlay adds to a node: a ring around the tile in the colour of its
+ * gravest badge (or its tint), and a count badge at the top-right corner whose
+ * tooltip lists every badge text. Drawn after the tile so it sits on top;
+ * emitted only for annotated nodes so an unannotated render is byte-identical
+ * to one with no overlay at all.
+ */
+function overlayMarks(
+  scene: SceneNode,
+  entry: OverlayNode,
+  lead: number,
+  corner: number,
+): string[] {
+  const badges = entry.badges ?? [];
+  const kind = worstKind(badges);
+  const colour = kind === undefined ? entry.tint : OVERLAY_COLORS[kind];
+  if (colour === undefined) return [];
+  const marks = [
+    el('path', {
+      class: `wr-overlay-ring wr-overlay-${kind ?? 'tint'}`,
+      d: insetTilePath(scene.x, scene.y, scene.w, scene.h, lead, corner, corner, lead, -OVERLAY_RING_WIDTH / 2),
+      fill: 'none',
+      stroke: colour,
+      'stroke-width': OVERLAY_RING_WIDTH,
+    }),
+  ];
+  if (kind !== undefined) {
+    const r = OVERLAY_BADGE_SIZE / 2;
+    const cx = scene.x + scene.w;
+    const cy = scene.y;
+    const texts = [...badges]
+      .sort((a, b) => a.kind.localeCompare(b.kind) || a.text.localeCompare(b.text))
+      .map((b) => b.text)
+      .join('\n');
+    marks.push(
+      el(
+        'g',
+        { class: `wr-overlay-badge wr-overlay-${kind}` },
+        el('title', {}, esc(texts)),
+        el('circle', { cx, cy, r, fill: colour, stroke: tokens_white, 'stroke-width': 2 }),
+        text(
+          {
+            x: cx,
+            y: cy,
+            'text-anchor': 'middle',
+            'dominant-baseline': 'central',
+            'font-size': OVERLAY_BADGE_FONT_SIZE,
+            'font-weight': 600,
+            fill: tokens_white,
+          },
+          String(badges.length),
+        ),
+      ),
+    );
+  }
+  return marks;
+}
+
+const tokens_white = '#ffffff';
+
 function renderNode(
   scene: SceneNode,
   tokens: ThemeTokens,
   icons: Record<string, IconEntry>,
   subtitles: RenderOptions['subtitles'],
+  overlay?: OverlayNode,
 ): string {
   const { node } = scene;
   const classes = ['wr-node'];
@@ -767,17 +833,20 @@ function renderNode(
       ),
     ),
     statusGlyph(scene, tokens),
+    ...(overlay === undefined ? [] : overlayMarks(scene, overlay, lead, corner)),
   );
 }
 
 // ---------------------------------------------------------------- edges
 
-function renderEdge(scene: SceneEdgePath, tokens: ThemeTokens): string {
+function renderEdge(scene: SceneEdgePath, tokens: ThemeTokens, overlay?: OverlayEdge): string {
   // In an execution, a connector that carried data is drawn in the success
   // colour — including the one feeding a node that then failed.
   const carriedData = (scene.edge.itemCount ?? 0) > 0;
   const stroke =
-    scene.edge.kind === 'ai'
+    overlay?.tint !== undefined
+      ? overlay.tint
+      : scene.edge.kind === 'ai'
       ? tokens.edgeAi
       : scene.edge.kind === 'error'
         ? tokens.error
@@ -785,7 +854,7 @@ function renderEdge(scene: SceneEdgePath, tokens: ThemeTokens): string {
           ? tokens.success
           : tokens.edge;
   return el('path', {
-    class: `wr-edge wr-edge-${scene.edge.kind}${carriedData ? ' wr-edge-ran' : ''}`,
+    class: `wr-edge wr-edge-${scene.edge.kind}${carriedData ? ' wr-edge-ran' : ''}${overlay?.tint !== undefined ? ' wr-overlay-tint' : ''}`,
     d: scene.path,
     fill: 'none',
     stroke,
@@ -804,6 +873,7 @@ function edgeLabel(
   scene: SceneEdgePath,
   tokens: ThemeTokens,
   multiRun: ReadonlySet<string>,
+  overlay?: OverlayEdge,
 ): string | undefined {
   const at = scene.labelAt;
   if (!at) return undefined;
@@ -816,6 +886,7 @@ function edgeLabel(
     const suffix = multiRun.has(scene.edge.from) ? EDGE_LABEL_TOTAL_SUFFIX : '';
     parts.push(`${scene.edge.itemCount} ${unit}${suffix}`);
   }
+  if (overlay?.label !== undefined) parts.push(overlay.label);
   if (parts.length === 0) return undefined;
   const content = parts.join(' · ');
   const width = content.length * 7 + 8;
@@ -1004,6 +1075,9 @@ export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
   );
   const icons = opts.icons ?? {};
   const { bounds } = scene;
+  const overlay = opts.overlay;
+  const overlayEdge = (edge: SceneEdgePath): OverlayEdge | undefined =>
+    overlay?.edges[edgeKey(edge.edge.from, edge.edge.to)];
 
   return el(
     'svg',
@@ -1018,6 +1092,7 @@ export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
       width: bounds.width,
       height: bounds.height,
       'data-descriptions-version': DESCRIPTIONS_VERSION,
+      'data-overlay-source': overlay?.source,
       'data-theme': 'light',
       'data-view': scene.view,
     },
@@ -1045,13 +1120,17 @@ export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
       fill: 'url(#wr-dots)',
     }),
     el('g', { class: 'wr-layer-stickies' }, ...scene.stickies.map((s, i) => renderSticky(s, i, tokens, opts.remoteImages === true))),
-    el('g', { class: 'wr-layer-edges' }, ...scene.edges.map((edge) => renderEdge(edge, tokens))),
+    el('g', { class: 'wr-layer-edges' }, ...scene.edges.map((edge) => renderEdge(edge, tokens, overlayEdge(edge)))),
     el(
       'g',
       { class: 'wr-layer-edge-labels' },
-      ...scene.edges.map((edge) => edgeLabel(edge, tokens, multiRun) ?? ''),
+      ...scene.edges.map((edge) => edgeLabel(edge, tokens, multiRun, overlayEdge(edge)) ?? ''),
     ),
-    el('g', { class: 'wr-layer-nodes' }, ...scene.nodes.map((node) => renderNode(node, tokens, icons, opts.subtitles))),
+    el(
+      'g',
+      { class: 'wr-layer-nodes' },
+      ...scene.nodes.map((node) => renderNode(node, tokens, icons, opts.subtitles, overlay?.nodes[node.node.name])),
+    ),
     // n8n stacks the port handles above the node, so a dot covers the tile edge.
     portDots(scene, tokens),
     header(scene, tokens),

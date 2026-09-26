@@ -20,6 +20,8 @@ export type { CanvasAdapter } from './adapters/types.js';
 export { parseInput } from './adapters/n8n.js';
 export { layout } from './layout.js';
 export { renderSVG, THEME_CLASS } from './render.js';
+export { parseOverlay, edgeKey, worstKind } from './overlay.js';
+export type { CanvasOverlay, OverlayBadge, OverlayBadgeKind, OverlayNode, OverlayEdge } from './overlay.js';
 
 import { layout } from './layout.js';
 import { parseInput } from './adapters/n8n.js';

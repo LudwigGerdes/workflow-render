@@ -96,6 +96,27 @@ describe('events', () => {
     expect(warnings[0]?.[0]).toContain('Ghost');
   });
 
+  it('draws an overlay and redraws when it changes; a bad one is a warning, not a crash', async () => {
+    const overlay = { version: 1, source: 'workflow-lint 0.1.2', nodes: { 'HTTP Request': { badges: [{ kind: 'warn', text: 'x' }] } } };
+    const el = await mount({ workflow: fixture('linear'), overlay });
+    expect(el.shadowRoot?.querySelector('.wr-overlay-badge.wr-overlay-warn')).not.toBeNull();
+    expect(el.overlayData?.source).toBe('workflow-lint 0.1.2');
+
+    el.overlay = JSON.stringify({ version: 1, nodes: { 'HTTP Request': { badges: [{ kind: 'error', text: 'y' }] } } });
+    await el.updateComplete;
+    await el.ready;
+    expect(el.shadowRoot?.querySelector('.wr-overlay-badge.wr-overlay-error')).not.toBeNull();
+
+    const warnings: string[][] = [];
+    el.addEventListener('wr-load', (e) => warnings.push((e as CustomEvent).detail.warnings));
+    el.overlay = { version: 3, nodes: {} };
+    await el.updateComplete;
+    await el.ready;
+    expect(el.shadowRoot?.querySelector('.wr-overlay-badge')).toBeNull();
+    expect(warnings.at(-1)?.[0]).toMatch(/overlay\.version/);
+    expect(el.overlayData).toBeUndefined();
+  });
+
   it('emits wr-node-click with the node name', async () => {
     const el = await mount({ workflow: fixture('linear') });
     const clicks: string[] = [];

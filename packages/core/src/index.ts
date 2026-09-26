@@ -8,7 +8,7 @@
  * No DOM, no network, no state. The viewer and the exporter use this same path,
  * so what you see is byte-for-byte what you export.
  */
-export const CORE_VERSION = '0.2.0';
+export const CORE_VERSION = '0.3.0';
 
 export * from './types.js';
 // Everything: these are all fidelity constants and are meant to be readable by

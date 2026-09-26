@@ -60,7 +60,7 @@ To use a workflow of your own, open it in n8n and choose **Download** from the `
 Embed a workflow in a web page. Put the JSON file next to the page and point `src` at it:
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/workflow-render@0.2.0/dist/element/workflow-render.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/workflow-render@0.3.0/dist/element/workflow-render.js"></script>
 
 <div style="height: 600px">
   <workflow-render src="./workflow.json"></workflow-render>

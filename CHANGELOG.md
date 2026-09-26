@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## 0.3.0 — 2026-09-26
+
 ### Added
 
 - The element works under a strict Content-Security-Policy: the selection rectangle and the inspector's schema tree are positioned through the CSSOM instead of inline `style` attributes, so `style-src-attr 'unsafe-inline'` is no longer needed. The JSON sidecars (icons, subtitles, descriptions) are fetched with subresource integrity; their sha384 hashes are baked into the bundle, so the script tag's `integrity` covers what the script loads.

@@ -1,6 +1,6 @@
 {
   "name": "workflow-render-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Pure parse \u2192 layout \u2192 render pipeline that turns n8n workflow or execution JSON into a deterministic SVG. No DOM, no network.",
   "license": "MIT",

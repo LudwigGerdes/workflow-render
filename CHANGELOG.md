@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Exports carry a provenance stamp on the root `<svg>`, beside the emulated n8n version that was already there: the tool name and version, `sha256:` + 16 hex characters of the key-sorted input JSON, and the workflow's `id`, `name` and `versionId` when the export has them (from `workflowData` for an execution). `exportSVG` takes it as `provenance`; `renderToSVG` computes it and accepts overrides. `meta.instanceId` is never written. The stamp is deterministic, so the same input and package version still give the same bytes.
+
 ### Fixed
 
 - Every output a node type declares is drawn, wired or not. A Loop Over Items with nothing on `done` showed one centred port and no labels, with the `loop` connector leaving from the tile's centre; it now shows both ports with `done` and `loop` beside them, as n8n does, and the connector leaves from the `loop` port. The same applies to an IF or Switch with an unwired branch.

@@ -22,9 +22,9 @@ export function esc(value: string): string {
 
 export type Attrs = Record<string, string | number | boolean | undefined>;
 
-/** Serialise one element. Children are already-serialised markup. */
-export function el(tag: string, attrs: Attrs = {}, ...children: Array<string | undefined>): string {
-  const serialised = Object.keys(attrs)
+/** Serialise attributes in sorted key order, each with a leading space. */
+export function attrString(attrs: Attrs): string {
+  return Object.keys(attrs)
     .sort()
     .flatMap((key) => {
       const value = attrs[key];
@@ -33,6 +33,11 @@ export function el(tag: string, attrs: Attrs = {}, ...children: Array<string | u
       return [` ${key}="${printed}"`];
     })
     .join('');
+}
+
+/** Serialise one element. Children are already-serialised markup. */
+export function el(tag: string, attrs: Attrs = {}, ...children: Array<string | undefined>): string {
+  const serialised = attrString(attrs);
   const body = children.filter((child): child is string => child !== undefined && child !== '').join('');
   return body === '' ? `<${tag}${serialised}/>` : `<${tag}${serialised}>${body}</${tag}>`;
 }

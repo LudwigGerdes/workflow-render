@@ -22,6 +22,7 @@ Returns `{ svg, warnings }`. It rejects when the input is not a workflow or an e
 | `remoteImages` | Allow sticky-note images from other hosts | `false` |
 | `icons` | Use your own icon catalogue instead of the bundled one | bundled |
 | `subtitles` | Use your own subtitle catalogue instead of the bundled one | bundled |
+| `provenance` | Override the `data-*` provenance stamp on the root `<svg>` (`tool`, `inputHash`, `workflow.{id,name,versionId}`); fields given replace the computed ones | tool version, input hash and workflow identity from the input |
 
 ## Lower-level exports
 

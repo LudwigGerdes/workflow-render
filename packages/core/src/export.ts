@@ -10,7 +10,7 @@
  * CLI from the assets package, the element from its sidecar) and passes them in.
  */
 import { renderSVG } from './render.js';
-import { esc } from './svg.js';
+import { attrString, esc } from './svg.js';
 import type { RenderOptions, SceneGraph } from './types.js';
 
 export interface EmbeddedFont {
@@ -21,8 +21,37 @@ export interface EmbeddedFont {
   woff2Base64: string;
 }
 
+/**
+ * What produced an export and from what. Stamped as `data-*` attributes on the
+ * root `<svg>`, beside the emulated n8n version that is always there
+ * (`data-descriptions-version`), so a file on disk says which tool wrote it
+ * and which input it came from without anyone having to keep the input.
+ *
+ * Only identity goes in: never an instance id, a URL, a credential or a
+ * webhook id. `instanceId` is typed out so nothing can pass it by accident.
+ */
+export interface Provenance {
+  tool?: { name: string; version: string };
+  /** `sha256:` + the first 16 hex characters of the canonical input JSON. */
+  inputHash?: string;
+  workflow?: { id?: string; name?: string; versionId?: string; instanceId?: never };
+}
+
 export interface ExportOptions extends RenderOptions {
   fonts?: EmbeddedFont[];
+  provenance?: Provenance;
+}
+
+/** The attributes a provenance stamp adds to the root element; empty when there is nothing to say. */
+function provenanceAttrs(provenance: Provenance): string {
+  return attrString({
+    'data-tool-name': provenance.tool?.name,
+    'data-tool-version': provenance.tool?.version,
+    'data-input-hash': provenance.inputHash,
+    'data-workflow-id': provenance.workflow?.id,
+    'data-workflow-name': provenance.workflow?.name,
+    'data-workflow-version-id': provenance.workflow?.versionId,
+  });
 }
 
 function fontFaces(fonts: EmbeddedFont[]): string {
@@ -41,8 +70,14 @@ function fontFaces(fonts: EmbeddedFont[]): string {
  * options always produce the same bytes.
  */
 export function exportSVG(scene: SceneGraph, opts: ExportOptions = {}): string {
-  const { fonts, ...renderOptions } = opts;
-  const svg = renderSVG(scene, renderOptions);
+  const { fonts, provenance, ...renderOptions } = opts;
+  let svg = renderSVG(scene, renderOptions);
+
+  // The stamp goes on the root element, ahead of the renderer's own sorted
+  // attributes; the viewer never writes it, so it is added here, not in render.
+  const stamp = provenance ? provenanceAttrs(provenance) : '';
+  if (stamp !== '') svg = svg.replace(/^<svg\b/, `<svg${stamp}`);
+
   if (!fonts || fonts.length === 0) return svg;
 
   // Put the faces at the top of the existing style block so they are declared

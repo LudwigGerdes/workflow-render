@@ -18,6 +18,7 @@ workflow-render export workflow.json -o workflow.png --scale 3
 - `--scale N` sets the PNG size multiplier. The default is `2`. It is an error with an `.svg` output.
 - The SVG is self-contained. Icons are inlined and fonts are embedded, so it looks the same in a browser, an `<img>` tag or a file preview.
 - The same input always produces the same SVG, byte for byte.
+- The root `<svg>` carries a provenance stamp as `data-*` attributes: the emulated n8n version (`data-descriptions-version`), the tool (`data-tool-name`, `data-tool-version`), a hash of the input (`data-input-hash`, `sha256:` + 16 hex characters of the key-sorted JSON) and the workflow's `id`, `name` and `versionId` when the export has them (`data-workflow-id`, `data-workflow-name`, `data-workflow-version-id`). `meta.instanceId`, credentials and webhook ids are never written.
 
 ### Export every workflow in CI
 

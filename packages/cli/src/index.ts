@@ -8,11 +8,12 @@
  * Export uses the same pipeline the viewer does, so a file on disk is what the
  * canvas shows. Nothing here reaches the network.
  */
-import { readFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { Resvg } from '@resvg/resvg-js';
 import { fontFiles } from 'workflow-render-assets';
 import { renderToSVG } from './core.js';
+
+export { packageVersion } from './core.js';
 
 
 export interface ExportCommand {
@@ -52,18 +53,6 @@ export const USAGE = `workflow-render — offline canvas for workflow JSON (n8n 
 
 Reads a workflow or execution JSON and renders it exactly as the viewer does.`;
 
-
-/**
- * The version of the package this code shipped in. `package.json` is one level
- * above both `src/` and the bundled `dist/`, in a checkout and in a tarball.
- */
-export function packageVersion(): string {
-  const manifest: unknown = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
-  if (typeof manifest === 'object' && manifest !== null && 'version' in manifest && typeof manifest.version === 'string') {
-    return manifest.version;
-  }
-  throw new Error('package.json carries no version');
-}
 
 export function parseArgs(argv: string[]): Command {
   if (argv.length === 0 || argv.includes('--help') || argv.includes('-h')) return { kind: 'help' };

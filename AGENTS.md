@@ -189,8 +189,9 @@ element does the same when a sidecar 404s. Tests:
   from n8n's source tarball, `fa:*` names rendered as Lucide glyphs (n8n does
   not draw FontAwesome). The `fa:* → lucide` mapping and per-entry provenance
   live in `packages/assets/data/<version>/glyphs.json`.
-- The `overlay` attribute on `<workflow-render>` is reserved (accepted and validated,
-  `{ version: 1, nodes: {...} }`), nothing renders it yet.
+- The `overlay` attribute on `<workflow-render>` (and `--overlay` on the CLI) draws
+  the canvas overlay documented in `docs/overlay.md`: `parseOverlay` in core
+  validates it, `renderSVG` draws a ring and a count badge per flagged node.
 
 ## Adding an adapter
 

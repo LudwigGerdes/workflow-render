@@ -20,6 +20,8 @@ The element fills the box you give it. It has no border or padding of its own. T
 | Self-hosted | Copy the whole `node_modules/workflow-render/dist/element/` folder. The script loads its icon, description and font files from beside itself |
 | Bundler | `import 'workflow-render/element'` registers the element, with types |
 
+To show a workflow in Notion, see [Embedding in Notion](https://workflowtools.dev/workflow-render/notion).
+
 `src` is fetched by the visitor's browser, so the JSON must be same-origin or served with CORS headers.
 
 The element works under a strict Content-Security-Policy: it sets no inline `style` attributes and needs no `'unsafe-inline'`. Its stylesheet is a constructed sheet in the shadow root.

@@ -102,6 +102,7 @@ Full documentation is at [workflowtools.dev/workflow-render](https://workflowtoo
 - [Web component](https://workflowtools.dev/workflow-render/web-component)
 - [Command line](https://workflowtools.dev/workflow-render/cli)
 - [Node API](https://workflowtools.dev/workflow-render/node-api)
+- [Embedding in Notion](https://workflowtools.dev/workflow-render/notion)
 - [FAQ and compatibility](https://workflowtools.dev/workflow-render/faq)
 
 ## License

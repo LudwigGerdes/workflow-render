@@ -47,6 +47,8 @@ export const OVERLAY_BADGE_SIZE = 18;
 export const OVERLAY_BADGE_FONT_SIZE = 11;
 export const OVERLAY_COLORS = { error: '#e5484d', warn: '#f5a623', info: '#3b82f6' } as const;
 export const SELECTION_RING_COLOR = 'rgba(41, 65, 112, 0.1)';
+/** n8n: --canvas--color--selected-transparent in the dark theme. */
+export const SELECTION_RING_COLOR_DARK = 'rgba(255,255,255,0.4)';
 
 /**
  * The marquee rectangle, measured in the same session by dragging a real
@@ -413,6 +415,23 @@ export const NDV_LIGHT: NdvTokens = {
   expressionBorder: '#e5e5e5', // deliberate: n8n draws no border on the chip; a hairline keeps it legible
 };
 
+/**
+ * The inspector in n8n's dark theme. Measured 2026-10-10 from a running n8n
+ * 2.38.3 with N8N_THEME=dark (test/fixtures/n8n-2.38.3-dark-measured.json),
+ * except where noted: those come from the token whose light value is ours.
+ */
+export const NDV_DARK: NdvTokens = {
+  panelBg: '#2b2b2b', // measured
+  inputPanelBg: '#262626', // measured
+  fieldBg: '#171717', // measured
+  label: '#bbbbbb', // measured: pane titles
+  fieldLabel: '#ffffff', // measured
+  text: '#ffffff', // measured
+  muted: '#bbbbbb', // n8n: --color--text--tint-1
+  expressionBg: 'rgba(237,237,237,0.1)', // n8n: --expression-editor--resolvable--color--background--pending
+  expressionBorder: '#323232', // n8n: --color--foreground (the hairline's light value)
+};
+
 // --- execution NDV data panes (measured 2026-08-30 from a real run) --------
 //
 // Measured at the NDV's own width of 1552: input 565 | parameters 419 | output
@@ -548,6 +567,21 @@ export const STICKY_COLORS: Record<number, StickyPalette> = {
   7: { bg: '#f9f9f9', border: '#e0e0e0' }, // measured
 };
 
+/**
+ * The seven sticky presets in n8n's dark theme. Measured 2026-10-10 from a
+ * running n8n 2.38.3 with N8N_THEME=dark; their text is white.
+ */
+export const STICKY_COLORS_DARK: Record<number, StickyPalette> = {
+  1: { bg: '#733e0a', border: '#894b00' },
+  2: { bg: '#2d1d06', border: '#63410d' },
+  3: { bg: '#460809', border: '#82181a' },
+  4: { bg: '#032e15', border: '#0d542b' },
+  5: { bg: '#1c398e', border: '#193cb8' },
+  6: { bg: '#2f0d68', border: '#5d0ec0' },
+  7: { bg: '#262626', border: '#323232' },
+};
+export const STICKY_TEXT_IN_DARK_THEME = '#ffffff';
+
 export const DEFAULT_STICKY_COLOR = 1;
 export const DEFAULT_STICKY_WIDTH = 240;
 export const DEFAULT_STICKY_HEIGHT = 160;
@@ -584,6 +618,28 @@ export const LIGHT: ThemeTokens = {
   error: '#ea1f30', // measured: failed node border and glyph
   success: '#29a360', // measured: successful node border, glyph and edges
   labelBg: '#f4f4f4', // measured: edge label background (at 0.85 alpha in n8n)
+};
+
+/**
+ * The canvas in n8n's dark theme. Measured 2026-10-10 from a running n8n 2.38.3
+ * with N8N_THEME=dark, by reading the computed style of each element LIGHT was
+ * taken from (test/fixtures/n8n-2.38.3-dark-measured.json records the run).
+ */
+export const DARK: ThemeTokens = {
+  canvasBg: '#171717',
+  nodeBg: '#2b2b2b',
+  nodeBorder: 'rgba(255,255,255,0.20)',
+  nodeBorderDisabled: '#323232',
+  portBorder: '#999999',
+  text: '#ffffff',
+  textMuted: '#999999', // item-count labels
+  subtitle: '#bbbbbb',
+  edge: '#4d4d4d',
+  edgeAi: '#4d4d4d',
+  dot: '#444444',
+  error: '#ff6467',
+  success: '#00a63e',
+  labelBg: 'rgba(24,24,24,0.85)',
 };
 
 /**

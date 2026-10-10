@@ -1,0 +1,21 @@
+{
+	"n8n": "n8n@2.38.3 (3a77307e04)",
+	"tokens": {
+		"--color--text--tint-1": {
+			"light": "#999999",
+			"dark": "#bbbbbb"
+		},
+		"--expression-editor--resolvable--color--background--pending": {
+			"light": "#f5f5f5",
+			"dark": "rgba(237,237,237,0.1)"
+		},
+		"--color--foreground": {
+			"light": "#e5e5e5",
+			"dark": "#323232"
+		},
+		"--canvas--color--selected-transparent": {
+			"light": "rgba(41,65,112,0.1)",
+			"dark": "rgba(255,255,255,0.4)"
+		}
+	}
+}

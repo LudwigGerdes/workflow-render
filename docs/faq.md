@@ -17,6 +17,15 @@ Every exported SVG carries a `data-descriptions-version` attribute, so you can t
 
 No. It reads a file.
 
+### Does it need the other tools?
+
+No. workflow-render installs and runs on its own, without [workflow-lint](https://workflowtools.dev/workflow-lint), [integration-mock](https://workflowtools.dev/integration-mock) or [workflow-tester](https://workflowtools.dev/workflow-tester). Two inputs can come from the other tools:
+
+| Input | From | Without that tool |
+|---|---|---|
+| `--overlay` / `overlay` | `workflow-lint lint --format canvas-overlay` | Leave it out and the workflow is drawn without badges. Any tool, or you, can write an [overlay](https://workflowtools.dev/workflow-render/overlay) |
+| An execution | The `<execution id>.export.json` that `integration-mock snapshot` saves, already redacted | Export the execution from n8n's API yourself |
+
 ### Does it run the workflow or evaluate expressions?
 
 No. It draws what the JSON contains. An `={{ … }}` value is shown as written, and a Code node is a tile.

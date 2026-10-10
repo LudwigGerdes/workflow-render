@@ -157,3 +157,28 @@ describe('redactWorkflow: executions and other input', () => {
 		expect({ json: r.json, report: r.report }).toEqual(golden);
 	});
 });
+describe('redactWorkflow: bypass probes', () => {
+	it('masks secret values in URL query strings', () => {
+		const s = out(wf([node('H', { url: 'https://api.example.com/x?api_key=abc123secretvalue&q=1', u2: 'https://h.example.com/?access_token=t0k3n#frag' })]));
+		expect(s).not.toContain('abc123secretvalue');
+		expect(s).not.toContain('t0k3n');
+		expect(s).toContain('q=1');
+	});
+
+	it('masks fields whose names contain a secret word', () => {
+		const s = out(wf([node('H', { dbPassword: 'p1', stripeApiKey: 'k1', clientSecret: 'c1', headerParameters: { parameters: [{ name: 'X-Auth-Token', value: 'v1' }] } })]));
+		for (const v of ['"p1"', '"k1"', '"c1"', '"v1"']) expect(s).not.toContain(v);
+	});
+
+	it('masks vendor-prefixed tokens inside code', () => {
+		const s = out(wf([node('C', { jsCode: 'const a = "sk_live_51Habcdefghijklmn"; const b = "xoxb-123456789012-abcdefghijkl"; const c = "ghp_abcdefghijklmnopqrstuvwxyz0123456789";' })]));
+		for (const v of ['sk_live_51H', 'xoxb-1234', 'ghp_abcdef']) expect(s).not.toContain(v);
+	});
+
+	it('masks secret values inside a JSON string body', () => {
+		const s = out(wf([node('H', { jsonBody: '{"user":"ada","password":"hunter2","api_key":"zz9"}' })]));
+		expect(s).not.toContain('hunter2');
+		expect(s).not.toContain('zz9');
+		expect(s).toContain('\\"user\\":\\"ada\\"');
+	});
+});

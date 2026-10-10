@@ -187,8 +187,9 @@ class Redactor {
 		const out: Record<string, unknown> = {};
 		const taken = new Set<string>();
 		for (const [k, x] of Object.entries(v)) {
-			const path = where ? `${where}.${k}` : k;
-			const key = this.key(k, path, taken);
+			// The path is built from the masked key: a report must not repeat what it masked.
+			const key = this.key(k, where, taken);
+			const path = where ? `${where}.${key}` : key;
 			if ((SECRET_KEY.test(k) || (secretEntry && k === 'value')) && !this.exemptSecret(x)) {
 				out[key] = this.maskAll(x, 'secret field', path);
 			} else {
@@ -234,6 +235,9 @@ class Redactor {
 	}
 }
 
+/** Fields of an API export that name the people and projects owning the workflow. */
+const OWNERSHIP = new Set(['shared', 'homeProject', 'owner', 'ownedBy', 'createdBy', 'updatedBy']);
+
 const isWorkflow = (v: unknown): v is Record<string, unknown> => isRecord(v) && Array.isArray(v['nodes']) && isRecord(v['connections']);
 
 function redactNode(r: Redactor, n: unknown): unknown {
@@ -271,6 +275,7 @@ export function redactWorkflowObject(r: Redactor, w: Record<string, unknown>): R
 	const out: Record<string, unknown> = {};
 	for (const [k, v] of Object.entries(w)) {
 		if (k === 'nodes' && Array.isArray(v)) out[k] = v.map((n) => redactNode(r, n));
+		else if (OWNERSHIP.has(k)) out[k] = r.maskAll(v, 'identifier', k);
 		else if (k === 'connections') out[k] = v;
 		else if (k === 'id' || k === 'versionId') out[k] = r.identifier(v, k);
 		else if (k === 'meta' && isRecord(v)) {
@@ -307,6 +312,7 @@ function redactExecutionData(r: Redactor, d: Record<string, unknown>): Record<st
 		if (k === 'resultData' && isRecord(v)) {
 			out[k] = Object.fromEntries(
 				Object.entries(v).map(([rk, rv]) => {
+					if (rk === 'pinData') return [rk, r.data(rv, 'resultData.pinData')];
 					if (rk !== 'runData' || !isRecord(rv)) return [rk, r.scan(rv, `resultData.${rk}`)];
 					return [rk, Object.fromEntries(Object.entries(rv).map(([node, runs]) => [node, redactRuns(r, node, runs)]))];
 				}),

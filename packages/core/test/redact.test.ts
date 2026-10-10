@@ -215,3 +215,26 @@ describe('redactWorkflow: hostile input', () => {
 		expect(performance.now() - started).toBeLessThan(500);
 	});
 });
+
+describe('redactWorkflow: exposure probes', () => {
+	it('never puts a masked key into the report', () => {
+		const r = redactWorkflow(wf([node('S', { lookup: { 'ada@example.com': { password: 'x' } } })]));
+		expect(JSON.stringify(r.report)).not.toContain('ada@example.com');
+	});
+
+	it('masks ownership fields from API exports (they carry names and emails)', () => {
+		const s = out(wf([node('S', {})], {
+			shared: [{ role: 'workflow:owner', project: { id: 'p1', name: 'Ada Lovelace <ada@example.com>', type: 'personal' } }],
+			homeProject: { id: 'p1', name: 'Ada Lovelace <ada@example.com>' },
+			owner: { firstName: 'Ada', lastName: 'Lovelace' },
+		}));
+		expect(s).not.toContain('Lovelace');
+		expect(s).toContain('[redacted: identifier]');
+	});
+
+	it("masks an execution's resultData.pinData as data", () => {
+		const e = fixture('execution-success.json') as { data: { resultData: Record<string, unknown> } };
+		e.data.resultData['pinData'] = { 'Schedule Trigger': [{ json: { who: 'Grace Hopper' } }] };
+		expect(JSON.stringify(redactWorkflow(e).json)).not.toContain('Grace Hopper');
+	});
+});

@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- `workflow-render redact <file> -o <out|->` writes a copy of a workflow or execution with credential references, identifiers (workflow and instance ids, webhook ids, API-export owners), secret-named fields, tokens and vendor keys, emails, URL credentials and pinned or execution item data masked in place as `[redacted: <kind>]`. It reports what it masked and the hosts still present in URLs; `--mask` adds patterns, `--keep` exempts values, `--keep-data` leaves item data. `export --redact` renders from the masked copy (overlay texts included). The viewer's embed panel redacts the embed it builds by default. `redactWorkflow` is exported from `workflow-render/core`.
+
 ## 0.3.0 — 2026-09-26
 
 ### Added

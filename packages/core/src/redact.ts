@@ -140,12 +140,14 @@ class Redactor {
 	 * `--keep` pattern matched. Returned as sorted, merged [start, end) ranges.
 	 */
 	private protectedRanges(s: string): Array<[number, number]> {
-		const ranges: Array<[number, number]> = [];
-		for (const re of [PLACEHOLDER_RE, ...this.keep]) {
-			for (const m of s.matchAll(re)) {
-				if (m[0].length > 0) ranges.push([m.index ?? 0, (m.index ?? 0) + m[0].length]);
-			}
-		}
+		const spans = (res: RegExp[]): Array<[number, number]> =>
+			res.flatMap((re) => [...s.matchAll(re)].filter((m) => m[0].length > 0).map((m): [number, number] => [m.index ?? 0, (m.index ?? 0) + m[0].length]));
+		// A kept match shelters a secret only when it covers all of it: keeping a host must not keep
+		// `ops@` that host, nor a token run up against it. Only computed when something is kept.
+		const kept = spans(this.keep);
+		const secrets = kept.length > 0 ? spans([EMAIL, URL_CREDENTIALS, ...INLINE_TOKENS]) : [];
+		const shelters = ([a, b]: [number, number]): boolean => secrets.every(([c, d]) => !(a < d && c < b) || (a <= c && d <= b));
+		const ranges: Array<[number, number]> = [...spans([PLACEHOLDER_RE]), ...kept.filter(shelters)];
 		ranges.sort((a, b) => a[0] - b[0]);
 		const merged: Array<[number, number]> = [];
 		for (const r of ranges) {

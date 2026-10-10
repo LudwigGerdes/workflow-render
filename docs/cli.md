@@ -42,7 +42,7 @@ Writes a copy of a workflow or execution with what you would not publish masked 
 | Pinned data and execution item values (keys and item counts stay) | `data` |
 | Anything matching `--mask '<regex>'` | `custom` |
 
-- `--mask '<regex>'` masks more. `--keep '<regex>'` protects the text it matches: other text in the same value is still masked, and a secret field is left alone only when the pattern matches its whole value. Credentials, identifiers and item data are masked regardless. Both can be repeated, and both are your own regular expressions, so keep them simple.
+- `--mask '<regex>'` masks more. `--keep '<regex>'` protects the text it matches: other text in the same value is still masked, an email, token or URL credential is kept only if the pattern covers all of it (to keep `ada@example.com`, write that address, not just the domain), and a secret field is left alone only when the pattern matches its whole value. Credentials, identifiers and item data are masked regardless. Both can be repeated, and both are your own regular expressions, so keep them simple.
 - `--keep-data` leaves pinned and execution item values in place; they are still scanned for the patterns above.
 - `-o -` writes the JSON to stdout.
 - An array of workflows (`n8n export:workflow --all`) or an API list (`{ "data": [...] }`) is redacted workflow by workflow. Anything else is scanned with the text patterns only, and the report says so.

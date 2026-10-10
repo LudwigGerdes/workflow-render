@@ -77,8 +77,9 @@ describe('wiring', () => {
     expect(canvas.getAttribute('theme')).not.toBe('dark');
   });
 
-  it('tells you to load something before there is anything to embed', () => {
+  it('tells you to load something before there is anything to embed', async () => {
     setup();
+    await new Promise((r) => setTimeout(r, 0)); // the (empty) build settles
     const snippet = (document.getElementById('embed-snippet') as HTMLTextAreaElement).value;
     // The embed inlines the workflow, so there is nothing to build without one.
     expect(snippet === '' || snippet.includes('Load a workflow')).toBe(true);
@@ -237,5 +238,31 @@ describe('embed redaction on unrecognised input', () => {
 		canvas.dispatchEvent(new CustomEvent('wr-load', { detail: { view: 'design', warnings: [] } }));
 		await new Promise((r) => setTimeout(r, 30));
 		expect(document.getElementById('embed-redacted')?.textContent).toMatch(/not a workflow/);
+	});
+});
+
+describe('copy while a rebuild is pending', () => {
+	it('never copies the previous build after the Redact box changed', async () => {
+		const realFetch = globalThis.fetch;
+		let delay = 0;
+		globalThis.fetch = (() => new Promise((resolve) => { const w = delay; setTimeout(() => resolve(new Response('{}')), w); })) as typeof fetch;
+		try {
+			const canvas = setup() as HTMLElement & { workflow?: unknown };
+			canvas.workflow = { id: 'wf-secret-id', nodes: [{ id: 'n', name: 'S', type: 't', typeVersion: 1, position: [0, 0], parameters: { text: 'ada@example.com' } }], connections: {} };
+			const box = document.getElementById('embed-redact') as HTMLInputElement;
+			box.checked = false;
+			box.dispatchEvent(new Event('change'));
+			await new Promise((r) => setTimeout(r, 50)); // the unredacted build is now the saved one
+			delay = 100;
+			box.checked = true;
+			box.dispatchEvent(new Event('change')); // the redacted build is still running
+			let text = 'not copied';
+			Object.defineProperty(globalThis.navigator, 'clipboard', { value: { writeText: async (t: string) => { text = t; } }, configurable: true });
+			document.getElementById('copy-embed')?.dispatchEvent(new MouseEvent('click'));
+			await new Promise((r) => setTimeout(r, 0));
+			expect(text).not.toContain('ada@example.com');
+		} finally {
+			globalThis.fetch = realFetch;
+		}
 	});
 });

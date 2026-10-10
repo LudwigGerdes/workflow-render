@@ -187,6 +187,10 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
     const size = $('embed-size');
     if (!field) return;
     const build = ++embedBuild;
+    // Drop the previous build at once: until this one lands there is nothing to copy,
+    // so a click cannot hand out an embed made under the other Redact setting.
+    embedHtml = '';
+    field.value = 'Building…';
     void buildEmbed().then((html) => {
       if (build !== embedBuild) return;
       embedHtml = html;
@@ -201,7 +205,7 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
   $('embed-redact')?.addEventListener('change', () => updateEmbed());
 
   $('download-embed')?.addEventListener('click', () => {
-    if (!embedHtml) return;
+    if (!embedHtml) return; // still building
     const page = `<!doctype html>\n<meta charset="utf-8">\n<title>workflow</title>\n${embedHtml}\n`;
     const url = URL.createObjectURL(new Blob([page], { type: 'text/html' }));
     const a = document.createElement('a');
@@ -224,7 +228,11 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
     };
     const clipboard = (globalThis.navigator as Navigator | undefined)?.clipboard;
     if (!clipboard) return done(false);
-    clipboard.writeText(embedHtml || field.value).then(
+    if (!embedHtml) {
+      button.textContent = 'Building…';
+      return;
+    }
+    clipboard.writeText(embedHtml).then(
       () => done(true),
       () => done(false),
     );

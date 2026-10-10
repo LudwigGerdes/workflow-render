@@ -23,6 +23,8 @@ const PAGE = `
     <button id="copy-embed"></button>
     <button id="download-embed"></button>
     <span id="embed-size"></span>
+    <input type="checkbox" id="embed-redact" checked>
+    <span id="embed-redacted"></span>
   </section>
   <workflow-render id="canvas"></workflow-render>
   <span id="emulates"></span>
@@ -152,4 +154,45 @@ describe('idle chrome stays findable', () => {
     expect(idle).not.toMatch(/opacity:\s*0\s*[;}]/);
     expect(idle).not.toContain('pointer-events: none');
   });
+});
+
+describe('embed redaction', () => {
+	const secretWorkflow = {
+		id: 'wf-secret-id',
+		nodes: [{ id: 'n', name: 'S', type: 'n8n-nodes-base.set', typeVersion: 3, position: [0, 0], parameters: { text: 'ada@example.com' } }],
+		connections: {},
+	};
+	const copied = async (): Promise<string> => {
+		let text = '';
+		Object.defineProperty(globalThis.navigator, 'clipboard', { value: { writeText: async (t: string) => { text = t; } }, configurable: true });
+		document.getElementById('copy-embed')?.dispatchEvent(new MouseEvent('click'));
+		await new Promise((r) => setTimeout(r, 0));
+		return text;
+	};
+	const loaded = async (canvas: HTMLElement & { workflow?: unknown }): Promise<void> => {
+		canvas.workflow = secretWorkflow;
+		canvas.dispatchEvent(new CustomEvent('wr-load', { detail: { view: 'design', warnings: [] } }));
+		await new Promise((r) => setTimeout(r, 20));
+	};
+
+	it('masks the shared embed by default, and says how much', async () => {
+		const canvas = setup() as HTMLElement & { workflow?: unknown };
+		expect((document.getElementById('embed-redact') as HTMLInputElement).checked).toBe(true);
+		await loaded(canvas);
+		const text = await copied();
+		expect(text).not.toContain('ada@example.com');
+		expect(text).not.toContain('wf-secret-id');
+		expect(document.getElementById('embed-redacted')?.textContent).toMatch(/2 values masked/);
+		expect(canvas.workflow).toEqual(secretWorkflow);
+	});
+
+	it('shares the raw workflow when unchecked', async () => {
+		const canvas = setup() as HTMLElement & { workflow?: unknown };
+		await loaded(canvas);
+		const box = document.getElementById('embed-redact') as HTMLInputElement;
+		box.checked = false;
+		box.dispatchEvent(new Event('change'));
+		await new Promise((r) => setTimeout(r, 20));
+		expect(await copied()).toContain('ada@example.com');
+	});
 });

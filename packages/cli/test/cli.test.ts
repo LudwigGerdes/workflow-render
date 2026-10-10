@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { PNG } from 'pngjs';
 import { describe, expect, it } from 'vitest';
-import { exportFile, parseArgs, USAGE, USAGE_EXIT_CODE } from '../src/index.js';
+import { exportFile, formatReport, parseArgs, redactFile, USAGE, USAGE_EXIT_CODE } from '../src/index.js';
 
 const fixture = (name: string): string => {
   const candidates = [
@@ -244,4 +244,62 @@ describe('exportFile', () => {
       exportFile({ kind: 'export', file: bad, out: join(dir, 'bad.svg'), scale: 2 }),
     ).rejects.toThrow(/not a workflow/i);
   });
+});
+
+const exportSvgOf = async (file: string, redact: { mask: string[]; keep: string[]; keepData: boolean } | undefined): Promise<string> => {
+	const out = join(outDir(), 'out.svg');
+	await exportFile({ kind: 'export', file, out, scale: 2, ...(redact ? { redact } : {}) });
+	return readFileSync(out, 'utf8');
+};
+const FIXTURE_WITH_STICKY = fixture('order-intake');
+
+describe('redact', () => {
+	it('parses redact with repeatable --mask/--keep and --keep-data', () => {
+		expect(parseArgs(['redact', 'wf.json', '-o', 'out.json', '--mask', 'a', '--mask', 'b', '--keep', 'c', '--keep-data'])).toEqual({
+			kind: 'redact', file: 'wf.json', out: 'out.json', mask: ['a', 'b'], keep: ['c'], keepData: true,
+		});
+	});
+
+	it('parses export --redact, and refuses --mask without --redact', () => {
+		expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--redact', '--mask', 'x'])).toMatchObject({
+			kind: 'export', redact: { mask: ['x'], keep: [], keepData: false },
+		});
+		expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--mask', 'x'])).toMatchObject({ kind: 'error' });
+	});
+
+	it('rejects a pattern that does not compile, naming it', () => {
+		const r = parseArgs(['redact', 'wf.json', '-o', 'o.json', '--mask', '(']);
+		expect(r).toMatchObject({ kind: 'error' });
+		expect((r as { message: string }).message).toContain('--mask "("');
+	});
+
+	it('refuses to overwrite the input, however it is spelled', async () => {
+		const dir = mkdtempSync(join(tmpdir(), 'wr-redact-'));
+		const file = join(dir, 'wf.json');
+		writeFileSync(file, JSON.stringify({ nodes: [], connections: {} }));
+		await expect(redactFile({ kind: 'redact', file, out: join(dir, '.', 'wf.json'), mask: [], keep: [], keepData: false })).rejects.toThrow(/input/);
+	});
+
+	it('writes a masked copy and reports it', async () => {
+		const dir = mkdtempSync(join(tmpdir(), 'wr-redact-'));
+		const file = join(dir, 'wf.json');
+		writeFileSync(file, JSON.stringify({ id: 'wf1', nodes: [{ id: 'n', name: 'S', type: 'n8n-nodes-base.set', typeVersion: 3, position: [0, 0], parameters: { text: 'ada@example.com https://api.slack.com/x' } }], connections: {} }));
+		const out = join(dir, 'out.json');
+		const { report } = await redactFile({ kind: 'redact', file, out, mask: [], keep: [], keepData: false });
+		const written = readFileSync(out, 'utf8');
+		expect(written).not.toContain('ada@example.com');
+		expect(written.endsWith('\n')).toBe(true);
+		const text = formatReport('wf.json', report);
+		expect(text).toMatch(/^masked 2 values in wf\.json/);
+		expect(text).toMatch(/identifier\s+1/);
+		expect(text).toMatch(/email\s+1\s+S › parameters\.text/);
+		expect(text).toContain('hosts kept: api.slack.com');
+	});
+
+	it('export --redact still draws every node', async () => {
+		const plain = await exportSvgOf(FIXTURE_WITH_STICKY, undefined);
+		const masked = await exportSvgOf(FIXTURE_WITH_STICKY, { mask: [], keep: [], keepData: false });
+		const count = (svg: string) => (svg.match(/data-node-name=/g) ?? []).length;
+		expect(count(masked)).toBe(count(plain));
+	});
 });

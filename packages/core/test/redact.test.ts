@@ -73,7 +73,7 @@ describe('redactWorkflow: workflows', () => {
 
 	it('masks custom patterns and honours keep, but keep cannot unmask credentials or identifiers', () => {
 		const input = wf([node('S', { a: 'acme-internal-42', b: 'ada@example.com' }, { credentials: { x: { id: '1', name: 'n' } } })], { id: 'wf1' });
-		const s = out(input, { mask: [/acme-internal-\d+/], keep: [/@example\.com$/] });
+		const s = out(input, { mask: [/acme-internal-\d+/], keep: [/ada@example\.com/] });
 		expect(s).toContain('[redacted: custom]');
 		expect(s).not.toContain('acme-internal-42');
 		expect(s).toContain('ada@example.com');
@@ -310,5 +310,14 @@ describe('final review fixes', () => {
 		const s = out(wf([node('H', { headers: [{ key: 'Authorization', value: 'Token zzz' }], password: '=hunter2x-{{ $json.x }}' })]));
 		expect(s).not.toContain('Token zzz');
 		expect(s).not.toContain('hunter2x');
+	});
+});
+
+describe('keep cannot shelter a secret it overlaps', () => {
+	it('still masks an email at a kept domain, and a token touching kept text', () => {
+		const s = out(wf([node('N', { a: 'ask ops@example.com via https://hooks.example.com/x', b: 'Bearer abcdefghijklmnopqrstuvwxyz0123example.com' })]), { keep: [/example\.com/] });
+		expect(s).not.toContain('ops@');
+		expect(s).not.toContain('abcdefghijklmnopqrstuvwxyz0123');
+		expect(s).toContain('https://hooks.example.com/x');
 	});
 });

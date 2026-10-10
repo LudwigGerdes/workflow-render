@@ -83,8 +83,13 @@ const INLINE_TOKENS: RegExp[] = [
 	/(?<=discord(?:app)?\.com\/api\/webhooks\/)\d{5,25}\/[A-Za-z0-9_-]{20,128}/gi,
 	/\bbot\d{6,12}:[A-Za-z0-9_-]{30,64}/g,
 ];
-/** A long path segment with a digit inside a URL (webhook ids, signed paths): `/7d1c2f0a-…`. */
-const PATH_SECRET = /(?<=\b[a-z][a-z0-9+.-]{0,30}:\/\/[^\s"'<>]{0,2048})\/(?=[A-Za-z_-]{0,256}\d)[A-Za-z0-9_-]{24,256}(?=[/?#\s"'<>]|$)/gi;
+/**
+ * A long path segment with a digit inside a URL (webhook ids, signed paths): `/7d1c2f0a-…`.
+ * Found in two steps, URL then segment: a look-behind for "inside a URL" costs a scan
+ * at every position on Node 20 and 22.
+ */
+const URL_SPAN = /\b[a-z][a-z0-9+.-]{0,30}:\/\/[^\s"'<>]{1,2048}/gi;
+const PATH_SEGMENT = /\/(?=[A-Za-z_-]{0,256}\d)[A-Za-z0-9_-]{24,256}(?=[/?#]|$)/g;
 /**
  * `key=value` or `key: value` where the key is secret-named, in any text: query
  * strings and form bodies (`?api_key=…`, `client_secret=…&…`), connection strings
@@ -196,7 +201,13 @@ class Redactor {
 		// Token shapes first: `Authorization: Bearer <token>` must lose the token, not the word `Bearer`.
 		for (const re of INLINE_TOKENS) apply(re, 'token', () => placeholder('token'));
 		apply(ASSIGN_SECRET, 'secret field', (_m, key) => `${key}${placeholder('secret field')}`);
-		apply(PATH_SECRET, 'token', () => `/${placeholder('token')}`);
+		let pathHits = 0;
+		[out] = this.replaceOutside(out, URL_SPAN, (url) => {
+			const masked = url.replace(PATH_SEGMENT, () => `/${placeholder('token')}`);
+			if (masked !== url) pathHits++;
+			return masked;
+		});
+		if (pathHits > 0) this.hit('token', where);
 		apply(URL_CREDENTIALS, 'url credentials', (_m, scheme) => `${scheme}${placeholder('url credentials')}@`);
 		apply(EMAIL, 'email', () => placeholder('email'));
 		for (const re of this.mask) apply(re, 'custom', () => placeholder('custom'));

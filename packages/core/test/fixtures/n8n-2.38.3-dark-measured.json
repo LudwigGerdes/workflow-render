@@ -18,13 +18,34 @@
 		"error": "#ff6467"
 	},
 	"sticky": {
-		"1": { "bg": "#733e0a", "border": "#894b00" },
-		"2": { "bg": "#2d1d06", "border": "#63410d" },
-		"3": { "bg": "#460809", "border": "#82181a" },
-		"4": { "bg": "#032e15", "border": "#0d542b" },
-		"5": { "bg": "#1c398e", "border": "#193cb8" },
-		"6": { "bg": "#2f0d68", "border": "#5d0ec0" },
-		"7": { "bg": "#262626", "border": "#323232" }
+		"1": {
+			"bg": "#733e0a",
+			"border": "#894b00"
+		},
+		"2": {
+			"bg": "#2d1d06",
+			"border": "#63410d"
+		},
+		"3": {
+			"bg": "#460809",
+			"border": "#82181a"
+		},
+		"4": {
+			"bg": "#032e15",
+			"border": "#0d542b"
+		},
+		"5": {
+			"bg": "#1c398e",
+			"border": "#193cb8"
+		},
+		"6": {
+			"bg": "#2f0d68",
+			"border": "#5d0ec0"
+		},
+		"7": {
+			"bg": "#262626",
+			"border": "#323232"
+		}
 	},
 	"stickyText": "#ffffff",
 	"ndv": {
@@ -34,5 +55,26 @@
 		"label": "#bbbbbb",
 		"fieldLabel": "#ffffff",
 		"text": "#ffffff"
-	}
+	},
+	"ndvChrome": {
+		"segmentBg": "#323232",
+		"segmentActiveBg": "#171717",
+		"tableHeadBg": "#444444",
+		"tableHeadText": "#ffffff",
+		"tableLine": "rgba(245,255,255,0.10)",
+		"tableCellText": "#e5e5e5",
+		"toggleOff": "#171717",
+		"toggleOffBorder": "#444444",
+		"toggleOn": "#00c950",
+		"toggleKnob": "#f5f5f5"
+	},
+	"ndvChrome_note": "Measured in a second run the same day (output pane in Table view, the Include Other Input Fields switch on and off).",
+	"ndvPane": {
+		"chipBg": "#262626",
+		"chipBorder": "#2b2b2b",
+		"chipText": "#ffffff",
+		"count": "#999999",
+		"iconMuted": "#bbbbbb"
+	},
+	"ndvPane_note": "Third run the same day: input pane in Schema view after a run. The light run reproduced NDV_CHIP_BG/BORDER/TEXT, NDV_COUNT_COLOR and NDV_ICON_MUTED exactly."
 }

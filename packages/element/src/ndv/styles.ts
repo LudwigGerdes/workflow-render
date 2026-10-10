@@ -3,29 +3,29 @@
  * cannot drift apart.
  */
 import {
+  NDV_PINNED_BG,
+  NDV_PINNED_BG_DARK,
+  NDV_PINNED_TEXT,
+  NDV_PINNED_TEXT_DARK,
+  ndvChromeFor,
+  ndvPaneFor,
+  ndvTokensFor,
+  type ThemeName,
   NDV_BACKDROP_OPACITY,
   NDV_CALLOUT_PADDING,
-  NDV_CHIP_BG,
-  NDV_CHIP_BORDER,
   NDV_CHIP_HEIGHT,
   NDV_CHIP_PADDING_X,
   NDV_CHIP_RADIUS,
-  NDV_CHIP_TEXT,
-  NDV_COUNT_COLOR,
   NDV_COUNT_FONT_SIZE,
   NDV_FIELD_HEIGHT,
-  NDV_ICON_MUTED,
   NDV_INSET,
   NDV_LABEL_FONT_SIZE,
   NDV_LABEL_FONT_WEIGHT,
   NDV_LABEL_HEIGHT,
-  NDV_LIGHT,
   NDV_NEST_INDENT,
   NDV_PANEL_PADDING_BOTTOM,
   NDV_PANEL_PADDING_X,
   NDV_PANEL_WIDTH,
-  NDV_PINNED_BG,
-  NDV_PINNED_TEXT,
   NDV_RESIZE_HANDLE_WIDTH,
   NDV_ROW_GAP,
   NDV_SCHEMA_ROW_GAP,
@@ -47,8 +47,52 @@ import {
   NDV_TYPE_ICON_SIZE,
 } from 'workflow-render-core';
 
-/** The hairline n8n separates panes and header with. */
-const NDV_LINE = 'rgba(0, 0, 0, 0.09)';
+/**
+ * The inspector's colours for one theme, as custom property declarations. The
+ * stylesheet below only ever reads these variables, so switching theme is a
+ * matter of which block applies.
+ */
+export function ndvThemeVars(theme: ThemeName): string {
+  const n = ndvTokensFor(theme);
+  const c = ndvChromeFor(theme);
+  const p = ndvPaneFor(theme);
+  const dark = theme === 'dark';
+  return [
+    ['panel-bg', n.panelBg],
+    ['input-panel-bg', n.inputPanelBg],
+    ['field-bg', n.fieldBg],
+    ['label', n.label],
+    ['field-label', n.fieldLabel],
+    ['text', n.text],
+    ['muted', n.muted],
+    ['expression-bg', n.expressionBg],
+    ['expression-border', n.expressionBorder],
+    ['line', c.line],
+    ['segment-bg', c.segmentBg],
+    ['segment-active-bg', c.segmentActiveBg],
+    ['table-head-bg', c.tableHeadBg],
+    ['table-head-text', c.tableHeadText],
+    ['table-line', c.tableLine],
+    ['table-cell-text', c.tableCellText],
+    ['toggle-off', c.toggleOff],
+    ['toggle-off-border', c.toggleOffBorder],
+    ['toggle-on', c.toggleOn],
+    ['toggle-knob', c.toggleKnob],
+    ['field-border', c.fieldBorder],
+    ['input-border', c.inputBorder],
+    ['input-hover-border', c.inputHoverBorder],
+    ['dashed-border', c.dashedBorder],
+    ['chip-bg', p.chipBg],
+    ['chip-border', p.chipBorder],
+    ['chip-text', p.chipText],
+    ['count', p.count],
+    ['icon-muted', p.iconMuted],
+    ['pinned-bg', dark ? NDV_PINNED_BG_DARK : NDV_PINNED_BG],
+    ['pinned-text', dark ? NDV_PINNED_TEXT_DARK : NDV_PINNED_TEXT],
+  ]
+    .map(([k, v]) => `--wr-ndv-${k}: ${v};`)
+    .join(' ');
+}
 
 export const ndvStyles = `
 .wr-ndv-panes { display: flex; align-items: stretch; flex: 1; min-height: 0; }
@@ -73,18 +117,18 @@ export const ndvStyles = `
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-left: 1px solid ${NDV_LINE};
-  border-right: 1px solid ${NDV_LINE};
+  border-left: 1px solid var(--wr-ndv-line);
+  border-right: 1px solid var(--wr-ndv-line);
 }
 .wr-ndv-pane-header { display: flex; align-items: center; gap: 8px; min-height: 28px; }
 .wr-ndv-pane-title {
   font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase;
-  color: ${NDV_LIGHT.label};
+  color: var(--wr-ndv-label);
 }
 /* n8n puts the count on its own line beneath the header, not beside the title. */
 .wr-ndv-pane-count {
   font-size: ${NDV_COUNT_FONT_SIZE}px;
-  color: ${NDV_COUNT_COLOR};
+  color: var(--wr-ndv-count);
   padding: 6px 0 8px;
 }
 
@@ -104,12 +148,12 @@ export const ndvStyles = `
   height: ${NDV_SEARCH_HEIGHT}px;
   font: inherit;
   font-size: ${NDV_SEARCH_FONT_SIZE}px;
-  color: ${NDV_LIGHT.text};
+  color: var(--wr-ndv-text);
   background: none;
   border: 0;
   outline: none;
 }
-.wr-ndv-search input::placeholder { color: ${NDV_ICON_MUTED}; }
+.wr-ndv-search input::placeholder { color: var(--wr-ndv-icon-muted); }
 /* min-width matters: as a flex item the svg otherwise stretches to whatever
    space is going, which drew the magnifier at 188px wide. */
 .wr-ndv-search-icon {
@@ -117,7 +161,7 @@ export const ndvStyles = `
   width: ${NDV_SEARCH_ICON_SIZE}px;
   min-width: ${NDV_SEARCH_ICON_SIZE}px;
   height: ${NDV_SEARCH_ICON_SIZE}px;
-  color: ${NDV_ICON_MUTED};
+  color: var(--wr-ndv-icon-muted);
 }
 
 /* Data that came with the payload rather than from a run. n8n says so in a
@@ -129,33 +173,33 @@ export const ndvStyles = `
   gap: 8px;
   padding: ${NDV_CALLOUT_PADDING}px;
   margin-bottom: 8px;
-  background: ${NDV_PINNED_BG};
-  color: ${NDV_PINNED_TEXT};
+  background: var(--wr-ndv-pinned-bg);
+  color: var(--wr-ndv-pinned-text);
   border-radius: 4px;
   font-size: 12px;
 }
 /* A segmented control: one grey trough, the active mode a raised white pill. */
 .wr-ndv-modes {
   margin-left: auto; display: flex; gap: 2px;
-  background: #f0f0f2; border-radius: 6px; padding: 2px;
+  background: var(--wr-ndv-segment-bg); border-radius: 6px; padding: 2px;
 }
 .wr-ndv-modes button {
   height: 22px; padding: 0 10px; font: inherit; font-size: 12px;
   background: none; border: 0; border-radius: 4px;
-  color: ${NDV_LIGHT.label}; cursor: pointer;
+  color: var(--wr-ndv-label); cursor: pointer;
 }
 .wr-ndv-modes button[aria-selected='true'] {
-  background: ${NDV_LIGHT.fieldBg};
-  color: ${NDV_LIGHT.text};
+  background: var(--wr-ndv-segment-active-bg);
+  color: var(--wr-ndv-text);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 .wr-ndv-pane-body { overflow: auto; flex: 1; }
 .wr-ndv-table { border-collapse: collapse; width: 100%; font-size: 12px; }
 .wr-ndv-table th {
   height: 32px; text-align: left; font-weight: 700; padding: 4px 6px;
-  background: #f5f5f5; color: #2b2b2b; border-bottom: 1px solid #e0e0e0;
+  background: var(--wr-ndv-table-head-bg); color: var(--wr-ndv-table-head-text); border-bottom: 1px solid var(--wr-ndv-table-line);
 }
-.wr-ndv-table td { height: 23px; padding: 4px 6px; color: #757575; border-bottom: 1px solid #e0e0e0; }
+.wr-ndv-table td { height: 23px; padding: 4px 6px; color: var(--wr-ndv-table-cell-text); border-bottom: 1px solid var(--wr-ndv-table-line); }
 .wr-ndv-stack { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 .wr-ndv-schema { font-size: 12px; }
 .wr-ndv-schema-row {
@@ -176,10 +220,10 @@ export const ndvStyles = `
   box-sizing: border-box;
   height: ${NDV_CHIP_HEIGHT}px;
   padding: 0 ${NDV_CHIP_PADDING_X}px;
-  background: ${NDV_CHIP_BG};
-  border: 1px solid ${NDV_CHIP_BORDER};
+  background: var(--wr-ndv-chip-bg);
+  border: 1px solid var(--wr-ndv-chip-border);
   border-radius: ${NDV_CHIP_RADIUS}px;
-  color: ${NDV_CHIP_TEXT};
+  color: var(--wr-ndv-chip-text);
   font-size: 12px;
   max-width: 60%;
 }
@@ -188,7 +232,7 @@ export const ndvStyles = `
   flex: 0 0 auto;
   width: ${NDV_TYPE_ICON_SIZE}px;
   height: ${NDV_TYPE_ICON_SIZE}px;
-  color: ${NDV_ICON_MUTED};
+  color: var(--wr-ndv-icon-muted);
   /* A letter, not a pictogram -- so it needs the metrics to sit centred in the
      same 12px slot n8n gives its type glyph. */
   font-size: 10px;
@@ -212,7 +256,7 @@ export const ndvStyles = `
   padding: 0;
   align-self: stretch;
 }
-.wr-ndv-resize:hover { background: ${NDV_LINE}; }
+.wr-ndv-resize:hover { background: var(--wr-ndv-line); }
 .wr-ndv-runs { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 12px; }
 .wr-ndv-pager { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12px; }
 .wr-ndv-error { padding: 8px; }
@@ -238,8 +282,8 @@ export const ndvStyles = `
   inset: ${NDV_INSET}px;
   display: flex;
   flex-direction: column;
-  background: ${NDV_LIGHT.panelBg};
-  color: ${NDV_LIGHT.text};
+  background: var(--wr-ndv-panel-bg);
+  color: var(--wr-ndv-text);
   border-radius: 8px;
   overflow: hidden;
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -250,10 +294,10 @@ export const ndvStyles = `
   align-items: center;
   gap: 8px;
   padding: 12px ${NDV_PANEL_PADDING_X}px;
-  border-bottom: 1px solid ${NDV_LINE};
+  border-bottom: 1px solid var(--wr-ndv-line);
 }
 .wr-ndv-title { font-size: 16px; font-weight: 600; }
-.wr-ndv-sub { color: ${NDV_LIGHT.label}; font-size: 13px; }
+.wr-ndv-sub { color: var(--wr-ndv-label); font-size: 13px; }
 .wr-ndv-close { margin-left: auto; background: none; border: 0; cursor: pointer; font-size: 18px; color: inherit; }
 
 /* The strip carries the hairline; each tab's underline sits on top of it, so
@@ -262,7 +306,7 @@ export const ndvStyles = `
   display: flex;
   gap: 0;
   padding: 12px 0 0;
-  border-bottom: 1px solid ${NDV_LINE};
+  border-bottom: 1px solid var(--wr-ndv-line);
 }
 .wr-ndv-tabs button {
   height: ${NDV_TAB_HEIGHT}px;
@@ -294,39 +338,39 @@ export const ndvStyles = `
   height: ${NDV_LABEL_HEIGHT}px;
   font-size: ${NDV_LABEL_FONT_SIZE}px;
   font-weight: ${NDV_LABEL_FONT_WEIGHT};
-  color: ${NDV_LIGHT.fieldLabel};
+  color: var(--wr-ndv-field-label);
 }
 .wr-ndv-value {
   min-height: ${NDV_FIELD_HEIGHT}px;
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  background: ${NDV_LIGHT.fieldBg};
-  border: 1px solid rgba(0, 0, 0, 0.16);
+  background: var(--wr-ndv-field-bg);
+  border: 1px solid var(--wr-ndv-field-border);
   border-radius: 6px;
   font-size: 14px;
   word-break: break-word;
 }
 /* Read-only by construction: a default is shown muted, exactly as n8n does. */
-.wr-ndv-field.is-default .wr-ndv-value { color: ${NDV_LIGHT.muted}; }
+.wr-ndv-field.is-default .wr-ndv-value { color: var(--wr-ndv-muted); }
 .wr-ndv-expression {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
-  background: ${NDV_LIGHT.expressionBg};
-  border: 1px solid ${NDV_LIGHT.expressionBorder};
+  background: var(--wr-ndv-expression-bg);
+  border: 1px solid var(--wr-ndv-expression-border);
   border-radius: 4px;
   padding: 2px 6px;
 }
 .wr-ndv-children { margin-left: ${NDV_NEST_INDENT}px; }
-.wr-ndv-toggle { width: 34px; height: 18px; border-radius: 9px; background: #c6ccd4; position: relative; }
-.wr-ndv-toggle[data-on='true'] { background: #29a360; }
+.wr-ndv-toggle { width: 34px; height: 18px; border-radius: 9px; background: var(--wr-ndv-toggle-off); box-shadow: inset 0 0 0 1px var(--wr-ndv-toggle-off-border); position: relative; }
+.wr-ndv-toggle[data-on='true'] { background: var(--wr-ndv-toggle-on); box-shadow: none; }
 .wr-ndv-toggle::after {
   content: '';
   position: absolute;
   top: 2px; left: 2px;
   width: 14px; height: 14px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--wr-ndv-toggle-knob);
 }
 .wr-ndv-toggle[data-on='true']::after { left: auto; right: 2px; }
 .wr-ndv-json, .wr-ndv-markdown {
@@ -349,19 +393,19 @@ export const ndvStyles = `
   height: 24px;
   padding: 0 10px;
   font-size: 12px;
-  color: ${NDV_LIGHT.text};
-  background: ${NDV_LIGHT.fieldBg};
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--wr-ndv-text);
+  background: var(--wr-ndv-field-bg);
+  border: 1px solid var(--wr-ndv-input-border);
   border-radius: 4px;
   cursor: pointer;
 }
 .wr-ndv-copy:hover {
-  border-color: rgba(0, 0, 0, 0.25);
+  border-color: var(--wr-ndv-input-hover-border);
 }
 .wr-ndv-note {
   font-size: 12px;
-  color: ${NDV_LIGHT.label};
-  border: 1px dashed rgba(0, 0, 0, 0.2);
+  color: var(--wr-ndv-label);
+  border: 1px dashed var(--wr-ndv-dashed-border);
   border-radius: 4px;
   padding: 8px;
   margin-bottom: 12px;
@@ -382,7 +426,7 @@ export const ndvStyles = `
     display: flex;
     gap: 4px;
     padding: 8px 12px;
-    border-bottom: 1px solid ${NDV_LINE};
+    border-bottom: 1px solid var(--wr-ndv-line);
   }
   .wr-ndv-switch button {
     flex: 1 1 0;
@@ -392,7 +436,7 @@ export const ndvStyles = `
     font-weight: 500;
     color: ${NDV_TAB_IDLE_COLOR};
     background: none;
-    border: 1px solid ${NDV_LINE};
+    border: 1px solid var(--wr-ndv-line);
     border-radius: 6px;
     cursor: pointer;
   }

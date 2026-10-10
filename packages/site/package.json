@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "workflow-render-core": "workspace:*",
     "workflow-render-element": "workspace:*"
   },
   "devDependencies": {

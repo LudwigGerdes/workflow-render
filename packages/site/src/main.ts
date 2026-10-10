@@ -5,6 +5,7 @@
  * way once the pointer settles. Nothing is uploaded: the only request the page
  * makes is for a `?src=` URL the visitor supplied.
  */
+import { redactWorkflow } from 'workflow-render-core';
 
 interface CanvasElement extends HTMLElement {
   workflow?: unknown;
@@ -104,6 +105,21 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
   async function buildEmbed(): Promise<string> {
     const workflow = await currentWorkflow();
     if (!workflow) return '';
+
+    // An embed is for sharing: mask before anything is inlined, unless the box is cleared.
+    const redactBox = $<HTMLInputElement>('embed-redact');
+    const summary = $('embed-redacted');
+    let shared: unknown = workflow;
+    if (redactBox?.checked !== false) {
+      const { json, report } = redactWorkflow(workflow);
+      shared = json;
+      if (summary) {
+        const hosts = report.hostsKept.length ? ` · hosts kept: ${report.hostsKept.join(', ')}` : '';
+        summary.textContent = ` · ${report.hits.length} values masked${hosts}`;
+      }
+    } else if (summary) {
+      summary.textContent = '';
+    }
     const nodes = (workflow['nodes'] ??
       (workflow['workflowData'] as Record<string, unknown> | undefined)?.['nodes'] ??
       []) as Array<{ type?: string }>;
@@ -138,7 +154,7 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
         '};<\/script>',
       `<script type="module">${bundle}<\/script>`,
       '<script type="module">',
-      `  const wf = ${safe(workflow)};`,
+      `  const wf = ${safe(shared)};`,
       "  customElements.whenDefined('workflow-render').then(() => {",
       "    document.querySelectorAll('workflow-render').forEach((el) => { el.workflow = wf; });",
       '  });',
@@ -174,6 +190,8 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
     });
   }
   updateEmbed();
+
+  $('embed-redact')?.addEventListener('change', () => updateEmbed());
 
   $('download-embed')?.addEventListener('click', () => {
     if (!embedHtml) return;

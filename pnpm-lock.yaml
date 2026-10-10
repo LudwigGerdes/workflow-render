@@ -97,6 +97,9 @@ importers:
 
   packages/site:
     dependencies:
+      workflow-render-core:
+        specifier: workspace:*
+        version: link:../core
       workflow-render-element:
         specifier: workspace:*
         version: link:../element

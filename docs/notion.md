@@ -17,11 +17,11 @@ Save this as `index.html` and paste your exported workflow (or execution) JSON b
   <title>My workflow</title>
   <style>html, body { margin: 0; height: 100%; } workflow-render { display: block; height: 100vh; }</style>
   <script type="module" crossorigin="anonymous"
-    src="https://cdn.jsdelivr.net/npm/workflow-render@0.3.0/dist/element/workflow-render.js"
-    integrity="sha384-sLrbsTXKra3j5kVuVzEgY8JhXcng2xyA1h5/1UU+mk3do/NduJ1pDRgQmHIOyBDT"></script>
+    src="https://cdn.jsdelivr.net/npm/workflow-render@0.4.0/dist/element/workflow-render.js"
+    integrity="sha384-aG3Ip1wRTCeNNzLVq6XOoiThShTAe6CpFeWfaZ9g011/37M1AZliGwj6lU/hftn4"></script>
 </head>
 <body>
-  <workflow-render id="canvas"></workflow-render>
+  <workflow-render id="canvas" theme="auto"></workflow-render>
 
   <!-- Paste your exported workflow JSON between these two tags. -->
   <script type="application/json" id="workflow">
@@ -35,7 +35,7 @@ Save this as `index.html` and paste your exported workflow (or execution) JSON b
 </html>
 ```
 
-The renderer loads from jsDelivr; the workflow stays in your file. From workflow-render 0.4.0, add `theme="auto"` to the `<workflow-render>` tag so the canvas follows the reader's light or dark setting, or `theme="dark"` to fix it dark. Open the file in a browser first to check it draws.
+The renderer loads from jsDelivr; the workflow stays in your file. `theme="auto"` makes the canvas follow the reader's light or dark setting; use `theme="dark"` to fix it dark, or remove it for light. Open the file in a browser first to check it draws.
 
 **The file is public once hosted.** Anyone with the URL can read the JSON. Paste a [redacted](https://workflowtools.dev/workflow-render/cli#redact) copy: `workflow-render redact workflow.json -o workflow.public.json` masks credentials, identifiers, secrets, emails and pinned data. Read its report, and add `--mask` for any host or value it left that you would not publish.
 

@@ -2,8 +2,8 @@
 
 ```html
 <script type="module" crossorigin="anonymous"
-  src="https://cdn.jsdelivr.net/npm/workflow-render@0.3.0/dist/element/workflow-render.js"
-  integrity="sha384-sLrbsTXKra3j5kVuVzEgY8JhXcng2xyA1h5/1UU+mk3do/NduJ1pDRgQmHIOyBDT"></script>
+  src="https://cdn.jsdelivr.net/npm/workflow-render@0.4.0/dist/element/workflow-render.js"
+  integrity="sha384-aG3Ip1wRTCeNNzLVq6XOoiThShTAe6CpFeWfaZ9g011/37M1AZliGwj6lU/hftn4"></script>
 
 <div style="width: 100%; height: 600px">
   <workflow-render src="./workflows/invoice-sync.json"></workflow-render>

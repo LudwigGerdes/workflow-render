@@ -303,3 +303,16 @@ describe('redact', () => {
 		expect(count(masked)).toBe(count(plain));
 	});
 });
+
+describe('redact with an overlay', () => {
+	it('redacts the overlay text too', async () => {
+		const dir = outDir();
+		const wfFile = join(dir, 'wf.json');
+		writeFileSync(wfFile, JSON.stringify({ nodes: [{ id: 'n', name: 'S', type: 'n8n-nodes-base.set', typeVersion: 3, position: [0, 0], parameters: {} }], connections: {} }));
+		const overlayFile = join(dir, 'overlay.json');
+		writeFileSync(overlayFile, JSON.stringify({ version: 1, nodes: { S: { badges: [{ kind: 'error', text: 'leaks ada@example.com' }] } } }));
+		const out = join(dir, 'out.svg');
+		await exportFile({ kind: 'export', file: wfFile, out, scale: 2, overlay: overlayFile, redact: { mask: [], keep: [], keepData: false } });
+		expect(readFileSync(out, 'utf8')).not.toContain('ada@example.com');
+	});
+});

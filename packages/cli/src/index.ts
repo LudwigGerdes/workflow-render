@@ -202,7 +202,14 @@ export async function renderFile(file: string, overlayFile?: string, redact?: Re
   }
   const withReport = (r: Rendered): Rendered => (report === undefined ? r : { ...r, report });
   if (overlayFile === undefined) return withReport(await renderToSVG(source));
-  const { overlay, errors } = parseOverlay(JSON.parse(await readFile(overlayFile, 'utf8')));
+  let overlaySource: unknown = JSON.parse(await readFile(overlayFile, 'utf8'));
+  if (redact !== undefined) {
+    // Finding texts can quote the values being hidden.
+    const masked = redactWorkflow(overlaySource, compile(redact));
+    overlaySource = masked.json;
+    if (report !== undefined) report = { ...report, hits: [...report.hits, ...masked.report.hits] };
+  }
+  const { overlay, errors } = parseOverlay(overlaySource);
   if (overlay === undefined) {
     throw new Error(`${overlayFile} is not a canvas overlay:\n  ${errors.join('\n  ')}`);
   }

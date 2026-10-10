@@ -148,6 +148,18 @@
 		"--node--icon--color--violet": {
 			"light": "#9b6dd5",
 			"dark": "#b48de6"
+		},
+		"--background--warning": {
+			"light": "#fef9c2",
+			"dark": "#733e0a"
+		},
+		"--border-color--warning": {
+			"light": "#fff085",
+			"dark": "#894b00"
+		},
+		"--text-color--warning": {
+			"light": "#894b00",
+			"dark": "#fef9c2"
 		}
 	}
 }

@@ -717,6 +717,7 @@ export const NDV_PANE_DARK: NdvPaneTokens = {
 /** The element's error panel. Light is its own; dark uses n8n's dark danger callout tokens. */
 export const ERROR_PANEL_LIGHT = { bg: '#fdf3f2', border: '#e0b4b0', text: '#8a2f26' } as const;
 export const ERROR_PANEL_DARK = { bg: '#460809', border: '#9f0712', text: '#fef2f2' } as const; // n8n: --background--danger, --border-color--danger, --text-color--danger
+export const WARNING_PANEL_DARK = { bg: '#733e0a', border: '#894b00', text: '#fef9c2' } as const; // n8n: --background--warning, --border-color--warning, --text-color--warning
 
 export type ThemeName = 'light' | 'dark';
 /** The canvas palette for a theme. */

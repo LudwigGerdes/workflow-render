@@ -56,27 +56,28 @@ const isReferenceExpression = (s: string): boolean => s.startsWith('=') && s.inc
 const WHOLE_TOKEN = /^(?:Bearer\s+)?[A-Za-z0-9_-]{20,}$/;
 /** Token shapes found inside longer text. */
 const INLINE_TOKENS: RegExp[] = [
-	/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g,
-	/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g,
-	/\bBearer\s+[A-Za-z0-9._~+/-]{20,}=*/g,
-	/\bBasic\s+[A-Za-z0-9+/]{8,}={0,2}/g,
+	/-----BEGIN [A-Z ]{0,40}PRIVATE KEY-----[\s\S]{0,16384}?-----END [A-Z ]{0,40}PRIVATE KEY-----/g,
+	/\beyJ[A-Za-z0-9_-]{8,4096}\.[A-Za-z0-9_-]{8,4096}\.[A-Za-z0-9_-]{8,4096}/g,
+	/\bBearer\s+[A-Za-z0-9._~+/-]{20,4096}=*/g,
+	/\bBasic\s+[A-Za-z0-9+/]{8,4096}={0,2}/g,
 	/\bAKIA[0-9A-Z]{16}\b/g,
 	// Vendor key formats: Stripe, OpenAI, Slack, GitHub, GitLab, Google.
-	/\b[rsp]k_(?:live|test)_[A-Za-z0-9]{8,}/g,
-	/\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}/g,
-	/\bxox[abprs]-[A-Za-z0-9-]{10,}/g,
-	/\bgh[pousr]_[A-Za-z0-9]{20,}/g,
-	/\bgithub_pat_[A-Za-z0-9_]{20,}/g,
-	/\bglpat-[A-Za-z0-9_-]{20,}/g,
+	/\b[rsp]k_(?:live|test)_[A-Za-z0-9]{8,256}/g,
+	/\bsk-(?:proj-)?[A-Za-z0-9_-]{20,256}/g,
+	/\bxox[abprs]-[A-Za-z0-9-]{10,256}/g,
+	/\bgh[pousr]_[A-Za-z0-9]{20,256}/g,
+	/\bgithub_pat_[A-Za-z0-9_]{20,256}/g,
+	/\bglpat-[A-Za-z0-9_-]{20,256}/g,
 	/\bAIza[0-9A-Za-z_-]{35}/g,
 ];
 /** `?api_key=…` and friends: the value of a secret-named query parameter. */
-const QUERY_SECRET = /([?&][A-Za-z0-9_.-]*(?:password|passwd|secret|api[-_]?key|token|authorization|signature|sig)[A-Za-z0-9_.-]*=)([^&#\s"']+)/gi;
+const QUERY_SECRET = /([?&][A-Za-z0-9_.-]{0,64}(?:password|passwd|secret|api[-_]?key|token|authorization|signature|sig)[A-Za-z0-9_.-]{0,64}=)([^&#\s"']+)/gi;
 /** `"password": "…"` inside JSON text (a body or header field written as a string). */
-const JSON_SECRET = /("[^"\\]*(?:password|passwd|secret|api[-_]?key|token|authorization|cookie|private[-_]?key)[^"\\]*"\s*:\s*")((?:[^"\\]|\\.)*)"/gi;
-const URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]*:\/\/)([^\s/@:]+(?::[^\s/@]*)?)@/gi;
-const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
-const URL_HOST = /\b[a-z][a-z0-9+.-]*:\/\/(?:(?:\[redacted: [a-z ]+\]|[^\s/@]*)@)?([A-Za-z0-9.-]+)/gi;
+const JSON_SECRET = /("[^"\\]{0,64}(?:password|passwd|secret|api[-_]?key|token|authorization|cookie|private[-_]?key)[^"\\]{0,64}"\s*:\s*")((?:[^"\\]|\\.)*)"/gi;
+/** Every run below is bounded: an unbounded run lets a long hostile string take quadratic time. */
+const URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]{0,30}:\/\/)([^\s/@:]{1,256}(?::[^\s/@]{0,256})?)@/gi;
+const EMAIL = /[A-Za-z0-9._%+-]{1,64}@(?:[A-Za-z0-9-]{1,63}\.){1,10}[A-Za-z]{2,24}\b/g;
+const URL_HOST = /\b[a-z][a-z0-9+.-]{0,30}:\/\/(?:(?:\[redacted: [a-z ]+\]|[^\s/@]{0,256})@)?([A-Za-z0-9.-]{1,253})/gi;
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const global = (re: RegExp): RegExp => new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);

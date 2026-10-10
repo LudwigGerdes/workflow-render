@@ -9,7 +9,7 @@
  * Export uses the same pipeline the viewer does, so a file on disk is what the
  * canvas shows. Nothing here reaches the network.
  */
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { Resvg } from '@resvg/resvg-js';
 import { fontFiles } from 'workflow-render-assets';
@@ -182,6 +182,30 @@ export interface Rendered {
   report?: RedactReport;
 }
 
+/**
+ * Parse a JSON file without echoing its content: Node's own message quotes the
+ * text it choked on, and this text may be the very secret being redacted.
+ */
+async function readJson(file: string): Promise<unknown> {
+  const text = await readFile(file, 'utf8');
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new Error(`${file} is not valid JSON`);
+  }
+}
+
+/** True when `out` names the same file as `file`, however spelled: a symlink, `..`, or another case. */
+async function sameFile(file: string, out: string): Promise<boolean> {
+  if (resolve(out) === resolve(file)) return true;
+  try {
+    const [a, b] = await Promise.all([stat(file), stat(out)]);
+    return a.dev === b.dev && a.ino === b.ino;
+  } catch {
+    return false; // `out` does not exist yet, so it cannot be the input
+  }
+}
+
 const compile = (spec: RedactSpec): RedactOptions => ({
   mask: spec.mask.map((p) => new RegExp(p)),
   keep: spec.keep.map((p) => new RegExp(p)),
@@ -193,7 +217,7 @@ const compile = (spec: RedactSpec): RedactOptions => ({
  * the parser's warnings alongside so a caller can show them.
  */
 export async function renderFile(file: string, overlayFile?: string, redact?: RedactSpec): Promise<Rendered> {
-  let source: unknown = JSON.parse(await readFile(file, 'utf8'));
+  let source: unknown = await readJson(file);
   let report: RedactReport | undefined;
   if (redact !== undefined) {
     const result = redactWorkflow(source, compile(redact));
@@ -202,7 +226,7 @@ export async function renderFile(file: string, overlayFile?: string, redact?: Re
   }
   const withReport = (r: Rendered): Rendered => (report === undefined ? r : { ...r, report });
   if (overlayFile === undefined) return withReport(await renderToSVG(source));
-  let overlaySource: unknown = JSON.parse(await readFile(overlayFile, 'utf8'));
+  let overlaySource: unknown = await readJson(overlayFile);
   if (redact !== undefined) {
     // Finding texts can quote the values being hidden.
     const masked = redactWorkflow(overlaySource, compile(redact));
@@ -218,10 +242,10 @@ export async function renderFile(file: string, overlayFile?: string, redact?: Re
 
 /** Write a redacted copy of a workflow or execution; the JSON is returned for `-o -`. */
 export async function redactFile(command: RedactCommand): Promise<{ json: string; report: RedactReport }> {
-  if (command.out !== '-' && resolve(command.out) === resolve(command.file)) {
+  if (command.out !== '-' && (await sameFile(command.file, command.out))) {
     throw new Error('-o is the input file; write the masked copy somewhere else');
   }
-  const result = redactWorkflow(JSON.parse(await readFile(command.file, 'utf8')), compile(command));
+  const result = redactWorkflow(await readJson(command.file), compile(command));
   const json = `${JSON.stringify(result.json, null, 2)}\n`;
   if (command.out !== '-') await writeFile(command.out, json);
   return { json, report: result.report };
@@ -239,7 +263,9 @@ export function formatReport(file: string, report: RedactReport): string {
     lines.push(`  ${kind.padEnd(16)}${String(hits.length).padEnd(3)}${wheres.slice(0, 2).join(', ')}${wheres.length > 2 ? ', …' : ''}`);
   }
   if (report.hostsKept.length > 0) lines.push(`hosts kept: ${report.hostsKept.join(', ')}`);
-  if (!report.recognised) lines.push('warning: not a workflow or execution; scanned as plain JSON');
+  if (!report.recognised) {
+    lines.push('warning: not a workflow or execution: only the text patterns were applied; credential references, identifiers and item data were not masked');
+  }
   return lines.join('\n');
 }
 

@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { PNG } from 'pngjs';
@@ -314,5 +314,41 @@ describe('redact with an overlay', () => {
 		const out = join(dir, 'out.svg');
 		await exportFile({ kind: 'export', file: wfFile, out, scale: 2, overlay: overlayFile, redact: { mask: [], keep: [], keepData: false } });
 		expect(readFileSync(out, 'utf8')).not.toContain('ada@example.com');
+	});
+});
+
+describe('final review fixes', () => {
+	const base = (dir: string): string => {
+		const file = join(dir, 'wf.json');
+		writeFileSync(file, JSON.stringify({ nodes: [], connections: {} }));
+		return file;
+	};
+
+	it('refuses -o that is the input through a symlink', async () => {
+		const dir = outDir();
+		const file = base(dir);
+		symlinkSync(file, join(dir, 'link.json'));
+		await expect(redactFile({ kind: 'redact', file, out: join(dir, 'link.json'), mask: [], keep: [], keepData: false })).rejects.toThrow(/input/);
+		expect(readFileSync(file, 'utf8')).toBe(JSON.stringify({ nodes: [], connections: {} }));
+	});
+
+	it('refuses -o that is the input in another case on a case-insensitive filesystem', async () => {
+		const dir = outDir();
+		const file = base(dir);
+		const upper = join(dir, 'WF.JSON');
+		if (!existsSync(upper)) return; // case-sensitive filesystem: a different file, allowed
+		await expect(redactFile({ kind: 'redact', file, out: upper, mask: [], keep: [], keepData: false })).rejects.toThrow(/input/);
+	});
+
+	it('does not echo the file contents when it is not JSON', async () => {
+		const dir = outDir();
+		const file = join(dir, 'bad.json');
+		writeFileSync(file, 'hunter2-my-secret {');
+		await expect(redactFile({ kind: 'redact', file, out: join(dir, 'o.json'), mask: [], keep: [], keepData: false })).rejects.toThrow(
+			expect.objectContaining({ message: expect.not.stringContaining('hunter2') }),
+		);
+		await expect(exportFile({ kind: 'export', file, out: join(dir, 'o.svg'), scale: 2 })).rejects.toThrow(
+			expect.objectContaining({ message: expect.not.stringContaining('hunter2') }),
+		);
 	});
 });

@@ -238,3 +238,77 @@ describe('redactWorkflow: exposure probes', () => {
 		expect(JSON.stringify(redactWorkflow(e).json)).not.toContain('Grace Hopper');
 	});
 });
+
+describe('final review fixes', () => {
+	const cred = { slackApi: { id: 'slackCred01', name: 'Team Slack PROD' } };
+	const failingNode = { id: 'n1', name: 'Notify', type: 'n8n-nodes-base.slack', typeVersion: 2, position: [0, 0], parameters: {}, credentials: cred };
+
+	it('C1: masks credential references wherever they appear (execution errors, stacks, legacy strings)', () => {
+		const e = fixture('execution-error.json') as { data: { resultData: Record<string, unknown>; executionData?: unknown } };
+		e.data.resultData['error'] = { message: 'boom', node: failingNode };
+		const s = JSON.stringify(redactWorkflow(e, { keepData: true }).json);
+		expect(s).not.toContain('Team Slack PROD');
+		expect(s).not.toContain('slackCred01');
+		expect(out(wf([node('Old', {}, { credentials: { slackApi: 'Team Slack' } })]))).not.toContain('Team Slack');
+	});
+
+	it('I2: masks secret assignments in connection strings, env text, form bodies, object literals and YAML', () => {
+		const s = out(wf([node('C', {
+			mssql: 'Server=db;User Id=sa;Password=hunter2a;',
+			env: 'API_KEY=hunter2b\nDEBUG=1',
+			form: 'client_secret=hunter2c&grant_type=client_credentials',
+			js: "fetch(u, { headers: { 'x-api-key': 'hunter2d' }, password: 'hunter2e' })",
+			yaml: 'user: ada\npassword: hunter2f',
+		})]));
+		for (const v of ['hunter2a', 'hunter2b', 'hunter2c', 'hunter2d', 'hunter2e', 'hunter2f']) expect(s).not.toContain(v);
+		expect(s).toContain('DEBUG=1');
+		expect(s).toContain('grant_type=client_credentials');
+	});
+
+	it('I3: masks secrets carried in URL paths and SendGrid keys', () => {
+		const s = out(wf([node('H', {
+			// Built from pieces so the source holds no literal that secret scanners take for a real key.
+			slack: ['https://hooks.slack.com/services', 'T00000000', 'B00000000', 'X'.repeat(24)].join('/'),
+			discord: 'https://discord.com/api/webhooks/123456789012345678/abcDEFghiJKLmnoPQRstuVWXyz0123456789',
+			tg: 'https://api.telegram.org/bot123456789:AAHfixtureTOKENnotREALabcdefghijklmn/sendMessage',
+			n8n: 'https://n8n.example.com/webhook/7d1c2f0a-1111-4222-8333-444455556666',
+			sg: ['SG', 'abcdefghijklmnopqrstuv', 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG'].join('.'),
+		})]));
+		for (const v of ['XXXXXXXXXXXXXXXXXXXXXXXX', 'abcDEFghiJKL', 'AAHfixtureTOKEN', '7d1c2f0a-1111', 'SG.abcdefghij']) expect(s).not.toContain(v);
+		expect(s).toContain('https://hooks.slack.com/');
+	});
+
+	it('I4: masks lowercase bearer/basic and whitespace-wrapped tokens', () => {
+		const s = out(wf([node('C', { a: 'curl -H "authorization: bearer abcdefghijklmnopqrstuvwxyz0123"', b: '  sk9a8b7c6d5e4f3g2h1i0jklmn  ', c: 'basic dXNlcjpwYXNzd29yZA==' })]));
+		for (const v of ['abcdefghijklmnopqrstuvwxyz0123', 'sk9a8b7c6d5e4f3g2h1i0jklmn', 'dXNlcjpwYXNzd29yZA==']) expect(s).not.toContain(v);
+	});
+
+	it('I5: --keep protects the matched text, not the whole value', () => {
+		const s = out(wf([node('N', { content: 'use Bearer abcdefghijklmnopqrstuvwxyz012345 against https://hooks.example.com, ask ops@example.com' })]), { keep: [/example\.com/] });
+		expect(s).not.toContain('abcdefghijklmnopqrstuvwxyz012345');
+		expect(s).toContain('hooks.example.com');
+	});
+
+	it('I6: leaves long option values without digits alone', () => {
+		const s = out(wf([node('H', { authentication: 'genericCredentialType', category: 'HARM_CATEGORY_HATE_SPEECH', sort: 'LAST_MODIFIED_DESCENDING' })]));
+		expect(s).toContain('genericCredentialType');
+		expect(s).toContain('HARM_CATEGORY_HATE_SPEECH');
+	});
+
+	it('I7: applies the structural rules to arrays of workflows and { data: [...] } lists', () => {
+		const one = wf([node('S', {}, { credentials: { postgres: { id: 'pgCred0001', name: 'Production Postgres' } } })], { pinData: { S: [{ json: { who: 'Ada Lovelace' } }] } });
+		for (const input of [[one, one], { data: [one] }]) {
+			const r = redactWorkflow(input);
+			const s = JSON.stringify(r.json);
+			expect(s).not.toContain('Production Postgres');
+			expect(s).not.toContain('Ada Lovelace');
+			expect(r.report.recognised).toBe(true);
+		}
+	});
+
+	it('re-graded: masks { key, value } secret entries and expressions with a literal prefix', () => {
+		const s = out(wf([node('H', { headers: [{ key: 'Authorization', value: 'Token zzz' }], password: '=hunter2x-{{ $json.x }}' })]));
+		expect(s).not.toContain('Token zzz');
+		expect(s).not.toContain('hunter2x');
+	});
+});

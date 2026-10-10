@@ -544,7 +544,8 @@ export class WorkflowRender extends LitElement {
     if (changed.has('theme') && this.isConnected) this.#watchScheme();
     if (changed.has('resolvedTheme' as keyof WorkflowRender)) {
       this.setAttribute('data-resolved-theme', this.resolvedTheme);
-      if (this.#scene) this.#loaded = this.#load();
+      // A theme change only repaints: the input, the scene and the view stay.
+      if (this.#scene) this.#loaded = this.#redraw();
     }
     // `images` belongs here too: it changes what the SVG contains, so setting
     // it after load must redraw. Without it the attribute was accepted and
@@ -559,6 +560,25 @@ export class WorkflowRender extends LitElement {
       this.inspecting = undefined;
       this.#loaded = this.#load();
     }
+  }
+
+  /** Re-render the current scene in the current theme, keeping the viewport and selection. */
+  async #redraw(): Promise<void> {
+    const scene = this.#scene;
+    if (!scene) return;
+    const [icons, subtitles] = await Promise.all([loadIcons(), loadSubtitles()]);
+    const overlay = this.#overlay();
+    this.svg = renderSVG(scene, {
+      theme: this.resolvedTheme,
+      icons,
+      subtitles,
+      remoteImages: this.images === 'remote',
+      ...(overlay.overlay === undefined ? {} : { overlay: overlay.overlay }),
+    });
+    // The new markup carries the scene's own viewBox; put the visitor's view back.
+    await this.updateComplete;
+    this.#applyViewBox();
+    this.#markSelection();
   }
 
   async #load(): Promise<void> {

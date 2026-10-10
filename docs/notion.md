@@ -37,7 +37,7 @@ Save this as `index.html` and paste your exported workflow (or execution) JSON b
 
 The renderer loads from jsDelivr; the workflow stays in your file. Open the file in a browser first to check it draws.
 
-**The file is public once hosted.** Anyone with the URL can read the JSON. Before you upload it, remove what you would not publish: credential names and ids, `pinData`, the `meta` block with your instance id, and any URLs, emails or keys in node parameters.
+**The file is public once hosted.** Anyone with the URL can read the JSON. Paste a [redacted](https://workflowtools.dev/workflow-render/cli#redact) copy: `workflow-render redact workflow.json -o workflow.public.json` masks credentials, identifiers, secrets, emails and pinned data. Read its report, and add `--mask` for any host or value it left that you would not publish.
 
 ## 2. Host it where Notion can frame it
 

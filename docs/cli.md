@@ -20,6 +20,44 @@ workflow-render export workflow.json -o workflow.png --scale 3
 - The same input always produces the same SVG, byte for byte.
 - `--overlay <file>` draws a [canvas overlay](https://workflowtools.dev/workflow-render/overlay) over the workflow: a ring and a count badge on each node a tool flagged. `workflow-lint lint wf.json --format canvas-overlay > findings.json` produces one.
 - The root `<svg>` carries a provenance stamp as `data-*` attributes: the emulated n8n version (`data-descriptions-version`), the tool (`data-tool-name`, `data-tool-version`), a hash of the input (`data-input-hash`, `sha256:` + 16 hex characters of the key-sorted JSON) and the workflow's `id`, `name` and `versionId` when the export has them (`data-workflow-id`, `data-workflow-name`, `data-workflow-version-id`). `meta.instanceId`, credentials and webhook ids are never written.
+- `--redact` renders from a [redacted](#redact) copy: sticky-note text, node subtitles and the provenance stamp come from the masked data, and the overlay's texts are masked too. `--mask`, `--keep` and `--keep-data` work as for `redact`. The report goes to stderr.
+
+## `redact`
+
+```bash
+workflow-render redact workflow.json -o workflow.public.json
+workflow-render redact execution.json -o - --mask 'n8n\.mycompany\.com' > public.json
+```
+
+Writes a copy of a workflow or execution with what you would not publish masked in place as `[redacted: <kind>]`, so the structure stays readable and the copy still renders. The input is never changed, and `-o` cannot be the input file.
+
+| What | Masked as |
+|---|---|
+| Credential references (`nodes[].credentials`): id and name. The credential type stays | `credential` |
+| Workflow `id`, `versionId`, `meta.instanceId`, `webhookId`, an execution's `id` and `workflowId`, and the people and projects in an API export (`shared`, `homeProject`, `owner`) | `identifier` |
+| The value of a field or header whose name contains `password`, `secret`, `api key`, `token`, `authorization`, `cookie` or `private key` (an expression that only references a value, like `={{ $env.API_KEY }}`, stays); secret-named query parameters in URLs; secret-named keys inside JSON text | `secret field` |
+| Bearer and Basic credentials, JWTs, private-key blocks, AWS key ids, and Stripe, OpenAI, Slack, GitHub, GitLab and Google key formats, wherever they appear | `token` |
+| Email addresses | `email` |
+| The `user:password@` part of a URL | `url credentials` |
+| Pinned data and execution item values (keys and item counts stay) | `data` |
+| Anything matching `--mask '<regex>'` | `custom` |
+
+- `--mask '<regex>'` masks more; `--keep '<regex>'` leaves a matching value alone (credentials and identifiers are masked regardless). Both can be repeated.
+- `--keep-data` leaves pinned and execution item values in place; they are still scanned for the patterns above.
+- `-o -` writes the JSON to stdout.
+
+It prints what it masked and the hosts still present in URLs:
+
+```
+masked 14 values in workflow.json
+  credential      2  Store › credentials.postgres, Notify › credentials.slackApi
+  identifier      4  id, versionId, …
+  email           2  Format Reply › parameters.assignments.assignments[0].value, …
+  data            1  pinData › Webhook
+hosts kept: api.example.com, db.example.test
+```
+
+Masking is pattern-based, so read the report before you publish. It does not catch a person's name in free text, a phone number, a short secret in a field with an ordinary name, or your own n8n hostname: add `--mask` for anything the report shows you would rather hide. Node names are not masked, because connections refer to them.
 
 ### Export every workflow in CI
 

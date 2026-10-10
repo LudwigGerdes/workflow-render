@@ -30,6 +30,16 @@ No.
 - The web component fetches only the `src` URL you give it.
 - There is no telemetry.
 
+### Is it safe to publish a workflow?
+
+Not as exported. A workflow export carries credential names and ids, your instance id, pinned data, and whatever you typed into node parameters. An execution also carries the items that ran through it.
+
+- `workflow-render redact workflow.json -o workflow.public.json` writes a masked copy and reports what it masked and which hosts it kept. See [`redact`](https://workflowtools.dev/workflow-render/cli#redact).
+- `workflow-render export --redact` renders an image from the masked data.
+- The viewer's **Embed code** panel redacts the embed it builds unless you clear its **Redact** box. The canvas on screen is not changed.
+
+Masking is pattern-based. It does not catch everything, such as names in free text or a short secret in a field with an ordinary name, so read the report before publishing.
+
 ### Why does a node show initials instead of its logo?
 
 Its type is not in the bundle. It is either a community node or a node newer than n8n 2.38.1. The rest of the canvas is unaffected.

@@ -47,8 +47,8 @@ const placeholder = (kind: RedactKind): string => `[redacted: ${kind}]`;
 const PLACEHOLDER_RE = /\[redacted: [a-z ]+\]/g;
 const isPlaceholder = (s: string): boolean => /^\[redacted: [a-z ]+\]$/.test(s);
 
-const SECRET_KEY =
-	/^(password|passwd|secret|client_secret|apikey|api_key|api-key|x-api-key|token|access_token|refresh_token|id_token|authorization|proxy-authorization|cookie|set-cookie|private_key|privatekey)$/i;
+/** A field or parameter name that holds a secret: it contains one of these words. */
+const SECRET_KEY = /password|passwd|secret|api[-_]?key|token|authorization|cookie|private[-_]?key/i;
 const isExpression = (s: string): boolean => s.startsWith('=') && s.includes('{{');
 
 /** Opaque token as a whole value: a long unbroken run of token characters, optionally after `Bearer`. */
@@ -60,7 +60,19 @@ const INLINE_TOKENS: RegExp[] = [
 	/\bBearer\s+[A-Za-z0-9._~+/-]{20,}=*/g,
 	/\bBasic\s+[A-Za-z0-9+/]{8,}={0,2}/g,
 	/\bAKIA[0-9A-Z]{16}\b/g,
+	// Vendor key formats: Stripe, OpenAI, Slack, GitHub, GitLab, Google.
+	/\b[rsp]k_(?:live|test)_[A-Za-z0-9]{8,}/g,
+	/\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}/g,
+	/\bxox[abprs]-[A-Za-z0-9-]{10,}/g,
+	/\bgh[pousr]_[A-Za-z0-9]{20,}/g,
+	/\bgithub_pat_[A-Za-z0-9_]{20,}/g,
+	/\bglpat-[A-Za-z0-9_-]{20,}/g,
+	/\bAIza[0-9A-Za-z_-]{35}/g,
 ];
+/** `?api_key=…` and friends: the value of a secret-named query parameter. */
+const QUERY_SECRET = /([?&][A-Za-z0-9_.-]*(?:password|passwd|secret|api[-_]?key|token|authorization|signature|sig)[A-Za-z0-9_.-]*=)([^&#\s"']+)/gi;
+/** `"password": "…"` inside JSON text (a body or header field written as a string). */
+const JSON_SECRET = /("[^"\\]*(?:password|passwd|secret|api[-_]?key|token|authorization|cookie|private[-_]?key)[^"\\]*"\s*:\s*")((?:[^"\\]|\\.)*)"/gi;
 const URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]*:\/\/)([^\s/@:]+(?::[^\s/@]*)?)@/gi;
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
 const URL_HOST = /\b[a-z][a-z0-9+.-]*:\/\/(?:(?:\[redacted: [a-z ]+\]|[^\s/@]*)@)?([A-Za-z0-9.-]+)/gi;
@@ -128,6 +140,8 @@ class Redactor {
 			if (n > 0) this.hit(kind, where);
 			out = next;
 		};
+		apply(JSON_SECRET, 'secret field', (_m, key) => `${key}${placeholder('secret field')}"`);
+		apply(QUERY_SECRET, 'secret field', (_m, key) => `${key}${placeholder('secret field')}`);
 		for (const re of INLINE_TOKENS) apply(re, 'token', () => placeholder('token'));
 		apply(URL_CREDENTIALS, 'url credentials', (_m, scheme) => `${scheme}${placeholder('url credentials')}@`);
 		apply(EMAIL, 'email', () => placeholder('email'));

@@ -2,6 +2,10 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
 	DARK,
+	ERROR_PANEL_DARK,
+	NDV_PINNED_BG_DARK,
+	NDV_PINNED_TEXT_DARK,
+	NDV_TEXT_VALUE_DARK,
 	NDV_CHROME_DARK,
 	NDV_PANE_DARK,
 	NDV_PANE_LIGHT,
@@ -14,7 +18,6 @@ import {
 	SELECTION_RING_COLOR,
 	SELECTION_RING_COLOR_DARK,
 	STICKY_COLORS_DARK,
-	STICKY_TEXT_IN_DARK_THEME,
 } from '../src/constants.js';
 
 const fixture = <T>(name: string): T => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')) as T;
@@ -39,7 +42,7 @@ describe('dark palette provenance', () => {
 
 	it('sticky colours are the measured dark presets', () => {
 		for (const [i, c] of Object.entries(measured.sticky)) expect(STICKY_COLORS_DARK[Number(i)]).toEqual(c);
-		expect(STICKY_TEXT_IN_DARK_THEME).toBe(measured.stickyText);
+		expect(DARK.text).toBe(measured.stickyText); // preset sticky text is the node text colour
 	});
 
 	it('inspector colours are measured, or come from a token whose light value is ours', () => {
@@ -69,7 +72,7 @@ describe('dark palette provenance', () => {
 			expect(t?.light, name).toBe(ours);
 			expect(ICON_COLORS_DARK[name], name).toBe(t?.dark);
 		}
-		expect(ICON_COLOR_DEFAULT_DARK).toBe('#ffffff'); // measured: an untinted glyph in dark mode
+		expect(ICON_COLOR_DEFAULT_DARK).toBe((measured as unknown as { iconDefault: string }).iconDefault);
 	});
 
 	it('inspector controls are the measured dark values', () => {
@@ -83,5 +86,26 @@ describe('dark palette provenance', () => {
 			expect(NDV_PANE_DARK[key as keyof typeof NDV_PANE_DARK], key).toBe(value);
 		}
 		expect(norm(NDV_PANE_LIGHT.chipBorder)).toBe(norm('rgb(240, 240, 240)'));
+	});
+
+	it('every token-derived dark value matches its n8n token, whose light value is recorded', () => {
+		const pairs: Array<[string, string]> = [
+			['--border-color', NDV_CHROME_DARK.inputBorder],
+			['--border-color--strong', NDV_CHROME_DARK.fieldBorder],
+			['--border-color--strong', NDV_CHROME_DARK.inputHoverBorder],
+			['--border-color--strong', NDV_CHROME_DARK.dashedBorder],
+			['--background--danger', ERROR_PANEL_DARK.bg],
+			['--border-color--danger', ERROR_PANEL_DARK.border],
+			['--text-color--danger', ERROR_PANEL_DARK.text],
+			['--callout--color--background--secondary', NDV_PINNED_BG_DARK],
+			['--callout--color--text--secondary', NDV_PINNED_TEXT_DARK],
+			['--color--text', NDV_TEXT_VALUE_DARK],
+		];
+		for (const [token, ours] of pairs) {
+			expect(tokens[token], `${token} missing from the snapshot`).toBeDefined();
+			expect(norm(ours), token).toBe(norm(tokens[token]?.dark ?? ''));
+		}
+		// The pinned callout's light value is ours too.
+		expect(norm(tokens['--callout--color--background--secondary']?.light ?? '')).toBe(norm('#ddd6ff'));
 	});
 });

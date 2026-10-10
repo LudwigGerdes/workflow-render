@@ -425,6 +425,8 @@ export const NDV_PINNED_TEXT = 'rgb(127, 34, 254)';
 /** n8n: --callout--color--background--secondary / --callout--color--text--secondary, whose light values are the two above. */
 export const NDV_PINNED_BG_DARK = 'rgba(90,76,194,0.251)';
 export const NDV_PINNED_TEXT_DARK = '#ffffff';
+/** n8n: --color--text in the dark theme. Its light value is the #444444 the inspector uses for values and idle tabs. */
+export const NDV_TEXT_VALUE_DARK = '#e5e5e5';
 export const NDV_CALLOUT_PADDING = 12;
 
 /** The grab strip between the parameters column and a side pane. */
@@ -624,7 +626,6 @@ export const STICKY_COLORS_DARK: Record<number, StickyPalette> = {
   6: { bg: '#2f0d68', border: '#5d0ec0' },
   7: { bg: '#262626', border: '#323232' },
 };
-export const STICKY_TEXT_IN_DARK_THEME = '#ffffff';
 
 export const DEFAULT_STICKY_COLOR = 1;
 
@@ -793,6 +794,13 @@ export const DARK: ThemeTokens = {
 /**
  * Known fidelity gaps observed against the live canvas, each measured but not
  * yet implemented. Listed here so they are tracked rather than forgotten.
+ *
+ * - dark theme: SVG-file icons are not tinted by the node's iconColor (n8n tints
+ *   Set, Code…), and icons with a fixed dark fill have no dark variant because
+ *   the asset extractor keeps only iconUrl.light (OpenAI…)
+ * - dark theme: the selection marquee keeps the light blue; not measured in dark
+ * - the stored LIGHT palette predates 2.38.3 in places (node name, subtitle, port
+ *   and disabled borders, sticky presets); see test/fixtures/n8n-2.38.3-dark-measured.json
  *
  * - node subtitles under the name ("GET: https://…", "manual"), muted grey
  * - mid-edge arrowheads on main connectors

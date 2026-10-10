@@ -100,3 +100,36 @@ describe('theme attribute', () => {
 		expect(rgb).toEqual([]);
 	});
 });
+
+describe('theme change after load', () => {
+	it('redraws in place: no refetch, no new wr-load, the view kept', async () => {
+		const json = JSON.stringify(fixture('branching'));
+		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+			String(input).endsWith('wf.json') ? new Response(json, { headers: { 'content-type': 'application/json' } }) : new Response('{}'),
+		);
+		const el = document.createElement('workflow-render') as WorkflowRender;
+		el.setAttribute('src', '/wf.json');
+		document.body.append(el);
+		await el.updateComplete;
+		await el.ready;
+		await el.updateComplete;
+		el.zoomBy(2);
+		await el.updateComplete;
+		const svg = () => el.shadowRoot?.querySelector('svg');
+		const viewBox = svg()?.getAttribute('viewBox');
+		const wfFetches = () => fetchSpy.mock.calls.filter(([u]) => String(u).endsWith('wf.json')).length;
+		const before = wfFetches();
+		let loads = 0;
+		el.addEventListener('wr-load', () => loads++);
+
+		el.setAttribute('theme', 'dark');
+		await el.updateComplete;
+		await el.ready;
+		await el.updateComplete;
+
+		expect(svg()?.getAttribute('data-theme')).toBe('dark');
+		expect(wfFetches()).toBe(before);
+		expect(loads).toBe(0);
+		expect(svg()?.getAttribute('viewBox')).toBe(viewBox);
+	});
+});

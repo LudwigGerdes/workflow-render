@@ -17,6 +17,38 @@
 			"light": "rgba(41,65,112,0.1)",
 			"dark": "rgba(255,255,255,0.4)"
 		},
+		"--border-color": {
+			"light": "rgba(0,0,0,0.1)",
+			"dark": "rgba(255,255,255,0.1)"
+		},
+		"--border-color--strong": {
+			"light": "rgba(0,0,0,0.2)",
+			"dark": "rgba(255,255,255,0.2)"
+		},
+		"--background--danger": {
+			"light": "#fef2f2",
+			"dark": "#460809"
+		},
+		"--border-color--danger": {
+			"light": "#ffc9c9",
+			"dark": "#9f0712"
+		},
+		"--text-color--danger": {
+			"light": "#9f0712",
+			"dark": "#fef2f2"
+		},
+		"--callout--color--background--secondary": {
+			"light": "#ddd6ff",
+			"dark": "rgba(90,76,194,0.251)"
+		},
+		"--callout--color--text--secondary": {
+			"light": "#7f22fe",
+			"dark": "#ffffff"
+		},
+		"--color--text": {
+			"light": "#444444",
+			"dark": "#e5e5e5"
+		},
 		"--node--icon--color--amber": {
 			"light": "#ff9922",
 			"dark": "#ffb966"

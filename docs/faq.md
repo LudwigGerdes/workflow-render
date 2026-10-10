@@ -59,6 +59,7 @@ No. It reads as the same workflow at a glance. If you need the real editor, run 
 
 ## Limitations
 
-- There is one theme, light. Node subtitles use n8n's grey, which is below WCAG AA contrast on white.
+- Light is the default theme; `theme="dark"` or `"auto"` draws n8n's dark canvas. Node subtitles use n8n's grey, which is below WCAG AA contrast on white.
+- In the dark theme, node icons that n8n tints by colour (Set, Code and similar) and icons drawn in a fixed dark colour (OpenAI, for example) keep their light-theme colours, so a few icons look different from n8n's dark canvas. The selection rectangle keeps its light blue.
 - The inspector is part of the web component. The CLI cannot print a node's parameters.
 - The canvas is read-only. There is no editing and no re-layout.

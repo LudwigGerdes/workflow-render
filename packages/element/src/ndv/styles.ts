@@ -7,6 +7,7 @@ import {
   NDV_PINNED_BG_DARK,
   NDV_PINNED_TEXT,
   NDV_PINNED_TEXT_DARK,
+  NDV_TEXT_VALUE_DARK,
   ndvChromeFor,
   ndvPaneFor,
   ndvTokensFor,
@@ -88,8 +89,8 @@ export function ndvThemeVars(theme: ThemeName): string {
     ['count', p.count],
     ['icon-muted', p.iconMuted],
     // n8n's light #444444 value text became #e5e5e5 in every dark measurement (table cells, idle view switcher).
-    ['schema-value', dark ? '#e5e5e5' : NDV_SCHEMA_VALUE_COLOR],
-    ['tab-idle', dark ? '#e5e5e5' : NDV_TAB_IDLE_COLOR],
+    ['schema-value', dark ? NDV_TEXT_VALUE_DARK : NDV_SCHEMA_VALUE_COLOR],
+    ['tab-idle', dark ? NDV_TEXT_VALUE_DARK : NDV_TAB_IDLE_COLOR],
     // n8n's orange accent: the active Parameters tab measured #ff6900 in dark too.
     ['tab-accent', NDV_TAB_ACCENT],
     ['pinned-bg', dark ? NDV_PINNED_BG_DARK : NDV_PINNED_BG],

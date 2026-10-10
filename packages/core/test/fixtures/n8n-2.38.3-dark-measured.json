@@ -76,5 +76,7 @@
 		"count": "#999999",
 		"iconMuted": "#bbbbbb"
 	},
-	"ndvPane_note": "Third run the same day: input pane in Schema view after a run. The light run reproduced NDV_CHIP_BG/BORDER/TEXT, NDV_COUNT_COLOR and NDV_ICON_MUTED exactly."
+	"ndvPane_note": "Third run the same day: input pane in Schema view after a run. The light run reproduced NDV_CHIP_BG/BORDER/TEXT, NDV_COUNT_COLOR and NDV_ICON_MUTED exactly.",
+	"iconDefault": "#ffffff",
+	"iconDefault_note": "First run: the glyph of an untinted node icon (nodeIcon) in dark mode."
 }

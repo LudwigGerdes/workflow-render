@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { initSite } from '../src/main.js';
 
 const root = (...parts: string[]): string =>
@@ -272,12 +272,16 @@ describe('copy while a rebuild is pending', () => {
 
 describe('embed theme', () => {
   it('carries the chosen theme into the embed', async () => {
+    // Slow asset fetches, as under a loaded test run: a fixed sleep is not enough.
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise((r) => setTimeout(() => r(new Response('{}')), 80)));
     const canvas = setup() as HTMLElement & { workflow?: unknown };
     canvas.workflow = { nodes: [], connections: {} };
     const select = document.getElementById('theme') as HTMLSelectElement;
     select.value = 'auto';
     select.dispatchEvent(new Event('change'));
-    await new Promise((r) => setTimeout(r, 30));
+    // Wait for the build itself, not a guess at how long it takes.
+    const field = document.getElementById('embed-snippet') as HTMLTextAreaElement;
+    for (let i = 0; i < 100 && !field.value.includes('self-contained'); i++) await new Promise((r) => setTimeout(r, 10));
     let text = '';
     Object.defineProperty(globalThis.navigator, 'clipboard', { value: { writeText: async (t: string) => { text = t; } }, configurable: true });
     document.getElementById('copy-embed')?.dispatchEvent(new MouseEvent('click'));
@@ -285,3 +289,5 @@ describe('embed theme', () => {
     expect(text).toContain('<workflow-render theme="auto">');
   });
 });
+
+afterEach(() => vi.restoreAllMocks());

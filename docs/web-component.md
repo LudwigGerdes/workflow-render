@@ -58,6 +58,12 @@ The icon, subtitle and description files are fetched with subresource integrity.
 |---|---|
 | `exportSvg()` | `Promise<string>` |
 
+## Theme
+
+`theme="dark"` draws n8n's dark canvas, controls and inspector; `theme="auto"` follows the visitor's system setting and switches when it changes, without reloading or losing the view. The element sets `data-resolved-theme` (`light` or `dark`) on itself, so the page around it can follow: `workflow-render[data-resolved-theme='dark'] { … }`. `exportSvg()` and the SVG and PNG buttons export in the theme on screen. `--wr-canvas-bg` still overrides the ground in either theme.
+
+A few icons keep their light-theme colours in dark: icons n8n tints by colour (Set, Code and similar) and icons drawn in a fixed dark colour (OpenAI, for example).
+
 ## Pan and zoom
 
 With a mouse or trackpad, the gestures are n8n's own:

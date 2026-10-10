@@ -129,6 +129,8 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
 
     // An embed is for sharing: mask before anything is inlined, unless the box is cleared.
     // Read the box only now, after every await, so a slow build cannot carry a stale choice.
+    const chosen = $<HTMLSelectElement>('theme')?.value;
+    const theme = chosen === 'dark' || chosen === 'auto' ? chosen : 'light';
     const redactBox = $<HTMLInputElement>('embed-redact');
     const summary = $('embed-redacted');
     let shared: unknown = workflow;
@@ -150,7 +152,7 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
     return [
       '<!-- workflow-render: self-contained, nothing is fetched at runtime -->',
       '<div style="width: 100%; height: 600px">',
-      '  <workflow-render></workflow-render>',
+      `  <workflow-render${theme === 'light' ? '' : ` theme="${theme}"`}></workflow-render>`,
       '</div>',
       '<script>window.__WORKFLOW_RENDER_ASSETS__ = {' +
         `icons:${safe(icons)},subtitles:${safe(subtitles)},descriptions:${safe(descriptions)}` +
@@ -203,6 +205,14 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
   updateEmbed();
 
   $('embed-redact')?.addEventListener('change', () => updateEmbed());
+
+  // The theme applies to the canvas on screen and to the embed it builds.
+  $('theme')?.addEventListener('change', () => {
+    const value = $<HTMLSelectElement>('theme')?.value ?? 'light';
+    if (value === 'light') canvas.removeAttribute('theme');
+    else canvas.setAttribute('theme', value);
+    updateEmbed();
+  });
 
   $('download-embed')?.addEventListener('click', () => {
     if (!embedHtml) return; // still building

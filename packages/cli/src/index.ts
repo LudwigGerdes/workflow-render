@@ -29,6 +29,8 @@ export interface ExportCommand {
   overlay?: string;
   /** Render from a redacted copy (see redact.ts in core). */
   redact?: RedactSpec;
+  /** n8n's light canvas (the default) or its dark one. */
+  theme?: 'light' | 'dark';
 }
 
 /** What to mask beyond the built-in rules, as given on the command line. */
@@ -64,7 +66,7 @@ export const USAGE_EXIT_CODE = 2;
 
 /** The flags each command accepts; anything else is a typo, not a no-op. */
 const KNOWN_FLAGS: Record<string, ReadonlySet<string>> = {
-  export: new Set(['o', 'out', 'scale', 'overlay', 'redact', 'mask', 'keep', 'keep-data']),
+  export: new Set(['o', 'out', 'scale', 'overlay', 'redact', 'mask', 'keep', 'keep-data', 'theme']),
   redact: new Set(['o', 'out', 'mask', 'keep', 'keep-data']),
   view: new Set(['port']),
 };
@@ -77,7 +79,7 @@ const REPEATABLE: ReadonlySet<string> = new Set(['mask', 'keep']);
 export const USAGE = `workflow-render — offline canvas for workflow JSON (n8n supported)
 
   workflow-render export <file.json> -o <out.svg|out.png> [--scale N] [--overlay findings.json]
-                         [--redact [--mask RE]... [--keep RE]... [--keep-data]]
+                         [--theme light|dark] [--redact [--mask RE]... [--keep RE]... [--keep-data]]
   workflow-render view   <file.json> [--port N]
   workflow-render redact <file.json> -o <out.json|-> [--mask RE]... [--keep RE]... [--keep-data]
   workflow-render --version | --help
@@ -157,6 +159,10 @@ export function parseArgs(argv: string[]): Command {
     }
 
     const overlay = one('overlay');
+    const theme = one('theme');
+    if (theme !== undefined && theme !== 'light' && theme !== 'dark') {
+      return { kind: 'error', message: `--theme must be light or dark (got "${theme}")`, exitCode: USAGE_EXIT_CODE };
+    }
     return {
       kind: 'export',
       file,
@@ -164,6 +170,7 @@ export function parseArgs(argv: string[]): Command {
       scale,
       ...(overlay === undefined ? {} : { overlay }),
       ...(redact ? { redact: spec } : {}),
+      ...(theme === undefined ? {} : { theme }),
     };
   }
 
@@ -216,7 +223,12 @@ const compile = (spec: RedactSpec): RedactOptions => ({
  * Render a file to an SVG string, exactly as the viewer would draw it, with
  * the parser's warnings alongside so a caller can show them.
  */
-export async function renderFile(file: string, overlayFile?: string, redact?: RedactSpec): Promise<Rendered> {
+export async function renderFile(
+  file: string,
+  overlayFile?: string,
+  redact?: RedactSpec,
+  theme: 'light' | 'dark' = 'light',
+): Promise<Rendered> {
   let source: unknown = await readJson(file);
   let report: RedactReport | undefined;
   if (redact !== undefined) {
@@ -225,7 +237,7 @@ export async function renderFile(file: string, overlayFile?: string, redact?: Re
     report = result.report;
   }
   const withReport = (r: Rendered): Rendered => (report === undefined ? r : { ...r, report });
-  if (overlayFile === undefined) return withReport(await renderToSVG(source));
+  if (overlayFile === undefined) return withReport(await renderToSVG(source, { theme }));
   let overlaySource: unknown = await readJson(overlayFile);
   if (redact !== undefined) {
     // Finding texts can quote the values being hidden.
@@ -237,7 +249,7 @@ export async function renderFile(file: string, overlayFile?: string, redact?: Re
   if (overlay === undefined) {
     throw new Error(`${overlayFile} is not a canvas overlay:\n  ${errors.join('\n  ')}`);
   }
-  return withReport(await renderToSVG(source, { overlay }));
+  return withReport(await renderToSVG(source, { overlay, theme }));
 }
 
 /** Write a redacted copy of a workflow or execution; the JSON is returned for `-o -`. */
@@ -275,7 +287,7 @@ export async function exportFile(command: ExportCommand): Promise<{ warnings: st
     throw new Error(`cannot write "${command.out}" — the output must be .svg or .png`);
   }
 
-  const { svg, warnings, report } = await renderFile(command.file, command.overlay, command.redact);
+  const { svg, warnings, report } = await renderFile(command.file, command.overlay, command.redact, command.theme);
   const done = report === undefined ? { warnings } : { warnings, report };
 
   if (target.endsWith('.svg')) {

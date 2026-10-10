@@ -23,6 +23,7 @@ const PAGE = `
     <button id="copy-embed"></button>
     <button id="download-embed"></button>
     <span id="embed-size"></span>
+    <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="auto">Auto</option></select>
     <input type="checkbox" id="embed-redact" checked>
     <span id="embed-redacted"></span>
   </section>
@@ -69,12 +70,14 @@ describe('wiring', () => {
     expect(canvas.getAttribute('src')).toBe('./examples/linear.json');
   });
 
-  it('offers one theme, and it is light', () => {
-    // Light only to start: there is no toggle to leave the canvas in a theme
-    // the palette was never checked against.
+  it('defaults to light, and the theme select sets the canvas theme', () => {
     const canvas = setup();
-    expect(document.getElementById('theme')).toBeNull();
-    expect(canvas.getAttribute('theme')).not.toBe('dark');
+    const select = document.getElementById('theme') as HTMLSelectElement;
+    expect(select.value).toBe('light');
+    expect(canvas.getAttribute('theme') ?? 'light').toBe('light');
+    select.value = 'dark';
+    select.dispatchEvent(new Event('change'));
+    expect(canvas.getAttribute('theme')).toBe('dark');
   });
 
   it('tells you to load something before there is anything to embed', async () => {
@@ -265,4 +268,20 @@ describe('copy while a rebuild is pending', () => {
 			globalThis.fetch = realFetch;
 		}
 	});
+});
+
+describe('embed theme', () => {
+  it('carries the chosen theme into the embed', async () => {
+    const canvas = setup() as HTMLElement & { workflow?: unknown };
+    canvas.workflow = { nodes: [], connections: {} };
+    const select = document.getElementById('theme') as HTMLSelectElement;
+    select.value = 'auto';
+    select.dispatchEvent(new Event('change'));
+    await new Promise((r) => setTimeout(r, 30));
+    let text = '';
+    Object.defineProperty(globalThis.navigator, 'clipboard', { value: { writeText: async (t: string) => { text = t; } }, configurable: true });
+    document.getElementById('copy-embed')?.dispatchEvent(new MouseEvent('click'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(text).toContain('<workflow-render theme="auto">');
+  });
 });

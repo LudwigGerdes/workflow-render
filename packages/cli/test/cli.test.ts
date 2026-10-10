@@ -111,7 +111,8 @@ describe('parseArgs', () => {
       message: 'unknown flag "--scale"',
       exitCode: 2,
     });
-    expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--theme', 'dark'])).toMatchObject({
+    // --theme belongs to export, not view.
+    expect(parseArgs(['view', 'wf.json', '--theme', 'dark'])).toMatchObject({
       kind: 'error',
       message: 'unknown flag "--theme"',
       exitCode: 2,
@@ -350,5 +351,19 @@ describe('final review fixes', () => {
 		await expect(exportFile({ kind: 'export', file, out: join(dir, 'o.svg'), scale: 2 })).rejects.toThrow(
 			expect.objectContaining({ message: expect.not.stringContaining('hunter2') }),
 		);
+	});
+});
+
+describe('export --theme', () => {
+	it('parses --theme dark and refuses anything but light or dark', () => {
+		expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--theme', 'dark'])).toMatchObject({ kind: 'export', theme: 'dark' });
+		expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg'])).not.toHaveProperty('theme');
+		expect(parseArgs(['export', 'wf.json', '-o', 'wf.svg', '--theme', 'blue'])).toMatchObject({ kind: 'error' });
+	});
+
+	it('writes a dark SVG', async () => {
+		const out = join(outDir(), 'dark.svg');
+		await exportFile({ kind: 'export', file: fixture('branching'), out, scale: 2, theme: 'dark' });
+		expect(readFileSync(out, 'utf8')).toContain('data-theme="dark"');
 	});
 });

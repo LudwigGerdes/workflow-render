@@ -49,7 +49,8 @@ const isPlaceholder = (s: string): boolean => /^\[redacted: [a-z ]+\]$/.test(s);
 
 /** A field or parameter name that holds a secret: it contains one of these words. */
 const SECRET_KEY = /password|passwd|secret|api[-_]?key|token|authorization|cookie|private[-_]?key/i;
-const isExpression = (s: string): boolean => s.startsWith('=') && s.includes('{{');
+/** An n8n expression that only references a value (`={{ $env.KEY }}`): no quoted text that could be the secret itself. */
+const isReferenceExpression = (s: string): boolean => s.startsWith('=') && s.includes('{{') && !/["'`]/.test(s);
 
 /** Opaque token as a whole value: a long unbroken run of token characters, optionally after `Bearer`. */
 const WHOLE_TOKEN = /^(?:Bearer\s+)?[A-Za-z0-9_-]{20,}$/;
@@ -154,6 +155,28 @@ class Redactor {
 		for (const m of s.matchAll(URL_HOST)) if (m[1]) this.hosts.add(m[1].toLowerCase());
 	}
 
+	/**
+	 * An object key can be data too (`{ "ada@example.com": … }`): emails, inline
+	 * tokens and custom patterns are masked in keys. A masked key that collides
+	 * with one already present gets a ` #n` suffix so no entry is lost.
+	 */
+	key(k: string, where: string, taken: Set<string>): string {
+		if (isPlaceholder(k) || this.kept(k)) return k;
+		let out = k;
+		const apply = (re: RegExp, kind: RedactKind): void => {
+			const [next, n] = this.replaceOutside(out, re, () => placeholder(kind));
+			if (n > 0) this.hit(kind, where);
+			out = next;
+		};
+		for (const re of INLINE_TOKENS) apply(re, 'token');
+		apply(EMAIL, 'email');
+		for (const re of this.mask) apply(re, 'custom');
+		let unique = out;
+		for (let i = 2; out !== k && taken.has(unique); i++) unique = `${out} #${i}`;
+		taken.add(unique);
+		return unique;
+	}
+
 	/** Generic scan: secret-named keys, header entries, then string rules on every leaf. */
 	scan(v: unknown, where: string): unknown {
 		if (typeof v === 'string') return this.string(v, where);
@@ -161,19 +184,21 @@ class Redactor {
 		if (!isRecord(v)) return v;
 		const secretEntry = typeof v['name'] === 'string' && SECRET_KEY.test(v['name']) && typeof v['value'] === 'string';
 		const out: Record<string, unknown> = {};
+		const taken = new Set<string>();
 		for (const [k, x] of Object.entries(v)) {
 			const path = where ? `${where}.${k}` : k;
+			const key = this.key(k, path, taken);
 			if ((SECRET_KEY.test(k) || (secretEntry && k === 'value')) && !this.exemptSecret(x)) {
-				out[k] = this.maskAll(x, 'secret field', path);
+				out[key] = this.maskAll(x, 'secret field', path);
 			} else {
-				out[k] = this.scan(x, path);
+				out[key] = this.scan(x, path);
 			}
 		}
 		return out;
 	}
 
 	private exemptSecret(x: unknown): boolean {
-		return typeof x === 'string' && (isExpression(x) || isPlaceholder(x) || this.kept(x));
+		return typeof x === 'string' && (isReferenceExpression(x) || isPlaceholder(x) || this.kept(x));
 	}
 
 	/** Mask every leaf of a value as one kind, counting one hit. */
@@ -182,7 +207,10 @@ class Redactor {
 		const walk = (x: unknown): unknown => {
 			if (x === null || x === undefined) return x;
 			if (Array.isArray(x)) return x.map(walk);
-			if (isRecord(x)) return Object.fromEntries(Object.entries(x).map(([k, y]) => [k, walk(y)]));
+			if (isRecord(x)) {
+				const taken = new Set<string>();
+				return Object.fromEntries(Object.entries(x).map(([k, y]) => [this.key(k, where, taken), walk(y)]));
+			}
 			if (typeof x === 'string' && isPlaceholder(x)) return x;
 			masked = true;
 			return placeholder(kind);

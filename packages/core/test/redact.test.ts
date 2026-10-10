@@ -182,3 +182,18 @@ describe('redactWorkflow: bypass probes', () => {
 		expect(s).toContain('\\"user\\":\\"ada\\"');
 	});
 });
+
+describe('redactWorkflow: incomplete-redaction probes', () => {
+	it('does not exempt an expression that carries a literal secret', () => {
+		const s = out(wf([node('H', { password: '={{ "hunter2" }}', token: "={{ 'abc' + $json.x }}", apiKey: '={{ $env.API_KEY }}' })]));
+		expect(s).not.toContain('hunter2');
+		expect(s).not.toContain("'abc'");
+		expect(s).toContain('={{ $env.API_KEY }}');
+	});
+
+	it('masks emails and tokens used as object keys, in parameters and in item data', () => {
+		const s = out(wf([node('S', { lookup: { 'ada@example.com': 1 } })], { pinData: { S: [{ json: { 'grace@example.com': 'x' } }] } }));
+		expect(s).not.toContain('ada@example.com');
+		expect(s).not.toContain('grace@example.com');
+	});
+});

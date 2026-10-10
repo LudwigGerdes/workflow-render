@@ -1,0 +1,296 @@
+{
+  "json": {
+    "id": "[redacted: identifier]",
+    "name": "Invoice sync (redaction fixture)",
+    "versionId": "[redacted: identifier]",
+    "meta": {
+      "instanceId": "[redacted: identifier]",
+      "templateCredsSetupCompleted": true
+    },
+    "nodes": [
+      {
+        "id": "b1111111-1111-4111-8111-111111111111",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          0
+        ],
+        "webhookId": "[redacted: identifier]",
+        "parameters": {
+          "path": "invoice",
+          "options": {}
+        }
+      },
+      {
+        "id": "b2222222-2222-4222-8222-222222222222",
+        "name": "Fetch Items",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          220,
+          0
+        ],
+        "parameters": {
+          "url": "https://api.example.com/v1/items",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "[redacted: secret field]"
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "apiKey": "={{ $env.API_KEY }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "b3333333-3333-4333-8333-333333333333",
+        "name": "Transform",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          440,
+          0
+        ],
+        "parameters": {
+          "jsCode": "const jwt = '[redacted: token]';\nconst aws = '[redacted: token]';\nreturn items;"
+        }
+      },
+      {
+        "id": "b4444444-4444-4444-8444-444444444444",
+        "name": "Format Reply",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          660,
+          0
+        ],
+        "parameters": {
+          "mode": "manual",
+          "assignments": {
+            "assignments": [
+              {
+                "id": "c1",
+                "name": "to",
+                "value": "[redacted: email]",
+                "type": "string"
+              },
+              {
+                "id": "c2",
+                "name": "account",
+                "value": "[redacted: custom]",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "b5555555-5555-4555-8555-555555555555",
+        "name": "Store",
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.5,
+        "position": [
+          880,
+          0
+        ],
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "select 1",
+          "connectionString": "postgres://[redacted: url credentials]@db.example.test:5432/app"
+        },
+        "credentials": {
+          "postgres": {
+            "id": "[redacted: credential]",
+            "name": "[redacted: credential]"
+          }
+        }
+      },
+      {
+        "id": "b6666666-6666-4666-8666-666666666666",
+        "name": "Notify",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.2,
+        "position": [
+          1100,
+          0
+        ],
+        "parameters": {
+          "select": "channel",
+          "text": "Invoice done",
+          "otherOptions": {}
+        },
+        "credentials": {
+          "slackApi": {
+            "id": "[redacted: credential]",
+            "name": "[redacted: credential]"
+          }
+        }
+      },
+      {
+        "id": "b7777777-7777-4777-8777-777777777777",
+        "name": "Sticky Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          0,
+          -200
+        ],
+        "parameters": {
+          "content": "## Setup\nCall with header [redacted: token] — ask [redacted: email]",
+          "height": 160,
+          "width": 300
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Fetch Items",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Items": {
+        "main": [
+          [
+            {
+              "node": "Transform",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Transform": {
+        "main": [
+          [
+            {
+              "node": "Format Reply",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Reply": {
+        "main": [
+          [
+            {
+              "node": "Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Store": {
+        "main": [
+          [
+            {
+              "node": "Notify",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {
+      "Webhook": [
+        {
+          "json": {
+            "customer": "[redacted: data]",
+            "amount": "[redacted: data]",
+            "paid": "[redacted: data]"
+          }
+        }
+      ]
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  "report": {
+    "hits": [
+      {
+        "kind": "identifier",
+        "where": "id"
+      },
+      {
+        "kind": "identifier",
+        "where": "versionId"
+      },
+      {
+        "kind": "identifier",
+        "where": "meta.instanceId"
+      },
+      {
+        "kind": "identifier",
+        "where": "Webhook › webhookId"
+      },
+      {
+        "kind": "secret field",
+        "where": "Fetch Items › parameters.headerParameters.parameters[0].value"
+      },
+      {
+        "kind": "token",
+        "where": "Transform › parameters.jsCode"
+      },
+      {
+        "kind": "token",
+        "where": "Transform › parameters.jsCode"
+      },
+      {
+        "kind": "email",
+        "where": "Format Reply › parameters.assignments.assignments[0].value"
+      },
+      {
+        "kind": "custom",
+        "where": "Format Reply › parameters.assignments.assignments[1].value"
+      },
+      {
+        "kind": "url credentials",
+        "where": "Store › parameters.connectionString"
+      },
+      {
+        "kind": "credential",
+        "where": "Store › credentials.postgres"
+      },
+      {
+        "kind": "credential",
+        "where": "Notify › credentials.slackApi"
+      },
+      {
+        "kind": "token",
+        "where": "Sticky Note › parameters.content"
+      },
+      {
+        "kind": "email",
+        "where": "Sticky Note › parameters.content"
+      },
+      {
+        "kind": "data",
+        "where": "pinData › Webhook"
+      }
+    ],
+    "hostsKept": [
+      "api.example.com",
+      "db.example.test"
+    ],
+    "recognised": true
+  }
+}

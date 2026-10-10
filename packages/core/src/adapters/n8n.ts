@@ -88,7 +88,7 @@ function reviveFlatted(text: string): unknown {
 }
 
 /** Accept a REST payload whose `data` is still index-encoded. */
-function decodeExecution(json: unknown): unknown {
+export function decodeExecution(json: unknown): unknown {
   if (!isRecord(json) || typeof json['data'] !== 'string') return json;
   const revived = reviveFlatted(json['data']);
   return revived === undefined ? json : { ...json, data: revived };

@@ -44,3 +44,5 @@ export function renderWorkflow(json: unknown, opts: RenderOptions = {}): RenderR
 export * from './inspector/index.js';
 export { exportSVG } from './export.js';
 export type { EmbeddedFont, ExportOptions, Provenance } from './export.js';
+export { redactWorkflow } from './redact.js';
+export type { RedactOptions, RedactKind, RedactHit, RedactReport } from './redact.js';

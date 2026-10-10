@@ -805,12 +805,10 @@ export const DARK: ThemeTokens = {
  * the execution status header chip — in n8n that information lives in the
  * surrounding page chrome, which a standalone SVG does not have.
  *
- * Deliberate interaction deviations, both forced by what workflow-render is:
- * - left-drag pans. n8n draws a selection rectangle, but a read-only canvas has
- *   nothing to select, and a viewer whose only pan gesture was middle-drag
- *   would be unusable on a plain mouse.
- * - keyboard shortcuts only fire while the element has focus. n8n owns its whole
- *   page; an embedded component must not swallow its host's keystrokes.
+ * Deliberate interaction deviation, forced by what workflow-render is:
+ * keyboard shortcuts only fire while the element has focus. n8n owns its whole
+ * page; an embedded component must not swallow its host's keystrokes. (A
+ * left-drag draws a selection rectangle, as in n8n; it does not pan.)
  */
 /**
  * Where this canvas knowingly differs from n8n's.

@@ -2,7 +2,7 @@
 
 | Command | What it does |
 |---|---|
-| `workflow-render export <file.json> -o <out.svg\|out.png> [--scale N] [--overlay <findings.json>]` | Render a workflow or an execution to SVG or PNG, with a tool's findings drawn over it |
+| `workflow-render export <file.json> -o <out.svg\|out.png> [--scale N] [--theme light\|dark] [--overlay <findings.json>]` | Render a workflow or an execution to SVG or PNG, with a tool's findings drawn over it |
 | `workflow-render view <file.json> [--port N]` | Open the file in the browser viewer |
 | `workflow-render --version` | Print the version |
 | `workflow-render --help` | Print usage |
@@ -15,6 +15,7 @@ workflow-render export workflow.json -o workflow.png --scale 3
 ```
 
 - The output format follows the file extension: `.svg` or `.png`.
+- `--theme dark` renders n8n's dark canvas. The default is `light`.
 - `--scale N` sets the PNG size multiplier. The default is `2`. It is an error with an `.svg` output.
 - The SVG is self-contained. Icons are inlined and fonts are embedded, so it looks the same in a browser, an `<img>` tag or a file preview.
 - The same input always produces the same SVG, byte for byte.

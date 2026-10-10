@@ -87,6 +87,9 @@ function themeVars(theme: ThemeName): string {
     `--wr-chrome-hover: ${t.portBorder};`,
     `--wr-focus: ${t.success};`,
     `--wr-ring: ${selectionRingFor(theme)};`,
+    // The marquee keeps n8n's light blue in both themes; it was not measured in dark.
+    `--wr-selection-fill: ${SELECTION_BOX_FILL};`,
+    `--wr-selection-stroke: ${SELECTION_BOX_STROKE};`,
     `--wr-error-bg: ${e.bg};`,
     `--wr-error-border: ${e.border};`,
     `--wr-error-text: ${e.text};`,
@@ -163,8 +166,8 @@ export class WorkflowRender extends LitElement {
       position: absolute;
       pointer-events: none;
       border: ${unsafeCSS(SELECTION_BOX_STROKE_WIDTH)}px
-        ${unsafeCSS(SELECTION_BOX_STROKE_STYLE)} ${unsafeCSS(SELECTION_BOX_STROKE)};
-      background: ${unsafeCSS(SELECTION_BOX_FILL)};
+        ${unsafeCSS(SELECTION_BOX_STROKE_STYLE)} var(--wr-selection-stroke);
+      background: var(--wr-selection-fill);
     }
 
     /* The controls step aside once the pointer settles, so what you look at is

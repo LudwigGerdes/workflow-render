@@ -87,6 +87,11 @@ export function ndvThemeVars(theme: ThemeName): string {
     ['chip-text', p.chipText],
     ['count', p.count],
     ['icon-muted', p.iconMuted],
+    // n8n's light #444444 value text became #e5e5e5 in every dark measurement (table cells, idle view switcher).
+    ['schema-value', dark ? '#e5e5e5' : NDV_SCHEMA_VALUE_COLOR],
+    ['tab-idle', dark ? '#e5e5e5' : NDV_TAB_IDLE_COLOR],
+    // n8n's orange accent: the active Parameters tab measured #ff6900 in dark too.
+    ['tab-accent', NDV_TAB_ACCENT],
     ['pinned-bg', dark ? NDV_PINNED_BG_DARK : NDV_PINNED_BG],
     ['pinned-text', dark ? NDV_PINNED_TEXT_DARK : NDV_PINNED_TEXT],
   ]
@@ -241,7 +246,7 @@ export const ndvStyles = `
   text-align: center;
 }
 .wr-ndv-schema-value {
-  flex: 1 1 auto; min-width: 0; color: ${NDV_SCHEMA_VALUE_COLOR};
+  flex: 1 1 auto; min-width: 0; color: var(--wr-ndv-schema-value);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -317,13 +322,13 @@ export const ndvStyles = `
   /* Idle tabs take back the space the active tab's underline occupies, so the
      labels sit on one baseline instead of shifting as you switch tabs. */
   padding: 0 ${NDV_TAB_PADDING_X}px ${NDV_TAB_PADDING_BOTTOM_IDLE}px;
-  color: ${NDV_TAB_IDLE_COLOR};
+  color: var(--wr-ndv-tab-idle);
   cursor: pointer;
 }
 .wr-ndv-tabs button[aria-selected='true'] {
-  color: ${NDV_TAB_ACCENT};
+  color: var(--wr-ndv-tab-accent);
   padding-bottom: ${NDV_TAB_PADDING_BOTTOM_ACTIVE}px;
-  border-bottom: ${NDV_TAB_UNDERLINE_WIDTH}px solid ${NDV_TAB_ACCENT};
+  border-bottom: ${NDV_TAB_UNDERLINE_WIDTH}px solid var(--wr-ndv-tab-accent);
 }
 
 .wr-ndv-body {
@@ -434,15 +439,15 @@ export const ndvStyles = `
     font: inherit;
     font-size: 13px;
     font-weight: 500;
-    color: ${NDV_TAB_IDLE_COLOR};
+    color: var(--wr-ndv-tab-idle);
     background: none;
     border: 1px solid var(--wr-ndv-line);
     border-radius: 6px;
     cursor: pointer;
   }
   .wr-ndv-switch button[aria-pressed='true'] {
-    color: ${NDV_TAB_ACCENT};
-    border-color: ${NDV_TAB_ACCENT};
+    color: var(--wr-ndv-tab-accent);
+    border-color: var(--wr-ndv-tab-accent);
   }
   .wr-ndv-resize { display: none; }
   .wr-ndv-panes > .wr-ndv-pane,

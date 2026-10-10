@@ -177,11 +177,17 @@ element does the same when a sidecar 404s. Tests:
 - **Offline-first.** No runtime network except the user's own `src` URL.
 - **Read-only.** No editing, no re-layout; the execution view never invents state.
 - **Frameless element.** No margin, border, padding or card; paints its own
-  ground; light theme only (there is no `theme` attribute).
+  ground. `theme` is `light` (default), `dark` or `auto`; the dark palette is
+  measured from a running n8n 2.38.3 in dark mode (`DARK`, `NDV_DARK`,
+  `NDV_CHROME_DARK`, `NDV_PANE_DARK`, `STICKY_COLORS_DARK`, `ICON_COLORS_DARK`
+  in `constants.ts`; `theme-provenance.test.ts` checks them against
+  `test/fixtures/n8n-2.38.3-dark-measured.json` and `n8n-2.38.3-tokens.json`).
+  `packages/core/scripts/n8n-tokens.ts` resolves n8n design-system tokens.
 - **Interaction model is n8n's**, measured by driving the real canvas: wheel
   pans, ctrl+wheel zooms, cmd+wheel pans, middle-drag pans, double-click zooms
-  2×, `0`/`1`/`+`/`-`, zoom clamped at 400%. Two deliberate departures:
-  left-drag pans, and keyboard shortcuts fire only while the element has focus.
+  2×, `0`/`1`/`+`/`-`, zoom clamped at 400%, and a left-drag draws a selection
+  rectangle, as n8n does. One deliberate departure: keyboard shortcuts fire
+  only while the element has focus.
 - Strict TypeScript, `noUncheckedIndexedAccess`, no `any`, no type casts where
   a type guard will do. ESM only.
 - TDD: write the failing test first.

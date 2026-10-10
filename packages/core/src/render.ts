@@ -16,8 +16,8 @@ import {
   DOT_PHASE,
   DOT_RADIUS,
   DOT_SPACING,
-  ICON_COLORS,
-  ICON_COLOR_DEFAULT,
+  iconColorDefaultFor,
+  iconColorsFor,
   ICON_SIZE,
   LABEL_LINE_HEIGHT,
   SUBTITLE_WIDTH,
@@ -69,6 +69,8 @@ import {
   SELECTION_RING_WIDTH,
   TRIGGER_RADIUS,
   type ThemeTokens,
+  stickyColorsFor,
+  tokensFor,
 } from './constants.js';
 import { contrastTextFor, isHexColor, stickyBorderFor } from './color.js';
 import { el, esc, num, text } from './svg.js';
@@ -135,7 +137,7 @@ function insetTilePath(
  * artwork at its intrinsic scale inside a 40px box, showing just its top-left
  * corner. Where a viewBox is missing, one is built from the dimensions.
  */
-function svgIcon(raw: string, x: number, y: number, size: number): string {
+function svgIcon(raw: string, x: number, y: number, size: number, color?: string): string {
   const body = raw.replace(/^﻿?\s*(?:<\?xml[^>]*\?>|<!DOCTYPE[^>]*>|<!--[\s\S]*?-->)\s*/g, '');
   const open = body.match(/^<svg\b[^>]*>/i);
   if (!open) return '';
@@ -159,7 +161,7 @@ function svgIcon(raw: string, x: number, y: number, size: number): string {
   const inner = body.slice(tag.length).replace(/<\/svg>\s*$/i, '');
   // Centre it and never distort it, whatever the source asked for.
   return (
-    `<svg${attrs}${derived} class="wr-icon" preserveAspectRatio="xMidYMid meet"` +
+    `<svg${attrs}${derived} class="wr-icon" preserveAspectRatio="xMidYMid meet"${color === undefined ? '' : ` color="${esc(color)}"`}` +
     ` x="${num(x)}" y="${num(y)}" width="${num(size)}" height="${num(size)}">${inner}</svg>`
   );
 }
@@ -220,8 +222,9 @@ function glyphIcon(
   x: number,
   y: number,
   size: number,
+  theme: 'light' | 'dark' = 'light',
 ): string {
-  const fill = (entry.colorName && ICON_COLORS[entry.colorName]) || ICON_COLOR_DEFAULT;
+  const fill = (entry.colorName && iconColorsFor(theme)[entry.colorName]) || iconColorDefaultFor(theme);
   // Lucide glyphs are stroked, not filled, and paint with currentColor — so set
   // `color` and leave fill alone, or the outlines fill in solid.
   return `<svg class="wr-glyph" x="${num(x)}" y="${num(y)}" width="${num(size)}" height="${num(size)}" viewBox="${esc(entry.viewBox)}" color="${esc(fill)}">${entry.body}</svg>`;
@@ -452,6 +455,7 @@ function renderSticky(
   index: number,
   tokens: ThemeTokens,
   remoteImages: boolean,
+  presets: Record<number, { bg: string; border: string }> = STICKY_COLORS,
 ): string {
   const { sticky } = scene;
   // A custom colour gives only the background; the border and the text colour
@@ -459,7 +463,7 @@ function renderSticky(
   const color = sticky.color;
   const palette = isHexColor(color)
     ? { bg: color, border: stickyBorderFor(color) }
-    : (STICKY_COLORS[color as number] ?? STICKY_COLORS[1]!);
+    : (presets[color as number] ?? presets[1]!);
   const bodyFill = isHexColor(color) ? contrastTextFor(color) : tokens.text;
   const { x, y } = scene;
   const clipId = `wr-sticky-clip-${index}`;
@@ -686,6 +690,7 @@ function renderNode(
   icons: Record<string, IconEntry>,
   subtitles: RenderOptions['subtitles'],
   overlay?: OverlayNode,
+  theme: 'light' | 'dark' = 'light',
 ): string {
   const { node } = scene;
   const classes = ['wr-node'];
@@ -717,11 +722,13 @@ function renderNode(
   const entry = icons[scene.iconKey];
   const icon =
     entry?.type === 'svg'
-      ? svgIcon(entry.svg, iconX, iconY, iconSize)
+      ? // Icons drawn in currentColor need the dark default on a dark tile; the
+        // light theme keeps inheriting, exactly as before.
+        svgIcon(entry.svg, iconX, iconY, iconSize, theme === 'dark' ? iconColorDefaultFor('dark') : undefined)
       : entry?.type === 'image'
         ? imageIcon(entry, iconX, iconY, iconSize)
         : entry?.type === 'glyph'
-          ? glyphIcon(entry, iconX, iconY, iconSize)
+          ? glyphIcon(entry, iconX, iconY, iconSize, theme)
           : monogramIcon(entry ?? fallbackMonogram(node.name), iconX, iconY, iconSize);
 
   return el(
@@ -1069,7 +1076,9 @@ function defs(tokens: ThemeTokens): string {
 }
 
 export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
-  const tokens = LIGHT;
+  const theme = opts.theme ?? 'light';
+  const tokens = tokensFor(theme);
+  const presets = stickyColorsFor(theme);
   const multiRun = new Set(
     scene.nodes.filter((node) => (node.node.run?.runs ?? 0) > 1).map((node) => node.node.name),
   );
@@ -1093,7 +1102,7 @@ export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
       height: bounds.height,
       'data-descriptions-version': DESCRIPTIONS_VERSION,
       'data-overlay-source': overlay?.source,
-      'data-theme': 'light',
+      'data-theme': theme,
       'data-view': scene.view,
     },
     el('style', {}, styleBlock()),
@@ -1119,7 +1128,7 @@ export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
       // execution at all -- it was never a signal that you were looking at one.
       fill: 'url(#wr-dots)',
     }),
-    el('g', { class: 'wr-layer-stickies' }, ...scene.stickies.map((s, i) => renderSticky(s, i, tokens, opts.remoteImages === true))),
+    el('g', { class: 'wr-layer-stickies' }, ...scene.stickies.map((s, i) => renderSticky(s, i, tokens, opts.remoteImages === true, presets))),
     el('g', { class: 'wr-layer-edges' }, ...scene.edges.map((edge) => renderEdge(edge, tokens, overlayEdge(edge)))),
     el(
       'g',
@@ -1129,7 +1138,7 @@ export function renderSVG(scene: SceneGraph, opts: RenderOptions = {}): string {
     el(
       'g',
       { class: 'wr-layer-nodes' },
-      ...scene.nodes.map((node) => renderNode(node, tokens, icons, opts.subtitles, overlay?.nodes[node.node.name])),
+      ...scene.nodes.map((node) => renderNode(node, tokens, icons, opts.subtitles, overlay?.nodes[node.node.name], theme)),
     ),
     // n8n stacks the port handles above the node, so a dot covers the tile edge.
     portDots(scene, tokens),

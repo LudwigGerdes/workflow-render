@@ -195,8 +195,49 @@ export const ICON_COLORS: Record<string, string> = {
   violet: '#9b6dd5',
 };
 
+/**
+ * The same tints in n8n's dark theme: each `--node--icon--color--<name>`
+ * resolved in the dark block of n8n 2.38.3's design system, whose light value
+ * equals the table above (test/fixtures/n8n-2.38.3-tokens.json; the
+ * provenance test checks both).
+ */
+export const ICON_COLORS_DARK: Record<string, string> = {
+  amber: '#ffb966',
+  azure: '#7dd6e3',
+  black: '#e5e5e5',
+  blue: '#898fff',
+  crimson: '#f188a2',
+  'dark-blue': '#7ba7ff',
+  'dark-green': '#86decc',
+  emerald: '#50d499',
+  'forest-green': '#66cc66',
+  gray: '#a5a5ad',
+  green: '#00c950',
+  lavender: '#a8acff',
+  'light-blue': '#58abff',
+  'light-green': '#20b69e',
+  lime: '#7fff55',
+  magenta: '#ff4d80',
+  neutral: '#e5e5e5',
+  'orange-red': '#ff6900',
+  'pink-red': '#f85d82',
+  purple: '#9b6dd5',
+  red: '#ff6467',
+  rust: '#ff7755',
+  'sky-blue': '#7fb3ff',
+  teal: '#33d6db',
+  violet: '#b48de6',
+};
+
+export const iconColorsFor = (theme: 'light' | 'dark' = 'light'): Record<string, string> =>
+  theme === 'dark' ? ICON_COLORS_DARK : ICON_COLORS;
+export const iconColorDefaultFor = (theme: 'light' | 'dark' = 'light'): string =>
+  theme === 'dark' ? ICON_COLOR_DEFAULT_DARK : ICON_COLOR_DEFAULT;
+
 /** Fallback tint when a node names no icon colour. */
 export const ICON_COLOR_DEFAULT = '#2b2b2b'; // measured: plain text colour
+/** An untinted glyph in n8n's dark theme (measured 2026-10-10 from a running n8n 2.38.3). */
+export const ICON_COLOR_DEFAULT_DARK = '#ffffff';
 
 /** The muted line n8n prints under a node's name. */
 export const SUBTITLE_FONT_SIZE = 13; // measured
@@ -583,6 +624,18 @@ export const STICKY_COLORS_DARK: Record<number, StickyPalette> = {
 export const STICKY_TEXT_IN_DARK_THEME = '#ffffff';
 
 export const DEFAULT_STICKY_COLOR = 1;
+
+export type ThemeName = 'light' | 'dark';
+/** The canvas palette for a theme. */
+export const tokensFor = (theme: ThemeName = 'light'): ThemeTokens => (theme === 'dark' ? DARK : LIGHT);
+/** The inspector palette for a theme. */
+export const ndvTokensFor = (theme: ThemeName = 'light'): NdvTokens => (theme === 'dark' ? NDV_DARK : NDV_LIGHT);
+/** The seven sticky presets for a theme. */
+export const stickyColorsFor = (theme: ThemeName = 'light'): Record<number, StickyPalette> =>
+  theme === 'dark' ? STICKY_COLORS_DARK : STICKY_COLORS;
+/** The selected-node ring for a theme. */
+export const selectionRingFor = (theme: ThemeName = 'light'): string =>
+  theme === 'dark' ? SELECTION_RING_COLOR_DARK : SELECTION_RING_COLOR;
 export const DEFAULT_STICKY_WIDTH = 240;
 export const DEFAULT_STICKY_HEIGHT = 160;
 

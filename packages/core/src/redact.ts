@@ -64,10 +64,12 @@ const isReferenceExpression = (s: string): boolean => s.startsWith('={{') && s.t
 const WHOLE_TOKEN = /^(?:Bearer\s+)?(?=[A-Za-z_-]*\d)[A-Za-z0-9_-]{20,}$/i;
 /** Token shapes found inside longer text. */
 const INLINE_TOKENS: RegExp[] = [
-	/-----BEGIN [A-Z ]{0,40}PRIVATE KEY-----[\s\S]{0,16384}?-----END [A-Z ]{0,40}PRIVATE KEY-----/g,
-	/\beyJ[A-Za-z0-9_-]{8,4096}\.[A-Za-z0-9_-]{8,4096}\.[A-Za-z0-9_-]{8,4096}/g,
-	/\bBearer\s+[A-Za-z0-9._~+/-]{20,4096}=*/gi,
-	/\bBasic\s+[A-Za-z0-9+/]{8,4096}={0,2}/gi,
+	// The key body has no `-`, so a scan stops at the next `-----` whatever the key's length.
+	/-----BEGIN [A-Z ]{0,40}PRIVATE KEY-----[A-Za-z0-9+/=\s]*-----END [A-Z ]{0,40}PRIVATE KEY-----/g,
+	// A JWT starts only where no token character precedes it: one start per run, so no cap is needed.
+	/(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g,
+	/\bBearer\s+[A-Za-z0-9._~+/-]{20,}=*/gi,
+	/\bBasic\s+[A-Za-z0-9+/]{8,}={0,2}/gi,
 	/\bAKIA[0-9A-Z]{16}\b/g,
 	// Vendor key formats: Stripe, OpenAI, Slack, GitHub, GitLab, Google.
 	/\b[rsp]k_(?:live|test)_[A-Za-z0-9]{8,256}/g,
@@ -88,8 +90,8 @@ const INLINE_TOKENS: RegExp[] = [
  * Found in two steps, URL then segment: a look-behind for "inside a URL" costs a scan
  * at every position on Node 20 and 22.
  */
-const URL_SPAN = /\b[a-z][a-z0-9+.-]{0,30}:\/\/[^\s"'<>]{1,2048}/gi;
-const PATH_SEGMENT = /\/(?=[A-Za-z_-]{0,256}\d)[A-Za-z0-9_-]{24,256}(?=[/?#]|$)/g;
+const URL_SPAN = /\b[a-z][a-z0-9+.-]{0,30}:\/\/[^\s"'<>]+/gi;
+const PATH_SEGMENT = /\/(?=[A-Za-z_-]*\d)[A-Za-z0-9_-]{24,}(?=[/?#]|$)/g;
 /**
  * `key=value` or `key: value` where the key is secret-named, in any text: query
  * strings and form bodies (`?api_key=…`, `client_secret=…&…`), connection strings
@@ -100,7 +102,14 @@ const ASSIGN_SECRET =
 /** `"password": "…"` inside JSON text (a body or header field written as a string). */
 const JSON_SECRET = /("[^"\\]{0,64}(?:password|passwd|secret|api[-_]?key|token|authorization|cookie|private[-_]?key)[^"\\]{0,64}"\s*:\s*")((?:[^"\\]|\\.)*)"/gi;
 /** Every run below is bounded: an unbounded run lets a long hostile string take quadratic time. */
-const URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]{0,30}:\/\/)([^\s/@:]{1,256}(?::[^\s/@]{0,256})?)@/gi;
+/** Userinfo runs to the last `@` before the path, as browsers parse it (`user:p@ss@host`). */
+const URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]{0,30}:\/\/)([^\s/?#]{1,256})@/gi;
+/**
+ * A pattern that still caps its length (vendor keys, emails) may stop inside a longer
+ * value; these take the rest of that value into the placeholder so no tail or head survives.
+ */
+const TAIL = /(\[redacted: (?:token|email|custom)\])[A-Za-z0-9_~+/=-]+(?:\.[A-Za-z0-9_~+/=-]+)*/g;
+const EMAIL_HEAD = /(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+(\[redacted: email\])/g;
 const EMAIL = /[A-Za-z0-9._%+-]{1,64}@(?:[A-Za-z0-9-]{1,63}\.){1,10}[A-Za-z]{2,24}\b/g;
 const URL_HOST = /\b[a-z][a-z0-9+.-]{0,30}:\/\/(?:(?:\[redacted: [a-z ]+\]|[^\s/@]{0,256})@)?([A-Za-z0-9.-]{1,253})/gi;
 
@@ -211,6 +220,7 @@ class Redactor {
 		apply(URL_CREDENTIALS, 'url credentials', (_m, scheme) => `${scheme}${placeholder('url credentials')}@`);
 		apply(EMAIL, 'email', () => placeholder('email'));
 		for (const re of this.mask) apply(re, 'custom', () => placeholder('custom'));
+		if (out.includes('[redacted: ')) out = out.replace(TAIL, '$1').replace(EMAIL_HEAD, '$1');
 		this.collectHosts(out);
 		return out;
 	}

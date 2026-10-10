@@ -208,6 +208,11 @@ describe('redactWorkflow: hostile input', () => {
 		['repeated prefixes', 'sk-'.repeat(20_000)],
 		['repeated jwt starts', 'eyJ'.repeat(20_000)],
 		['unterminated keys', '-----BEGIN PRIVATE KEY-----'.repeat(2_000)],
+		['dash-separated jwt starts', '-eyJ'.repeat(15_000)],
+		['long bearer run', `Bearer ${'a'.repeat(60_000)}`],
+		['long url segment', `https://h.example.com/${'1'.repeat(60_000)}`],
+		['many url segments', `https://h.example.com${'/a1'.repeat(20_000)}`],
+		['email heads without @', `${'a.'.repeat(30_000)}[redacted: email]`],
 	];
 	it.each(hostile)('handles %s in well under a second', (_name, text) => {
 		const started = performance.now();
@@ -319,5 +324,26 @@ describe('keep cannot shelter a secret it overlaps', () => {
 		expect(s).not.toContain('ops@');
 		expect(s).not.toContain('abcdefghijklmnopqrstuvwxyz0123');
 		expect(s).toContain('https://hooks.example.com/x');
+	});
+});
+
+describe('length caps and parser differentials', () => {
+	it('masks the whole of an over-long token, email or path segment', () => {
+		const longJwt = `eyJ${'a'.repeat(5000)}.eyJ${'b'.repeat(20)}.${'c'.repeat(20)}`;
+		const longLocal = `${'x'.repeat(80)}LEAKEND@example.com`;
+		const longSeg = `https://h.example.com/${'1'.repeat(300)}`;
+		const deepUrl = `https://h.example.com/${'p/'.repeat(1500)}${'9'.repeat(30)}`;
+		const s = out(wf([node('S', { a: `x ${longJwt} y`, b: `mail ${longLocal}`, c: longSeg, d: deepUrl, e: `Bearer ${'k1'.repeat(3000)} end` })]));
+		expect(s).not.toContain('aaaaaaaaaa');
+		expect(s).not.toContain('LEAKEND');
+		expect(s).not.toContain('1'.repeat(30));
+		expect(s).not.toContain('9'.repeat(30));
+		expect(s).not.toContain('k1k1k1k1');
+	});
+
+	it('masks URL userinfo up to the last @, as browsers split it', () => {
+		const s = out(wf([node('S', { db: 'https://user:p@ss@db.example.test/x' })]));
+		expect(s).not.toContain('ss@db');
+		expect(s).toContain('@db.example.test/x');
 	});
 });

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { DARK, ERROR_PANEL_DARK, NDV_CHROME_DARK, NDV_DARK, WARNING_PANEL_DARK } from 'workflow-render-core';
 import { initSite } from '../src/main.js';
 
 const root = (...parts: string[]): string =>
@@ -161,6 +162,10 @@ describe('idle chrome stays findable', () => {
 });
 
 describe('embed redaction', () => {
+	// Slow asset fetches, as under a loaded test run: a fixed sleep is not enough.
+	beforeEach(() => {
+		vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise((r) => setTimeout(() => r(new Response('{}')), 80)));
+	});
 	const secretWorkflow = {
 		id: 'wf-secret-id',
 		nodes: [{ id: 'n', name: 'S', type: 'n8n-nodes-base.set', typeVersion: 3, position: [0, 0], parameters: { text: 'ada@example.com' } }],
@@ -173,10 +178,15 @@ describe('embed redaction', () => {
 		await new Promise((r) => setTimeout(r, 0));
 		return text;
 	};
+	/** Wait for the embed build itself (copy hands out nothing while one is pending), not a guess at how long it takes. */
+	const built = async (): Promise<void> => {
+		const field = document.getElementById('embed-snippet') as HTMLTextAreaElement;
+		for (let i = 0; i < 100 && !field.value.includes('self-contained'); i++) await new Promise((r) => setTimeout(r, 10));
+	};
 	const loaded = async (canvas: HTMLElement & { workflow?: unknown }): Promise<void> => {
 		canvas.workflow = secretWorkflow;
 		canvas.dispatchEvent(new CustomEvent('wr-load', { detail: { view: 'design', warnings: [] } }));
-		await new Promise((r) => setTimeout(r, 20));
+		await built();
 	};
 
 	it('masks the shared embed by default, and says how much', async () => {
@@ -196,7 +206,7 @@ describe('embed redaction', () => {
 		const box = document.getElementById('embed-redact') as HTMLInputElement;
 		box.checked = false;
 		box.dispatchEvent(new Event('change'));
-		await new Promise((r) => setTimeout(r, 20));
+		await built();
 		expect(await copied()).toContain('ada@example.com');
 	});
 });
@@ -236,11 +246,15 @@ describe('embed redaction race', () => {
 
 describe('embed redaction on unrecognised input', () => {
 	it('says only the text patterns were applied', async () => {
+		// Slow asset fetches, as under a loaded test run: a fixed sleep is not enough.
+		vi.spyOn(globalThis, 'fetch').mockImplementation(() => new Promise((r) => setTimeout(() => r(new Response('{}')), 80)));
 		const canvas = setup() as HTMLElement & { workflow?: unknown };
 		canvas.workflow = { something: 'else' };
 		canvas.dispatchEvent(new CustomEvent('wr-load', { detail: { view: 'design', warnings: [] } }));
-		await new Promise((r) => setTimeout(r, 30));
-		expect(document.getElementById('embed-redacted')?.textContent).toMatch(/not a workflow/);
+		// Wait for the build itself, not a guess at how long it takes.
+		const note = (): string => document.getElementById('embed-redacted')?.textContent ?? '';
+		for (let i = 0; i < 100 && !/not a workflow/.test(note()); i++) await new Promise((r) => setTimeout(r, 10));
+		expect(note()).toMatch(/not a workflow/);
 	});
 });
 
@@ -291,3 +305,67 @@ describe('embed theme', () => {
 });
 
 afterEach(() => vi.restoreAllMocks());
+
+describe('page theme', () => {
+  const css = readFileSync(resolve(__dirname, '../src/style.css'), 'utf8');
+  /** The custom properties declared in the block that starts with `selector {`. */
+  const block = (selector: string): Record<string, string> => {
+    const start = css.indexOf(`${selector} {`);
+    expect(start, `${selector} block`).toBeGreaterThanOrEqual(0);
+    const body = css.slice(start, css.indexOf('}', start));
+    return Object.fromEntries([...body.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2]?.trim()]));
+  };
+  const hex = (c: string): string => c.replace(/\s+/g, '').toLowerCase();
+
+  it('dark page colours are n8n dark values the canvas already uses', () => {
+    const dark = block(":root[data-theme='dark']");
+    const light = block(':root');
+    // Every light variable has a dark counterpart.
+    expect(Object.keys(dark).sort()).toEqual(Object.keys(light).sort());
+    const expected: Record<string, string> = {
+      '--fg': DARK.text,
+      '--muted': DARK.textMuted,
+      '--line': NDV_CHROME_DARK.inputBorder,
+      '--line-hover': DARK.portBorder,
+      '--accent': DARK.success,
+      '--field': NDV_DARK.fieldBg,
+      '--panel': 'rgba(43,43,43,0.94)', // DARK.nodeBg at the light panel's 94%
+      '--error-bg': ERROR_PANEL_DARK.bg,
+      '--error-border': ERROR_PANEL_DARK.border,
+      '--error-text': ERROR_PANEL_DARK.text,
+      '--warning-bg': WARNING_PANEL_DARK.bg,
+      '--warning-border': WARNING_PANEL_DARK.border,
+      '--warning-text': WARNING_PANEL_DARK.text,
+    };
+    for (const [name, value] of Object.entries(expected)) expect(hex(dark[name] ?? ''), name).toBe(hex(value));
+    expect(DARK.nodeBg).toBe('#2b2b2b');
+  });
+
+  it('asks the browser for dark native controls (select, checkbox) in dark', () => {
+    const start = css.indexOf(":root[data-theme='dark'] {");
+    expect(css.slice(start, css.indexOf('}', start))).toMatch(/color-scheme:\s*dark;/);
+  });
+
+  it('keeps colours in the variable blocks', () => {
+    // Outside :root blocks, only var() references and the shadow's black remain.
+    const rest = css.replace(/:root[^{]*\{[^}]*\}/g, '');
+    const colours = (rest.match(/#[0-9a-f]{3,8}\b|rgba?\([^)]*\)/gi) ?? []).filter((c) => !/^rgba\(0, 0, 0, 0\.08\)$/.test(c));
+    expect(colours).toEqual([]);
+  });
+
+  it("mirrors the canvas's resolved theme onto the page", async () => {
+    // The element sets data-resolved-theme (light/dark, auto resolved); the page follows it.
+    const canvas = setup();
+    const html = document.documentElement;
+    const settle = async (want: string): Promise<void> => {
+      for (let i = 0; i < 100 && html.getAttribute('data-theme') !== want; i++) await new Promise((r) => setTimeout(r, 5));
+    };
+    expect(html.getAttribute('data-theme')).toBe('light');
+    canvas.setAttribute('data-resolved-theme', 'dark');
+    await settle('dark');
+    expect(html.getAttribute('data-theme')).toBe('dark');
+    canvas.setAttribute('data-resolved-theme', 'light');
+    await settle('light');
+    expect(html.getAttribute('data-theme')).toBe('light');
+  });
+});

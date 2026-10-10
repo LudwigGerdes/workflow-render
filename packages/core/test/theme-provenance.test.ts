@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	DARK,
 	ERROR_PANEL_DARK,
+	WARNING_PANEL_DARK,
 	NDV_PINNED_BG_DARK,
 	NDV_PINNED_TEXT_DARK,
 	NDV_TEXT_VALUE_DARK,
@@ -100,6 +101,9 @@ describe('dark palette provenance', () => {
 			['--callout--color--background--secondary', NDV_PINNED_BG_DARK],
 			['--callout--color--text--secondary', NDV_PINNED_TEXT_DARK],
 			['--color--text', NDV_TEXT_VALUE_DARK],
+			['--background--warning', WARNING_PANEL_DARK.bg],
+			['--border-color--warning', WARNING_PANEL_DARK.border],
+			['--text-color--warning', WARNING_PANEL_DARK.text],
 		];
 		for (const [token, ours] of pairs) {
 			expect(tokens[token], `${token} missing from the snapshot`).toBeDefined();

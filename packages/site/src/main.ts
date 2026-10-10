@@ -206,6 +206,13 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
 
   $('embed-redact')?.addEventListener('change', () => updateEmbed());
 
+  // The page's own panels follow whatever the canvas resolved to, auto included.
+  const followCanvas = (): void => {
+    document.documentElement.setAttribute('data-theme', canvas.getAttribute('data-resolved-theme') === 'dark' ? 'dark' : 'light');
+  };
+  new MutationObserver(followCanvas).observe(canvas, { attributes: true, attributeFilter: ['data-resolved-theme'] });
+  followCanvas();
+
   // The theme applies to the canvas on screen and to the embed it builds.
   $('theme')?.addEventListener('change', () => {
     const value = $<HTMLSelectElement>('theme')?.value ?? 'light';

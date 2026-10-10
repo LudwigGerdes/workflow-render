@@ -2,6 +2,9 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
 	DARK,
+	NDV_CHROME_DARK,
+	NDV_PANE_DARK,
+	NDV_PANE_LIGHT,
 	ICON_COLORS,
 	ICON_COLORS_DARK,
 	ICON_COLOR_DEFAULT_DARK,
@@ -20,6 +23,8 @@ const measured = fixture<{
 	sticky: Record<string, { bg: string; border: string }>;
 	stickyText: string;
 	ndv: Record<string, string>;
+	ndvChrome: Record<string, string>;
+	ndvPane: Record<string, string>;
 }>('n8n-2.38.3-dark-measured.json');
 const tokens = fixture<{ tokens: Record<string, { light: string; dark: string }> }>('n8n-2.38.3-tokens.json').tokens;
 const norm = (c: string): string => c.toLowerCase().replace(/\s+/g, '').replace(/,0\.(\d)0\)$/, ',0.$1)');
@@ -65,5 +70,18 @@ describe('dark palette provenance', () => {
 			expect(ICON_COLORS_DARK[name], name).toBe(t?.dark);
 		}
 		expect(ICON_COLOR_DEFAULT_DARK).toBe('#ffffff'); // measured: an untinted glyph in dark mode
+	});
+
+	it('inspector controls are the measured dark values', () => {
+		for (const [key, value] of Object.entries(measured.ndvChrome)) {
+			expect(norm(NDV_CHROME_DARK[key as keyof typeof NDV_CHROME_DARK]), key).toBe(norm(value));
+		}
+	});
+
+	it('pane chips, count and icons are the measured dark values', () => {
+		for (const [key, value] of Object.entries(measured.ndvPane)) {
+			expect(NDV_PANE_DARK[key as keyof typeof NDV_PANE_DARK], key).toBe(value);
+		}
+		expect(norm(NDV_PANE_LIGHT.chipBorder)).toBe(norm('rgb(240, 240, 240)'));
 	});
 });

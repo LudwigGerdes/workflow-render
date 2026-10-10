@@ -422,6 +422,9 @@ export const NDV_SCHEMA_VALUE_COLOR = 'rgb(68, 68, 68)';
 /** The callout shown over a pane whose data is pinned rather than executed. */
 export const NDV_PINNED_BG = 'rgb(221, 214, 255)';
 export const NDV_PINNED_TEXT = 'rgb(127, 34, 254)';
+/** n8n: --callout--color--background--secondary / --callout--color--text--secondary, whose light values are the two above. */
+export const NDV_PINNED_BG_DARK = 'rgba(90,76,194,0.251)';
+export const NDV_PINNED_TEXT_DARK = '#ffffff';
 export const NDV_CALLOUT_PADDING = 12;
 
 /** The grab strip between the parameters column and a side pane. */
@@ -625,6 +628,95 @@ export const STICKY_TEXT_IN_DARK_THEME = '#ffffff';
 
 export const DEFAULT_STICKY_COLOR = 1;
 
+/** The inspector's own controls: the view switcher, the data table, the toggle and the outlines. */
+export interface NdvChromeTokens {
+  segmentBg: string;
+  segmentActiveBg: string;
+  tableHeadBg: string;
+  tableHeadText: string;
+  tableLine: string;
+  tableCellText: string;
+  toggleOff: string;
+  toggleOffBorder: string;
+  toggleOn: string;
+  toggleKnob: string;
+  line: string;
+  fieldBorder: string;
+  inputBorder: string;
+  inputHoverBorder: string;
+  dashedBorder: string;
+}
+
+/** The light values the inspector has always used (fitted against an earlier n8n). */
+export const NDV_CHROME_LIGHT: NdvChromeTokens = {
+  segmentBg: '#f0f0f2',
+  segmentActiveBg: '#ffffff',
+  tableHeadBg: '#f5f5f5',
+  tableHeadText: '#2b2b2b',
+  tableLine: '#e0e0e0',
+  tableCellText: '#757575',
+  toggleOff: '#c6ccd4',
+  toggleOffBorder: 'transparent',
+  toggleOn: '#29a360',
+  toggleKnob: '#ffffff',
+  line: 'rgba(0, 0, 0, 0.09)',
+  fieldBorder: 'rgba(0, 0, 0, 0.16)',
+  inputBorder: 'rgba(0, 0, 0, 0.1)',
+  inputHoverBorder: 'rgba(0, 0, 0, 0.25)',
+  dashedBorder: 'rgba(0, 0, 0, 0.2)',
+};
+
+/**
+ * The same controls in n8n's dark theme, measured 2026-10-10 from a running n8n
+ * 2.38.3 (fixtures/n8n-2.38.3-dark-measured.json, ndvChrome), except the
+ * outlines, which are n8n's --border-color / --border-color--strong dark values.
+ */
+export const NDV_CHROME_DARK: NdvChromeTokens = {
+  segmentBg: '#323232',
+  segmentActiveBg: '#171717',
+  tableHeadBg: '#444444',
+  tableHeadText: '#ffffff',
+  tableLine: 'rgba(245,255,255,0.10)',
+  tableCellText: '#e5e5e5',
+  toggleOff: '#171717',
+  toggleOffBorder: '#444444',
+  toggleOn: '#00c950',
+  toggleKnob: '#f5f5f5',
+  line: 'rgba(245,255,255,0.10)',
+  fieldBorder: 'rgba(255,255,255,0.2)', // n8n: --border-color--strong
+  inputBorder: 'rgba(255,255,255,0.1)', // n8n: --border-color
+  inputHoverBorder: 'rgba(255,255,255,0.2)', // n8n: --border-color--strong
+  dashedBorder: 'rgba(255,255,255,0.2)', // n8n: --border-color--strong
+};
+
+/** The input and output panes' type chips, item count and muted icons. */
+export interface NdvPaneTokens {
+  chipBg: string;
+  chipBorder: string;
+  chipText: string;
+  count: string;
+  iconMuted: string;
+}
+export const NDV_PANE_LIGHT: NdvPaneTokens = {
+  chipBg: NDV_CHIP_BG,
+  chipBorder: NDV_CHIP_BORDER,
+  chipText: NDV_CHIP_TEXT,
+  count: NDV_COUNT_COLOR,
+  iconMuted: NDV_ICON_MUTED,
+};
+/** Measured 2026-10-10 from a running n8n 2.38.3 in dark mode (fixtures/n8n-2.38.3-dark-measured.json, ndvPane). */
+export const NDV_PANE_DARK: NdvPaneTokens = {
+  chipBg: '#262626',
+  chipBorder: '#2b2b2b',
+  chipText: '#ffffff',
+  count: '#999999',
+  iconMuted: '#bbbbbb',
+};
+
+/** The element's error panel. Light is its own; dark uses n8n's dark danger callout tokens. */
+export const ERROR_PANEL_LIGHT = { bg: '#fdf3f2', border: '#e0b4b0', text: '#8a2f26' } as const;
+export const ERROR_PANEL_DARK = { bg: '#460809', border: '#9f0712', text: '#fef2f2' } as const; // n8n: --background--danger, --border-color--danger, --text-color--danger
+
 export type ThemeName = 'light' | 'dark';
 /** The canvas palette for a theme. */
 export const tokensFor = (theme: ThemeName = 'light'): ThemeTokens => (theme === 'dark' ? DARK : LIGHT);
@@ -634,6 +726,9 @@ export const ndvTokensFor = (theme: ThemeName = 'light'): NdvTokens => (theme ==
 export const stickyColorsFor = (theme: ThemeName = 'light'): Record<number, StickyPalette> =>
   theme === 'dark' ? STICKY_COLORS_DARK : STICKY_COLORS;
 /** The selected-node ring for a theme. */
+export const ndvPaneFor = (theme: ThemeName = 'light'): NdvPaneTokens => (theme === 'dark' ? NDV_PANE_DARK : NDV_PANE_LIGHT);
+export const ndvChromeFor = (theme: ThemeName = 'light'): NdvChromeTokens => (theme === 'dark' ? NDV_CHROME_DARK : NDV_CHROME_LIGHT);
+export const errorPanelFor = (theme: ThemeName = 'light') => (theme === 'dark' ? ERROR_PANEL_DARK : ERROR_PANEL_LIGHT);
 export const selectionRingFor = (theme: ThemeName = 'light'): string =>
   theme === 'dark' ? SELECTION_RING_COLOR_DARK : SELECTION_RING_COLOR;
 export const DEFAULT_STICKY_WIDTH = 240;

@@ -23,10 +23,12 @@ import {
   SELECTION_BOX_STROKE,
   SELECTION_BOX_STROKE_STYLE,
   SELECTION_BOX_STROKE_WIDTH,
-  SELECTION_RING_COLOR,
+  errorPanelFor,
+  selectionRingFor,
+  tokensFor,
+  type ThemeName,
   WHEEL_PAN_SPEED,
   ZOOM_STEP,
-  LIGHT,
   layout,
   parseInput,
   renderSVG,
@@ -51,7 +53,7 @@ export interface OverlayData {
 import { loadDescriptions } from './descriptions.js';
 import type { DisplayMode } from './ndv/data-pane.js';
 import { renderNodePanel, renderStickyPanel, type NdvTab, type StickyInspection } from './ndv/panel.js';
-import { ndvStyles } from './ndv/styles.js';
+import { ndvStyles, ndvThemeVars } from './ndv/styles.js';
 import { ensureFonts, loadFontData, loadIcons, loadSubtitles } from './icons.js';
 import { PanZoom } from './interaction.js';
 
@@ -73,6 +75,30 @@ const MIDDLE_BUTTON = 1;
 /** Trackpad pinch: convert a ctrl+wheel delta into a smooth zoom factor. */
 const pinchFactor = (deltaY: number): number => Math.exp(-deltaY / 300);
 
+/** Every colour the element's own chrome and the inspector use, for one theme. */
+function themeVars(theme: ThemeName): string {
+  const t = tokensFor(theme);
+  const e = errorPanelFor(theme);
+  return [
+    `--wr-theme-canvas-bg: ${t.canvasBg};`,
+    `--wr-chrome-text: ${t.text};`,
+    `--wr-chrome-bg: ${t.nodeBg};`,
+    `--wr-chrome-border: ${t.nodeBorder};`,
+    `--wr-chrome-hover: ${t.portBorder};`,
+    `--wr-focus: ${t.success};`,
+    `--wr-ring: ${selectionRingFor(theme)};`,
+    `--wr-error-bg: ${e.bg};`,
+    `--wr-error-border: ${e.border};`,
+    `--wr-error-text: ${e.text};`,
+    ndvThemeVars(theme),
+  ].join(' ');
+}
+
+/** The light block applies by default; the dark one when the theme resolves to dark. */
+const THEME_BLOCKS =
+  `/* theme tokens */ :host { ${themeVars('light')} } ` +
+  `:host([data-resolved-theme='dark']) { ${themeVars('dark')} } /* end theme tokens */`;
+
 @customElement('workflow-render')
 export class WorkflowRender extends LitElement {
   static override styles = css`
@@ -90,7 +116,7 @@ export class WorkflowRender extends LitElement {
       overflow: hidden;
       position: relative;
       contain: content;
-      background-color: var(--wr-canvas-bg, ${unsafeCSS(LIGHT.canvasBg)});
+      background-color: var(--wr-canvas-bg, var(--wr-theme-canvas-bg));
     }
     .wr-viewport {
       width: 100%;
@@ -131,7 +157,7 @@ export class WorkflowRender extends LitElement {
        attribute, which is what keeps an exported SVG free of selection state. */
     .wr-selected .wr-tile-halo,
     .wr-selected .wr-sticky-halo {
-      stroke: ${unsafeCSS(SELECTION_RING_COLOR)};
+      stroke: var(--wr-ring);
     }
     .wr-selection-box {
       position: absolute;
@@ -179,9 +205,9 @@ export class WorkflowRender extends LitElement {
       height: 28px;
       padding: 0 10px;
       font: 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #2b2b2b;
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: var(--wr-chrome-text);
+      background: var(--wr-chrome-bg);
+      border: 1px solid var(--wr-chrome-border);
       border-radius: 4px;
       cursor: pointer;
     }
@@ -192,34 +218,49 @@ export class WorkflowRender extends LitElement {
       place-items: center;
       padding: 0;
       font: 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #2b2b2b;
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: var(--wr-chrome-text);
+      background: var(--wr-chrome-bg);
+      border: 1px solid var(--wr-chrome-border);
       border-radius: 4px;
       cursor: pointer;
     }
     .wr-controls button:hover {
-      border-color: #989898;
+      border-color: var(--wr-chrome-hover);
     }
     :host(:focus-visible) {
-      outline: 2px solid #29a360;
+      outline: 2px solid var(--wr-focus);
       outline-offset: 2px;
     }
+    ${unsafeCSS(THEME_BLOCKS)}
     ${unsafeCSS(ndvStyles)}
     .wr-error-panel {
       box-sizing: border-box;
       padding: 12px 14px;
       margin: 12px;
-      border: 1px solid #e0b4b0;
+      border: 1px solid var(--wr-error-border);
       border-radius: 6px;
-      background: #fdf3f2;
-      color: #8a2f26;
+      background: var(--wr-error-bg);
+      color: var(--wr-error-text);
       font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
   `;
 
   /** URL of a workflow or execution JSON. Fetched as-is; CORS is the host's concern. */
   @property({ type: String }) src?: string;
+
+  /**
+   * `light` (the default), `dark`, or `auto`, which follows the visitor's
+   * system setting and switches when it changes.
+   */
+  @property({ type: String }) theme: 'light' | 'dark' | 'auto' = 'light';
+
+  /** What `theme` resolved to; drives the SVG and the chrome. */
+  @state() private resolvedTheme: ThemeName = 'light';
+
+  #schemeQuery?: MediaQueryList;
+  #onSchemeChange = (event: { matches: boolean }): void => {
+    this.resolvedTheme = event.matches ? 'dark' : 'light';
+  };
 
   /** Inline workflow JSON: an object, or a JSON string via the attribute. */
   @property({ attribute: 'workflow' }) workflow?: unknown;
@@ -352,6 +393,7 @@ export class WorkflowRender extends LitElement {
     if (!this.#scene) throw new Error('nothing to export yet');
     const [icons, subtitles, fonts] = await Promise.all([loadIcons(), loadSubtitles(), loadFontData()]);
     return exportSVG(this.#scene, {
+      theme: this.resolvedTheme,
       icons,
       subtitles,
       fonts,
@@ -449,6 +491,7 @@ export class WorkflowRender extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
+    this.#watchScheme();
     this.setAttribute('emulates', DESCRIPTIONS_VERSION);
     // Focusable so the canvas shortcuts work here without the element
     // swallowing keystrokes meant for the page that embeds it.
@@ -464,6 +507,7 @@ export class WorkflowRender extends LitElement {
   }
 
   override disconnectedCallback(): void {
+    this.#unwatchScheme();
     this.removeEventListener('keydown', this.#onKeyDown);
     globalThis.removeEventListener?.('keydown', this.#onModeKey);
     globalThis.removeEventListener?.('keyup', this.#onModeKey);
@@ -476,7 +520,29 @@ export class WorkflowRender extends LitElement {
     this.#markSelection();
   }
 
+  /** Resolve `theme`, listening to the system setting only while it is `auto`. */
+  #watchScheme(): void {
+    this.#unwatchScheme();
+    if (this.theme === 'auto' && typeof globalThis.matchMedia === 'function') {
+      this.#schemeQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
+      this.#schemeQuery.addEventListener('change', this.#onSchemeChange);
+      this.resolvedTheme = this.#schemeQuery.matches ? 'dark' : 'light';
+    } else {
+      this.resolvedTheme = this.theme === 'dark' ? 'dark' : 'light';
+    }
+  }
+
+  #unwatchScheme(): void {
+    this.#schemeQuery?.removeEventListener('change', this.#onSchemeChange);
+    this.#schemeQuery = undefined;
+  }
+
   protected override willUpdate(changed: PropertyValues<this>): void {
+    if (changed.has('theme') && this.isConnected) this.#watchScheme();
+    if (changed.has('resolvedTheme' as keyof WorkflowRender)) {
+      this.setAttribute('data-resolved-theme', this.resolvedTheme);
+      if (this.#scene) this.#loaded = this.#load();
+    }
     // `images` belongs here too: it changes what the SVG contains, so setting
     // it after load must redraw. Without it the attribute was accepted and
     // silently did nothing, which is worse than not offering it.
@@ -514,6 +580,7 @@ export class WorkflowRender extends LitElement {
     // allows only http/https/mailto/relative link targets.
     const overlay = this.#overlay();
     this.svg = renderSVG(scene, {
+      theme: this.resolvedTheme,
       icons,
       subtitles,
       remoteImages: this.images === 'remote',

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { exportFile, packageVersion, parseArgs, USAGE, USAGE_EXIT_CODE } from './index.js';
+import { exportFile, formatReport, packageVersion, parseArgs, redactFile, USAGE, USAGE_EXIT_CODE } from './index.js';
 import { serve } from './view.js';
 
 const command = parseArgs(process.argv.slice(2));
@@ -14,12 +14,22 @@ if (command.kind === 'help') {
   process.exitCode = command.exitCode ?? USAGE_EXIT_CODE;
 } else if (command.kind === 'export') {
   try {
-    const { warnings } = await exportFile(command);
+    const { warnings, report } = await exportFile(command);
     process.stdout.write(`wrote ${command.out}\n`);
+    if (report !== undefined) process.stderr.write(`${formatReport(command.file, report)}\n`);
     // What the adapter dropped while reading the file. The export is still
     // written -- a dangling connection is not a reason to refuse -- but it
     // must not pass silently either.
     for (const warning of warnings) process.stderr.write(`warning: ${warning}\n`);
+  } catch (error) {
+    process.stderr.write(`workflow-render: ${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  }
+} else if (command.kind === 'redact') {
+  try {
+    const { json, report } = await redactFile(command);
+    process.stdout.write(command.out === '-' ? json : `wrote ${command.out}\n`);
+    process.stderr.write(`${formatReport(command.file, report)}\n`);
   } catch (error) {
     process.stderr.write(`workflow-render: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;

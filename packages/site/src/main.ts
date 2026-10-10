@@ -5,7 +5,8 @@
  * way once the pointer settles. Nothing is uploaded: the only request the page
  * makes is for a `?src=` URL the visitor supplied.
  */
-import { redactWorkflow } from 'workflow-render-core';
+// The redaction module alone: the package index would pull the inspector's Markdown renderer in too.
+import { redactWorkflow } from 'workflow-render-core/redact';
 
 interface CanvasElement extends HTMLElement {
   workflow?: unknown;

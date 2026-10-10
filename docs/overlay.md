@@ -19,6 +19,8 @@ In a page:
 
 `overlay` takes a JSON string through the attribute or an object through the property. Setting it after load redraws.
 
+Without workflow-lint, leave out `--overlay`: the workflow is drawn exactly as it would be with an empty overlay. Any tool can write the format below, and so can you by hand.
+
 ## The format
 
 ```json

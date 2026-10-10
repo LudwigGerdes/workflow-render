@@ -39,6 +39,7 @@ The icon, subtitle and description files are fetched with subresource integrity.
 | `static` | Render without interaction, for thumbnails | `false` |
 | `inspector` | `panel` or `off` | `panel` |
 | `exportui` | `on` or `off`. Shows the SVG and PNG buttons | `on` |
+| `theme` | `light`, `dark` or `auto`. `auto` follows the visitor's system setting and switches when it changes. The canvas, controls and inspector use n8n's own dark palette | `light` |
 | `images` | `safe` or `remote`. Whether sticky-note images may load from another host | `safe` |
 | `overlay` | A [canvas overlay](https://workflowtools.dev/workflow-render/overlay): a JSON string, or an object through the property. Drawn as a ring and a badge per flagged node | |
 | `emulates` | Read-only. The bundled n8n version | |

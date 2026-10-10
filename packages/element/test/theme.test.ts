@@ -95,5 +95,8 @@ describe('theme attribute', () => {
 		const css = ctor.elementStyles.map((s) => s.cssText).join('\n');
 		const outside = css.replace(/\/\* theme tokens \*\/[\s\S]*?\/\* end theme tokens \*\//g, '');
 		expect(outside.match(/#[0-9a-f]{3,8}\b/gi) ?? []).toEqual([]);
+		// rgb()/rgba() colours too, except the black backdrop and shadows, which are the same in both themes.
+		const rgb = (outside.match(/rgba?\([^)]*\)/gi) ?? []).filter((c) => !/^rgba?\(0, 0, 0/.test(c));
+		expect(rgb).toEqual([]);
 	});
 });

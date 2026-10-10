@@ -33,18 +33,19 @@ Writes a copy of a workflow or execution with what you would not publish masked 
 
 | What | Masked as |
 |---|---|
-| Credential references (`nodes[].credentials`): id and name. The credential type stays | `credential` |
+| Credential references (`credentials` anywhere, including the copy of a node inside an execution's error): id and name. The credential type stays | `credential` |
 | Workflow `id`, `versionId`, `meta.instanceId`, `webhookId`, an execution's `id` and `workflowId`, and the people and projects in an API export (`shared`, `homeProject`, `owner`) | `identifier` |
-| The value of a field or header whose name contains `password`, `secret`, `api key`, `token`, `authorization`, `cookie` or `private key` (an expression that only references a value, like `={{ $env.API_KEY }}`, stays); secret-named query parameters in URLs; secret-named keys inside JSON text | `secret field` |
-| Bearer and Basic credentials, JWTs, private-key blocks, AWS key ids, and Stripe, OpenAI, Slack, GitHub, GitLab and Google key formats, wherever they appear | `token` |
+| The value of a field or header whose name contains `password`, `secret`, `api key`, `token`, `authorization`, `cookie` or `private key` (an expression that is only a reference, like `={{ $env.API_KEY }}`, stays); the same names in text: query strings and form bodies (`?api_key=…`), connection strings (`;Password=…;`), `.env` lines, object literals, YAML and JSON text | `secret field` |
+| Bearer and Basic credentials, JWTs, private-key blocks, AWS key ids, Stripe, OpenAI, Slack, GitHub, GitLab, Google and SendGrid key formats, wherever they appear; secrets in URL paths (Slack and Discord webhooks, Telegram bot tokens, any long path segment with a digit, such as a webhook id) | `token` |
 | Email addresses | `email` |
 | The `user:password@` part of a URL | `url credentials` |
 | Pinned data and execution item values (keys and item counts stay) | `data` |
 | Anything matching `--mask '<regex>'` | `custom` |
 
-- `--mask '<regex>'` masks more; `--keep '<regex>'` leaves a matching value alone (credentials and identifiers are masked regardless). Both can be repeated.
+- `--mask '<regex>'` masks more. `--keep '<regex>'` protects the text it matches: other text in the same value is still masked, and a secret field is left alone only when the pattern matches its whole value. Credentials, identifiers and item data are masked regardless. Both can be repeated, and both are your own regular expressions, so keep them simple.
 - `--keep-data` leaves pinned and execution item values in place; they are still scanned for the patterns above.
 - `-o -` writes the JSON to stdout.
+- An array of workflows (`n8n export:workflow --all`) or an API list (`{ "data": [...] }`) is redacted workflow by workflow. Anything else is scanned with the text patterns only, and the report says so.
 
 It prints what it masked and the hosts still present in URLs:
 

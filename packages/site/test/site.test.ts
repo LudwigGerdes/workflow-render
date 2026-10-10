@@ -196,3 +196,46 @@ describe('embed redaction', () => {
 		expect(await copied()).toContain('ada@example.com');
 	});
 });
+
+describe('embed redaction race', () => {
+	it('a slow earlier build never replaces a newer redacted one', async () => {
+		const realFetch = globalThis.fetch;
+		let delay = 0;
+		globalThis.fetch = ((..._args: unknown[]) =>
+			new Promise((resolve) => {
+				const wait = delay;
+				setTimeout(() => resolve(new Response('{}')), wait);
+			})) as typeof fetch;
+		try {
+			const canvas = setup() as HTMLElement & { workflow?: unknown };
+			canvas.workflow = { id: 'wf-secret-id', nodes: [{ id: 'n', name: 'S', type: 't', typeVersion: 1, position: [0, 0], parameters: { text: 'ada@example.com' } }], connections: {} };
+			const box = document.getElementById('embed-redact') as HTMLInputElement;
+			delay = 80; // the unredacted build is slow
+			box.checked = false;
+			box.dispatchEvent(new Event('change'));
+			await new Promise((r) => setTimeout(r, 5)); // that build has read the box and started fetching
+			delay = 0; // the redacted build is fast
+			box.checked = true;
+			box.dispatchEvent(new Event('change'));
+			await new Promise((r) => setTimeout(r, 200));
+			let text = '';
+			Object.defineProperty(globalThis.navigator, 'clipboard', { value: { writeText: async (t: string) => { text = t; } }, configurable: true });
+			document.getElementById('copy-embed')?.dispatchEvent(new MouseEvent('click'));
+			await new Promise((r) => setTimeout(r, 0));
+			expect(text).not.toContain('ada@example.com');
+			expect(text).not.toContain('wf-secret-id');
+		} finally {
+			globalThis.fetch = realFetch;
+		}
+	});
+});
+
+describe('embed redaction on unrecognised input', () => {
+	it('says only the text patterns were applied', async () => {
+		const canvas = setup() as HTMLElement & { workflow?: unknown };
+		canvas.workflow = { something: 'else' };
+		canvas.dispatchEvent(new CustomEvent('wr-load', { detail: { view: 'design', warnings: [] } }));
+		await new Promise((r) => setTimeout(r, 30));
+		expect(document.getElementById('embed-redacted')?.textContent).toMatch(/not a workflow/);
+	});
+});

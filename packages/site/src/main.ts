@@ -107,20 +107,6 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
     const workflow = await currentWorkflow();
     if (!workflow) return '';
 
-    // An embed is for sharing: mask before anything is inlined, unless the box is cleared.
-    const redactBox = $<HTMLInputElement>('embed-redact');
-    const summary = $('embed-redacted');
-    let shared: unknown = workflow;
-    if (redactBox?.checked !== false) {
-      const { json, report } = redactWorkflow(workflow);
-      shared = json;
-      if (summary) {
-        const hosts = report.hostsKept.length ? ` · hosts kept: ${report.hostsKept.join(', ')}` : '';
-        summary.textContent = ` · ${report.hits.length} values masked${hosts}`;
-      }
-    } else if (summary) {
-      summary.textContent = '';
-    }
     const nodes = (workflow['nodes'] ??
       (workflow['workflowData'] as Record<string, unknown> | undefined)?.['nodes'] ??
       []) as Array<{ type?: string }>;
@@ -141,6 +127,22 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
       pick('workflow-render-descriptions.json'),
     ]);
 
+    // An embed is for sharing: mask before anything is inlined, unless the box is cleared.
+    // Read the box only now, after every await, so a slow build cannot carry a stale choice.
+    const redactBox = $<HTMLInputElement>('embed-redact');
+    const summary = $('embed-redacted');
+    let shared: unknown = workflow;
+    if (redactBox?.checked !== false) {
+      const { json, report } = redactWorkflow(workflow);
+      shared = json;
+      if (summary) {
+        const hosts = report.hostsKept.length ? ` · hosts kept: ${report.hostsKept.join(', ')}` : '';
+        const partial = report.recognised ? '' : ' · not a workflow: only text patterns were applied';
+        summary.textContent = ` · ${report.hits.length} values masked${hosts}${partial}`;
+      }
+    } else if (summary) {
+      summary.textContent = '';
+    }
     // `</script>` inside a string would close the tag it sits in.
     const safe = (value: unknown): string =>
       JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028|\u2029/g, '');
@@ -178,11 +180,15 @@ export function initSite(search: string = globalThis.location?.search ?? ''): vo
   }
 
   let embedHtml = '';
+  /** Each rebuild's number; only the newest may write, so a slow older build never wins. */
+  let embedBuild = 0;
   function updateEmbed(): void {
     const field = $<HTMLTextAreaElement>('embed-snippet');
     const size = $('embed-size');
     if (!field) return;
+    const build = ++embedBuild;
     void buildEmbed().then((html) => {
+      if (build !== embedBuild) return;
       embedHtml = html;
       field.value = html
         ? `${html.slice(0, 240)}\n… (${Math.round(html.length / 1024)} KB, self-contained)`

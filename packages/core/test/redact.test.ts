@@ -197,3 +197,21 @@ describe('redactWorkflow: incomplete-redaction probes', () => {
 		expect(s).not.toContain('grace@example.com');
 	});
 });
+
+describe('redactWorkflow: hostile input', () => {
+	const hostile: Array<[string, string]> = [
+		['plain run', 'a'.repeat(60_000)],
+		['quote then run', `"${'a'.repeat(60_000)}`],
+		['query then run', `?${'a'.repeat(60_000)}`],
+		['email-ish', `a@${'b.'.repeat(30_000)}`],
+		['scheme-ish', `${'a'.repeat(60_000)}:`],
+		['repeated prefixes', 'sk-'.repeat(20_000)],
+		['repeated jwt starts', 'eyJ'.repeat(20_000)],
+		['unterminated keys', '-----BEGIN PRIVATE KEY-----'.repeat(2_000)],
+	];
+	it.each(hostile)('handles %s in well under a second', (_name, text) => {
+		const started = performance.now();
+		redactWorkflow(wf([node('S', { text, [text.slice(0, 5_000)]: 1 })]));
+		expect(performance.now() - started).toBeLessThan(500);
+	});
+});

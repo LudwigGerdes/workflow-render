@@ -1,0 +1,38 @@
+{
+	"source": "Computed styles read from a running n8n 2.38.3 (docker.n8n.io/n8nio/n8n:2.38.3) with localStorage N8N_THEME=dark, on 2026-10-10. Colours converted to sRGB by painting each computed value onto a canvas and reading the pixel.",
+	"method_check": "The same script in the light theme reproduced the stored LIGHT values for canvasBg, nodeBg, nodeBorder and edge exactly. It also showed that several stored light values have drifted from 2.38.3 (node name #262626, subtitle #999999, port border #737373, disabled border #e5e5e5, all seven sticky colours); that is reported separately and not changed here.",
+	"canvas": {
+		"canvasBg": "#171717",
+		"dot": "#444444",
+		"nodeBg": "#2b2b2b",
+		"nodeBorder": "rgba(255,255,255,0.20)",
+		"nodeBorderDisabled": "#323232",
+		"text": "#ffffff",
+		"subtitle": "#bbbbbb",
+		"textMuted": "#999999",
+		"portBorder": "#999999",
+		"edge": "#4d4d4d",
+		"edgeAi": "#4d4d4d",
+		"labelBg": "rgba(24,24,24,0.85)",
+		"success": "#00a63e",
+		"error": "#ff6467"
+	},
+	"sticky": {
+		"1": { "bg": "#733e0a", "border": "#894b00" },
+		"2": { "bg": "#2d1d06", "border": "#63410d" },
+		"3": { "bg": "#460809", "border": "#82181a" },
+		"4": { "bg": "#032e15", "border": "#0d542b" },
+		"5": { "bg": "#1c398e", "border": "#193cb8" },
+		"6": { "bg": "#2f0d68", "border": "#5d0ec0" },
+		"7": { "bg": "#262626", "border": "#323232" }
+	},
+	"stickyText": "#ffffff",
+	"ndv": {
+		"panelBg": "#2b2b2b",
+		"inputPanelBg": "#262626",
+		"fieldBg": "#171717",
+		"label": "#bbbbbb",
+		"fieldLabel": "#ffffff",
+		"text": "#ffffff"
+	}
+}

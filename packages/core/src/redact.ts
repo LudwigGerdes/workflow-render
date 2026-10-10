@@ -9,6 +9,7 @@
  * and Basic patterns and the secret header names follow integration-mock's
  * redact.ts.
  */
+import { decodeExecution } from './adapters/n8n.js';
 
 export type RedactKind =
 	| 'credential'
@@ -62,7 +63,7 @@ const INLINE_TOKENS: RegExp[] = [
 ];
 const URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]*:\/\/)([^\s/@:]+(?::[^\s/@]*)?)@/gi;
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
-const URL_HOST = /\b[a-z][a-z0-9+.-]*:\/\/(?:[^\s/@]*@)?([A-Za-z0-9.-]+)/gi;
+const URL_HOST = /\b[a-z][a-z0-9+.-]*:\/\/(?:(?:\[redacted: [a-z ]+\]|[^\s/@]*)@)?([A-Za-z0-9.-]+)/gi;
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const global = (re: RegExp): RegExp => new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);
@@ -240,14 +241,57 @@ export function redactWorkflowObject(r: Redactor, w: Record<string, unknown>): R
 	return out;
 }
 
+const isExecution = (v: unknown): v is Record<string, unknown> => {
+	if (!isRecord(v) || !isWorkflow(v['workflowData']) || !isRecord(v['data'])) return false;
+	const rd = v['data']['resultData'];
+	return isRecord(rd) && isRecord(rd['runData']);
+};
+
+function redactExecution(r: Redactor, e: Record<string, unknown>): Record<string, unknown> {
+	const out: Record<string, unknown> = {};
+	for (const [k, v] of Object.entries(e)) {
+		if (k === 'workflowData' && isRecord(v)) out[k] = redactWorkflowObject(r, v);
+		else if (k === 'id' || k === 'workflowId') out[k] = r.identifier(v, k);
+		else if (k === 'data' && isRecord(v)) out[k] = redactExecutionData(r, v);
+		else out[k] = r.scan(v, k);
+	}
+	return out;
+}
+
+function redactExecutionData(r: Redactor, d: Record<string, unknown>): Record<string, unknown> {
+	const out: Record<string, unknown> = {};
+	for (const [k, v] of Object.entries(d)) {
+		if (k === 'resultData' && isRecord(v)) {
+			out[k] = Object.fromEntries(
+				Object.entries(v).map(([rk, rv]) => {
+					if (rk !== 'runData' || !isRecord(rv)) return [rk, r.scan(rv, `resultData.${rk}`)];
+					return [rk, Object.fromEntries(Object.entries(rv).map(([node, runs]) => [node, redactRuns(r, node, runs)]))];
+				}),
+			);
+		} else if (k === 'executionData') out[k] = r.data(v, 'executionData');
+		else out[k] = r.scan(v, k);
+	}
+	return out;
+}
+
+/** Each run keeps its timing and status; its item payloads (`data`) are data. */
+function redactRuns(r: Redactor, node: string, runs: unknown): unknown {
+	if (!Array.isArray(runs)) return r.scan(runs, `runData › ${node}`);
+	return runs.map((run) => {
+		if (!isRecord(run)) return run;
+		return Object.fromEntries(
+			Object.entries(run).map(([k, v]) => [k, k === 'data' || k === 'inputOverride' ? r.data(v, `runData › ${node}`) : r.scan(v, `runData › ${node} › ${k}`)]),
+		);
+	});
+}
+
 export function redactWorkflow(input: unknown, options: RedactOptions = {}): { json: unknown; report: RedactReport } {
 	const r = new Redactor(options);
 	let json: unknown;
 	let recognised = true;
-	if (isWorkflow(input)) json = redactWorkflowObject(r, input);
-	else {
-		recognised = false;
-		json = r.scan(input, '');
-	}
+	const decoded = decodeExecution(input);
+	if (isExecution(decoded)) json = redactExecution(r, decoded);
+	else if (isWorkflow(decoded)) json = redactWorkflowObject(r, decoded);
+	else { recognised = false; json = r.scan(decoded, ''); }
 	return { json, report: { hits: r.hits, hostsKept: r.hostsKept(), recognised } };
 }

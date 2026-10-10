@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { redactWorkflow } from '../src/redact.js';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const wf = (nodes: unknown[], extra: Record<string, unknown> = {}) => ({ name: 'W', nodes, connections: {}, ...extra });
 const node = (name: string, parameters: Record<string, unknown>, extra: Record<string, unknown> = {}) => ({
@@ -95,6 +96,11 @@ describe('redactWorkflow: workflows', () => {
 		expect(r.report.hostsKept).toEqual(['api.slack.com', 'hooks.example.com']);
 	});
 
+	it('still lists the host of a URL whose credentials were masked', () => {
+		const r = redactWorkflow(wf([node('P', { db: 'postgres://admin:s3cret@db.example.test:5432/app' })]));
+		expect(r.report.hostsKept).toEqual(['db.example.test']);
+	});
+
 	it('is idempotent, deterministic, never re-masks a placeholder and leaves the input alone', () => {
 		const input = wf([node('S', { password: 'p', text: 'mail ada@example.com' })], { id: 'wf1' });
 		const before = JSON.stringify(input);
@@ -104,5 +110,50 @@ describe('redactWorkflow: workflows', () => {
 		const twice = redactWorkflow(once.json, { mask: [/redacted/] });
 		expect(JSON.stringify(twice.json)).toBe(JSON.stringify(once.json));
 		expect(twice.report.hits).toEqual([]);
+	});
+});
+
+const fixture = (f: string): unknown => JSON.parse(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), 'utf8'));
+
+describe('redactWorkflow: executions and other input', () => {
+	it('masks execution item data, identifiers and the embedded workflow', () => {
+		const input = fixture('execution-success.json') as Record<string, unknown>;
+		const r = redactWorkflow(input);
+		const s = JSON.stringify(r.json);
+		expect(r.report.recognised).toBe(true);
+		expect(s).not.toContain('"wrexecok00000001"');
+		expect(s).not.toContain('August 30th 2026');
+		expect(r.report.hits.some((h) => h.kind === 'data' && h.where.startsWith('runData › '))).toBe(true);
+		// still an execution the renderer can draw
+		expect((r.json as { workflowData: { nodes: unknown[] } }).workflowData.nodes.length).toBe(
+			(input['workflowData'] as { nodes: unknown[] }).nodes.length,
+		);
+	});
+
+	it('decodes a flatted API execution before masking', () => {
+		const input = fixture('execution-api-flatted.json') as Record<string, unknown>;
+		expect(typeof input['data']).toBe('string');
+		const r = redactWorkflow(input);
+		expect(typeof (r.json as Record<string, unknown>)['data']).toBe('object');
+		expect(r.report.hits.some((h) => h.kind === 'data')).toBe(true);
+	});
+
+	it('keepData leaves execution items but still scans them', () => {
+		const s = JSON.stringify(redactWorkflow(fixture('execution-success.json'), { keepData: true }).json);
+		expect(s).toContain('August 30th 2026');
+	});
+
+	it('scans anything else as plain JSON and says so', () => {
+		const r = redactWorkflow({ note: 'mail ada@example.com' });
+		expect(r.report.recognised).toBe(false);
+		expect(JSON.stringify(r.json)).toContain('[redacted: email]');
+	});
+
+	it('matches the golden output for a realistic workflow', () => {
+		const r = redactWorkflow(fixture('redact-input.json'), { mask: [/acme-internal-\d+/] });
+		const goldenPath = new URL('./golden/redact-output.json', import.meta.url);
+		if (process.env.UPDATE_GOLDEN) writeFileSync(goldenPath, JSON.stringify({ json: r.json, report: r.report }, null, 2) + '\n');
+		const golden = JSON.parse(readFileSync(goldenPath, 'utf8'));
+		expect({ json: r.json, report: r.report }).toEqual(golden);
 	});
 });

@@ -17,27 +17,32 @@
  */
 import {
   FONT_STACK,
-  LIGHT,
+  type ThemeName,
+  stickyColorsFor,
+  tokensFor,
   NAME_FONT_SIZE,
-  STICKY_COLORS,
   SUBTITLE_FONT_SIZE,
   TRIGGER_BOLT_COLOR,
 } from './constants.js';
 
-export const THEME = Object.freeze({
+/** The renderer's palette, in platform-neutral names, for one theme. */
+export const themeFor = (theme: ThemeName = 'light') => {
+  const T = tokensFor(theme);
+  const stickies = stickyColorsFor(theme);
+  return Object.freeze({
   canvas: {
     /** Painted, never transparent: the host page's background must not reach in. */
-    background: LIGHT.canvasBg,
-    grid: LIGHT.dot,
-    edge: LIGHT.edge,
-    edgeHighlight: LIGHT.success,
+    background: T.canvasBg,
+    grid: T.dot,
+    edge: T.edge,
+    edgeHighlight: T.success,
   },
   node: {
-    background: LIGHT.nodeBg,
-    border: LIGHT.nodeBorder,
-    label: LIGHT.text,
-    subtitle: LIGHT.subtitle,
-    chip: LIGHT.labelBg,
+    background: T.nodeBg,
+    border: T.nodeBorder,
+    label: T.text,
+    subtitle: T.subtitle,
+    chip: T.labelBg,
   },
   /**
    * Each kind's outline, so kind survives a greyscale screenshot. These shapes
@@ -46,22 +51,26 @@ export const THEME = Object.freeze({
    */
   kind: {
     trigger: { shape: 'rounded-left' as const, accent: TRIGGER_BOLT_COLOR },
-    regular: { shape: 'rect' as const, accent: LIGHT.portBorder },
-    sub: { shape: 'pill' as const, accent: LIGHT.portBorder },
-    sticky: { shape: 'note' as const, accent: STICKY_COLORS[1]?.border ?? LIGHT.nodeBorderDisabled },
+    regular: { shape: 'rect' as const, accent: T.portBorder },
+    sub: { shape: 'pill' as const, accent: T.portBorder },
+    sticky: { shape: 'note' as const, accent: stickies[1]?.border ?? T.nodeBorderDisabled },
   },
   status: {
-    success: { mark: 'check' as const, colour: LIGHT.success },
-    error: { mark: 'cross' as const, colour: LIGHT.error },
+    success: { mark: 'check' as const, colour: T.success },
+    error: { mark: 'cross' as const, colour: T.error },
     /** Not measured: no waiting node appeared in the captured runs. */
-    waiting: { mark: 'dots' as const, colour: LIGHT.textMuted },
+    waiting: { mark: 'dots' as const, colour: T.textMuted },
   },
   type: {
     family: FONT_STACK,
     label: NAME_FONT_SIZE,
     subtitle: SUBTITLE_FONT_SIZE,
   },
-});
+  });
+};
+
+/** The light palette, which is the default. */
+export const THEME = themeFor('light');
 
 const channel = (hex: string, at: number): number => {
   const v = parseInt(hex.slice(at, at + 2), 16) / 255;

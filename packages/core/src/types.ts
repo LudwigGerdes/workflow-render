@@ -187,6 +187,8 @@ export interface RenderOptions {
    * either way, because nothing is disclosed by them.
    */
   remoteImages?: boolean;
+  /** n8n's light canvas (the default) or its dark one. */
+  theme?: 'light' | 'dark';
   icons?: Record<string, IconEntry>;
   /** Node-type subtitle templates; without them no subtitles are drawn. */
   subtitles?: Record<string, SubtitleSpec>;

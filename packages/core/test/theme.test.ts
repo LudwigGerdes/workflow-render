@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { THEME, contrastRatio } from '../src/theme.js';
+import { THEME, contrastRatio, themeFor } from '../src/theme.js';
 
 describe('theme', () => {
   it('paints its own ground rather than inheriting the page', () => {
@@ -42,5 +42,36 @@ describe('theme', () => {
     expect(THEME.node.background).toBe('#ffffff');
     expect(THEME.status.success.colour).toBe('#29a360');
     expect(THEME.status.error.colour).toBe('#ea1f30');
+  });
+});
+
+describe('dark theme', () => {
+  const DARK = themeFor('dark');
+
+  it('paints its own dark ground', () => {
+    expect(DARK.canvas.background).toBe('#171717');
+  });
+
+  it('keeps node labels readable on the tile', () => {
+    expect(contrastRatio(DARK.node.label, DARK.node.background)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('keeps the subtitle at least as readable as the light theme does', () => {
+    expect(contrastRatio(DARK.node.subtitle, DARK.node.background)).toBeGreaterThanOrEqual(3);
+  });
+
+  it('keeps the same non-colour signals for kind and status', () => {
+    expect(Object.values(DARK.kind).map((k) => k.shape)).toEqual(Object.values(THEME.kind).map((k) => k.shape));
+    expect(Object.values(DARK.status).map((s) => s.mark)).toEqual(Object.values(THEME.status).map((s) => s.mark));
+  });
+
+  it('names the measured dark palette', () => {
+    expect(DARK.node.background).toBe('#2b2b2b');
+    expect(DARK.status.success.colour).toBe('#00a63e');
+    expect(DARK.status.error.colour).toBe('#ff6467');
+  });
+
+  it('leaves the light theme as it was', () => {
+    expect(themeFor('light')).toEqual(THEME);
   });
 });

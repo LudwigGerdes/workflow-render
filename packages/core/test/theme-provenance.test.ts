@@ -2,6 +2,9 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
 	DARK,
+	ICON_COLORS,
+	ICON_COLORS_DARK,
+	ICON_COLOR_DEFAULT_DARK,
 	LIGHT,
 	NDV_DARK,
 	NDV_LIGHT,
@@ -53,5 +56,14 @@ describe('dark palette provenance', () => {
 		const t = tokens['--canvas--color--selected-transparent'];
 		expect(norm(t?.light ?? '')).toBe(norm(SELECTION_RING_COLOR));
 		expect(norm(SELECTION_RING_COLOR_DARK)).toBe(norm(t?.dark ?? ''));
+	});
+
+	it('icon tints follow --node--icon--color--<name>, light matching ours exactly', () => {
+		for (const [name, ours] of Object.entries(ICON_COLORS)) {
+			const t = tokens[`--node--icon--color--${name}`];
+			expect(t?.light, name).toBe(ours);
+			expect(ICON_COLORS_DARK[name], name).toBe(t?.dark);
+		}
+		expect(ICON_COLOR_DEFAULT_DARK).toBe('#ffffff'); // measured: an untinted glyph in dark mode
 	});
 });

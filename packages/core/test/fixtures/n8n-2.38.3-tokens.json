@@ -16,6 +16,106 @@
 		"--canvas--color--selected-transparent": {
 			"light": "rgba(41,65,112,0.1)",
 			"dark": "rgba(255,255,255,0.4)"
+		},
+		"--node--icon--color--amber": {
+			"light": "#ff9922",
+			"dark": "#ffb966"
+		},
+		"--node--icon--color--azure": {
+			"light": "#54b8c9",
+			"dark": "#7dd6e3"
+		},
+		"--node--icon--color--black": {
+			"light": "#323232",
+			"dark": "#e5e5e5"
+		},
+		"--node--icon--color--blue": {
+			"light": "#3a42e9",
+			"dark": "#898fff"
+		},
+		"--node--icon--color--crimson": {
+			"light": "#772244",
+			"dark": "#f188a2"
+		},
+		"--node--icon--color--dark-blue": {
+			"light": "#353f6e",
+			"dark": "#7ba7ff"
+		},
+		"--node--icon--color--dark-green": {
+			"light": "#157562",
+			"dark": "#86decc"
+		},
+		"--node--icon--color--emerald": {
+			"light": "#2fb67c",
+			"dark": "#50d499"
+		},
+		"--node--icon--color--forest-green": {
+			"light": "#44aa44",
+			"dark": "#66cc66"
+		},
+		"--node--icon--color--gray": {
+			"light": "#7d7d87",
+			"dark": "#a5a5ad"
+		},
+		"--node--icon--color--green": {
+			"light": "#00786f",
+			"dark": "#00c950"
+		},
+		"--node--icon--color--lavender": {
+			"light": "#8287eb",
+			"dark": "#a8acff"
+		},
+		"--node--icon--color--light-blue": {
+			"light": "#5fabf7",
+			"dark": "#58abff"
+		},
+		"--node--icon--color--light-green": {
+			"light": "#31c4ab",
+			"dark": "#20b69e"
+		},
+		"--node--icon--color--lime": {
+			"light": "#62f730",
+			"dark": "#7fff55"
+		},
+		"--node--icon--color--magenta": {
+			"light": "#e91e63",
+			"dark": "#ff4d80"
+		},
+		"--node--icon--color--neutral": {
+			"light": "#bbbbbb",
+			"dark": "#e5e5e5"
+		},
+		"--node--icon--color--orange-red": {
+			"light": "#ff6900",
+			"dark": "#ff6900"
+		},
+		"--node--icon--color--pink-red": {
+			"light": "#ea4b71",
+			"dark": "#f85d82"
+		},
+		"--node--icon--color--purple": {
+			"light": "#553399",
+			"dark": "#9b6dd5"
+		},
+		"--node--icon--color--red": {
+			"light": "#e7000b",
+			"dark": "#ff6467"
+		},
+		"--node--icon--color--rust": {
+			"light": "#e44d26",
+			"dark": "#ff7755"
+		},
+		"--node--icon--color--sky-blue": {
+			"light": "#5699ff",
+			"dark": "#7fb3ff"
+		},
+		"--node--icon--color--teal": {
+			"light": "#00b7bc",
+			"dark": "#33d6db"
+		},
+		"--node--icon--color--violet": {
+			"light": "#9b6dd5",
+			"dark": "#b48de6"
 		}
 	}
 }

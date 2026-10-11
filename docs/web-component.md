@@ -10,7 +10,7 @@
 </div>
 ```
 
-The element fills the box you give it. It has no border or padding of its own. The script is 52 KB gzipped.
+The element fills the box you give it. It has no border or padding of its own. The script is 56 KB gzipped.
 
 ## Loading it
 
